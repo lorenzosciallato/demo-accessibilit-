@@ -871,7 +871,6 @@ if (!fileDaCaricare) {
                 .replace(/^\s*lezione\s*\d+\s*[:.\-\u2013\u2014]?\s*/i, '').trim();
             document.getElementById('dyn-title').innerText =
                 umsInfo.nome || data.titolo_lezione || "";
-            if (umsInfo.nome) { const _dt = document.getElementById('dyn-title'); _dt.classList.add('notranslate'); _dt.setAttribute('translate', 'no'); }
             document.getElementById('dyn-subtitle').innerText =
                 (umsInfo.n ? 'Lezione ' + umsInfo.n + ' \u00B7 ' : '') +
                 (umsArgomento || data.sottotitolo || "");
