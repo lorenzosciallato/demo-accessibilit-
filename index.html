@@ -716,9 +716,7 @@ function normalizza(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300
 // qui finisce in "Altro" in fondo (cosi non sparisce mai).
 // =========================================================================
 const ANNO_ACCADEMICO = '25/26';
-const ANNO_MATERIE = {
-  1: ['antropologia-culturale-mod-a']
-};
+const ANNO_MATERIE = {};
 const ORDINALE = {1:'Primo',2:'Secondo',3:'Terzo',4:'Quarto',5:'Quinto'};
 
 function cartellaDi(c){
@@ -760,7 +758,7 @@ function renderCourses(){
     const head = document.createElement('div');
     head.className = 'year-head';
     head.dataset.year = anno;
-    const titolo = anno === 0 ? 'Altro' : ORDINALE[anno] + ' Anno';
+    const titolo = anno === 0 ? 'Materie' : ORDINALE[anno] + ' Anno';
     const nMaterie = indici.length + (indici.length === 1 ? ' materia' : ' materie');
     if(anno === 0){
       head.innerHTML = `<span class="yh-text"><span class="yh-title">Altro</span></span>` +
