@@ -1463,8 +1463,10 @@ if (!fileDaCaricare) {
             counter.innerText = `Carte da studiare: ${activeCards.length}`;
             deck.style.opacity = '0.5';
             setTimeout(() => {
-                document.getElementById('fc-front-text').innerText = card.front;
-                document.getElementById('fc-back-text').innerText = card.back;
+                var _fF = document.getElementById('fc-front-text'), _fB = document.getElementById('fc-back-text');
+                _fF.dataset.umsOrig = card.front; _fB.dataset.umsOrig = card.back;
+                _fF.innerText = window.umsFcT ? window.umsFcT(card.front) : card.front;
+                _fB.innerText = window.umsFcT ? window.umsFcT(card.back) : card.back;
                 document.getElementById('fc-back-text').scrollTop = 0;
                 deck.classList.remove('flipped');
                 deck.style.opacity = '1';
@@ -1886,6 +1888,12 @@ if (!fileDaCaricare) {
 
             try { await umsBuildDict(lang); }
             catch (e) { console.error('[UMS i18n] traduzione non disponibile:', e); umsDict = {}; }
+            // FLASHCARD — il widget non traduce il testo che le carte riscrivono: lo faccio io
+            try { if (window.umsFcPrecarica) window.umsFcPrecarica(lang); } catch (e) {}
+            try {
+                var _gs = document.getElementById('fc-game-screen');
+                if (_gs && _gs.style.display !== 'none' && typeof updateCardDisplay === 'function') updateCardDisplay();
+            } catch (e) {}
 
             // parole del crucipuzzle nella nuova lingua
             if (lang === 'it') {
@@ -5054,4 +5062,76 @@ if (!fileDaCaricare) {
         if (e.target && e.target.closest && e.target.closest('.btn-start')) setTimeout(preparaCarta, 300);
     });
     setTimeout(preparaCarta, 2000);
+})();
+
+
+// ====================================================================
+// TRADUZIONE DELLE FLASHCARD — additivo.
+// Il traduttore di Google traduce la pagina all'inizio, ma NON il testo che
+// le carte riscrivono a ogni giro (innerText). Qui il testo di ogni carta
+// viene tradotto dal sito con lo stesso servizio, e memorizzato: la carta
+// compare subito, e appena la traduzione è pronta viene aggiornata se è
+// ancora a video. In italiano non fa nulla.
+// ====================================================================
+(function () {
+    var cache = {};      // lingua -> { testo italiano: traduzione }
+    var lingua = 'it';
+    var inCorso = {};    // testi in traduzione (per non chiederli due volte)
+
+    async function traduci(testo, lang) {
+        var res = await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=it&tl=' +
+            encodeURIComponent(lang) + '&dt=t&q=' + encodeURIComponent(testo));
+        if (!res.ok) throw new Error('translate http ' + res.status);
+        var data = await res.json();
+        return (data[0] || []).map(function (seg) { return seg[0]; }).join('');
+    }
+    function applica(testo, tr) {
+        ['fc-front-text', 'fc-back-text'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el && el.dataset.umsOrig === testo) el.innerText = tr;
+        });
+    }
+    function chiedi(testo, lang) {
+        var d = cache[lang] || (cache[lang] = {});
+        var k = lang + '\u0000' + testo;
+        if (inCorso[k]) return inCorso[k];
+        inCorso[k] = traduci(testo, lang).then(function (tr) {
+            d[testo] = tr || testo;
+            if (lingua === lang) applica(testo, d[testo]);
+            return d[testo];
+        }).catch(function () { return testo; }).finally(function () { delete inCorso[k]; });
+        return inCorso[k];
+    }
+    function fcT(testo) {
+        if (lingua === 'it' || !testo) return testo;
+        var d = cache[lingua] || (cache[lingua] = {});
+        if (d[testo]) return d[testo];
+        chiedi(testo, lingua);      // parte ora; la carta si aggiorna appena pronta
+        return testo;
+    }
+    async function precarica(lang) {
+        lingua = lang;
+        if (lang === 'it') return;
+        var mazzo = [];
+        try { if (typeof initialCards !== 'undefined' && Array.isArray(initialCards)) mazzo = initialCards; } catch (e) {}
+        var d = cache[lang] || (cache[lang] = {});
+        var testi = [];
+        mazzo.forEach(function (c) {
+            [c.front, c.back].forEach(function (t) { if (t && !d[t] && testi.indexOf(t) < 0) testi.push(t); });
+        });
+        for (var i = 0; i < testi.length; i += 4) {          // a piccoli gruppi
+            if (lingua !== lang) return;                     // lingua cambiata nel frattempo
+            await Promise.all(testi.slice(i, i + 4).map(function (t) { return chiedi(t, lang); }));
+        }
+    }
+    function tieniFuoriGoogle() {
+        ['fc-front-text', 'fc-back-text'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) { el.classList.add('notranslate'); el.setAttribute('translate', 'no'); }
+        });
+    }
+    tieniFuoriGoogle();
+    document.addEventListener('DOMContentLoaded', tieniFuoriGoogle);
+    window.umsFcT = fcT;
+    window.umsFcPrecarica = precarica;
 })();
