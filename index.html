@@ -1,0 +1,2328 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo Accessibilità</title>
+<meta name="description" content="Flashcard, riassunti e videolezioni gratuite per preparare i tuoi esami universitari.">
+
+<!-- Identità browser: favicon UMS, colore cornice mobile, anteprima link condivisi -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%23F7F4EF'/%3E%3Ctext%20x='32'%20y='43'%20text-anchor='middle'%20font-family='Georgia,serif'%20font-weight='700'%20font-size='30'%20fill='%231C1C22'%3ED%3Ctspan%20fill='%2322365F'%20font-style='italic'%3EA%3C/tspan%3E%3C/text%3E%3Crect%20x='25'%20y='51'%20width='14'%20height='2'%20rx='1'%20fill='%23C8A96E'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#F7F4EF">
+<meta name="theme-color" content="#14161C" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Demo">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Demo Accessibilità">
+<meta property="og:title" content="Demo Accessibilità">
+<meta property="og:description" content="Flashcard, riassunti e videolezioni gratuite per preparare i tuoi esami universitari.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,600;1,700;1,900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700&display=swap" rel="stylesheet">
+
+<!-- Precarico la filigrana: dev'essere già a schermo prima che arrivino le lettere -->
+<link rel="preload" as="image" href="img/sfondo-giappone-1600.png">
+
+<style>
+:root{
+  --ivory:#F7F4EF; --ivory-2:#EFEBE2;
+  --gold:#C8A96E; --gold-lt:#E8D5AA; --gold-dk:#9A7A3F;
+  --navy:#1A2F4F; --navy-lt:#2A4A72;
+  --dust:#E8E4DC; --mist:#C5C1B8;
+  --ink:#1C1C22; --body:#3D3C3A; --sub:#7A7770;
+  --font-display:'Playfair Display', Georgia, serif;
+  --font-body:'DM Sans', system-ui, sans-serif;
+  --r-sm:8px; --r-md:14px; --r-lg:20px; --r-xl:28px; --r-pill:50px;
+  --shadow-card:0 4px 20px rgba(15,17,23,0.06), 0 1px 3px rgba(15,17,23,0.04);
+  --shadow-lift:0 18px 46px rgba(15,17,23,0.16), 0 3px 10px rgba(15,17,23,0.06);
+  --ease:cubic-bezier(.16,.84,.44,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--ivory); font-family:var(--font-body); color:var(--body);
+  line-height:1.7; position:relative; overflow-x:hidden; font-size:16px;
+  min-height:100vh;
+  transition:background-color .35s ease, color .35s ease;
+}
+/* In splash lo scroll è bloccato: la pagina è un'unica schermata */
+body.splash{overflow:hidden; height:100vh;}
+img{display:block;max-width:100%;}
+a{color:inherit;}
+button{font-family:inherit;}
+a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var(--gold); outline-offset:3px; border-radius:6px;}
+::selection{background:var(--gold-lt); color:var(--ink);}
+
+/* ============================================================
+   FILIGRANA — sfondo fisso, dietro a tutto (z-index:-1),
+   presente da subito, "che si vede e non si vede"
+============================================================ */
+#watermark{
+  position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:url('img/sfondo-giappone-1600.png') center center / cover no-repeat;
+  opacity:.09;
+  transition:opacity .3s ease;
+}
+body.night-mode #watermark{opacity:.06;}
+
+/* ============================================================
+   BRAND — morfa dallo splash (grande, centrato) all'app (piccolo, alto a sx)
+============================================================ */
+#brandStage{
+  position:fixed; left:50%; top:40%; transform:translate(-50%,-50%);
+  z-index:60; text-align:center; cursor:default;
+  transition:top .95s var(--ease), left .95s var(--ease), transform .95s var(--ease);
+}
+#brand{
+  font-family:var(--font-display); font-weight:900; color:var(--ink);
+  font-size:clamp(3rem,10vw,6.4rem); line-height:.92; letter-spacing:-.025em;
+  transition:font-size .95s var(--ease);
+  display:inline-block;
+}
+#brand .brand-l1, #brand .brand-l2{display:block; white-space:nowrap;}
+#brand .brand-l2{font-style:italic; color:var(--navy);}
+
+/* entrata dai due lati */
+@keyframes slideFromLeft{from{opacity:0; transform:translateX(-115vw);} to{opacity:1; transform:translateX(0);}}
+@keyframes slideFromRight{from{opacity:0; transform:translateX(115vw);} to{opacity:1; transform:translateX(0);}}
+#brand .brand-l1{animation:slideFromLeft 1s .3s var(--ease) both;}
+#brand .brand-l2{animation:slideFromRight 1s .42s var(--ease) both;}
+
+/* stato APP: rimpicciolisce e va in alto a sinistra */
+body.app-mode #brandStage{
+  left:26px; top:22px; transform:translate(0,0); cursor:pointer;
+}
+body.app-mode #brand{
+  font-size:clamp(1.35rem,4.5vw,1.9rem); line-height:.95;
+}
+body.app-mode #brand .brand-l1, body.app-mode #brand .brand-l2{display:inline;}
+body.app-mode #brand .brand-l2{margin-left:.28em;}
+@media(max-width:560px){
+  body.app-mode #brand{font-size:1.25rem;}
+  body.app-mode #brand .brand-l1, body.app-mode #brand .brand-l2{display:block;}
+  body.app-mode #brand .brand-l2{margin-left:0;}
+}
+
+/* ============================================================
+   EXTRA DELLO SPLASH — sottotitolo, INIZIA, badge
+============================================================ */
+#hero-extras{
+  position:fixed; left:50%; top:63%; transform:translateX(-50%);
+  z-index:55; text-align:center; width:min(90vw,640px);
+  transition:opacity .5s ease, transform .5s ease;
+}
+.brand-tagline{
+  margin-top:1.05rem;
+  font-size:.7rem; font-weight:700; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--gold-dk);
+  display:flex; align-items:center; justify-content:center; gap:13px;
+  opacity:0; animation:fadeUp .7s 1.5s ease both;
+  max-height:40px; overflow:hidden;
+  transition:opacity .45s ease, max-height .55s ease, margin-top .45s ease;
+}
+.brand-tagline::before, .brand-tagline::after{content:''; display:block; width:34px; height:1px; background:var(--gold);}
+body.app-mode .brand-tagline{opacity:0; max-height:0; margin-top:0; pointer-events:none;}
+
+#inizia{
+  margin-top:0;
+  display:inline-flex; align-items:center; gap:12px;
+  background:var(--navy); color:var(--ivory);
+  border:none; border-radius:var(--r-pill);
+  padding:1.05rem 2.6rem;
+  font-size:.82rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
+  cursor:pointer; box-shadow:0 10px 30px rgba(26,47,79,.28);
+  opacity:0; animation:fadeUp .7s 2s ease both;
+  transition:transform .25s var(--ease), box-shadow .25s, background-color .25s;
+}
+#inizia:hover{transform:translateY(-3px); box-shadow:0 16px 40px rgba(26,47,79,.36); background:var(--navy-lt);}
+#inizia:active{transform:translateY(-1px);}
+#inizia svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+
+.hero-badges{
+  display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:2.4rem;
+  opacity:0; animation:fadeUp .7s 2.3s ease both;
+}
+@keyframes fadeUp{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);}}
+
+/* ANTI-FLASH — gli stili completi di #ums-sostieni vivono in fondo alla
+   pagina: finché il browser non li ha letti, al refresh il pulsante
+   compariva per un attimo bianco e nudo, con la tazzina nera. Qui lo
+   teniamo invisibile dal primo paint; poi il suo fadeUp (in fondo) lo
+   fa entrare come INIZIA. Il media reduced-motion laggiù, venendo dopo,
+   continua a vincere e a mostrarlo subito. */
+#ums-sostieni{ opacity:0; }
+#ums-sostieni .ums-cup{ fill:none; stroke:currentColor; }
+
+/* i badge (riusati anche nel footer) */
+.author-badge{
+  display:inline-flex;align-items:center;gap:10px;background:#fff;padding:6px 15px 6px 6px;
+  border-radius:var(--r-pill);text-decoration:none;border:1px solid var(--dust);box-shadow:var(--shadow-card);
+  transition:transform .25s var(--ease), box-shadow .25s, border-color .25s, background-color .3s;
+}
+.author-badge:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);border-color:var(--gold);}
+.author-img{width:30px;height:30px;border-radius:50%;object-fit:cover;}
+.author-name{font-size:.78rem;font-weight:500;color:var(--ink);}
+.author-name strong{font-weight:700;}
+
+/* quando entriamo in app, lo splash-extra sparisce */
+body.app-mode #hero-extras{opacity:0; transform:translateX(-50%) translateY(-24px); pointer-events:none;}
+
+/* ============================================================
+   TOP BAR (solo in app) — sfondo dietro brand + controlli
+============================================================ */
+#topbar{
+  position:fixed; top:0; left:0; width:100%; height:76px; z-index:50;
+  background:rgba(247,244,239,.9); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--dust);
+  opacity:0; pointer-events:none;
+  transition:opacity .5s ease .15s, background-color .3s, border-color .3s;
+}
+body.app-mode #topbar{opacity:1;}
+
+/* ============================================================
+   CONTROLLI FISSI — lingua (in app) + night (sempre)
+============================================================ */
+#top-controls{
+  position:fixed; top:18px; right:22px; z-index:65;
+  display:flex; align-items:center; gap:10px;
+  opacity:0; pointer-events:none;
+  transition:opacity .5s ease .2s;
+}
+body.app-mode #top-controls{opacity:1; pointer-events:auto;}
+.top-wa{
+  width:44px; height:44px; border-radius:50%;
+  background:#fff; border:1px solid var(--dust); box-shadow:var(--shadow-card);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  transition:transform .2s var(--ease), box-shadow .2s, border-color .2s, background-color .3s;
+}
+.top-wa img{width:22px; height:22px;}
+.top-wa:hover{transform:translateY(-2px); box-shadow:var(--shadow-lift); border-color:var(--gold);}
+
+#night-toggle{
+  position:fixed; bottom:24px; right:24px; z-index:9999;
+  width:52px; height:52px; border-radius:50%;
+  border:1px solid var(--dust); background:#fff; color:var(--ink);
+  font-size:1.3rem; line-height:1; cursor:pointer; box-shadow:var(--shadow-lift);
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .2s, background-color .3s, border-color .3s, color .3s;
+}
+#night-toggle:hover{transform:scale(1.08); border-color:var(--gold);}
+#night-toggle:active{transform:scale(.96);}
+
+/* ============================================================
+   LANGUAGE SELECTOR (ripreso dal template lezione)
+============================================================ */
+#google_translate_element{display:none;}
+#custom-lang-selector{display:inline-flex; flex-direction:column; align-items:center;
+  background:#fff; border:1px solid var(--dust); border-radius:var(--r-md);
+  padding:6px 14px; position:relative; box-shadow:var(--shadow-card);
+  transition:background-color .3s, border-color .3s;}
+#lang-toggle-btn{background:transparent; border:none; color:var(--navy);
+  font-size:12px; font-weight:700; cursor:pointer; text-transform:uppercase;
+  letter-spacing:.12em; outline:none; display:inline-flex; align-items:center; gap:6px;}
+#lang-toggle-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+#lang-loading{font-size:18px; animation:spin 1s linear infinite; margin-bottom:5px;}
+@keyframes spin{100%{transform:rotate(360deg);}}
+.lang-options{display:none; position:absolute; top:112%; right:0;
+  background:#fff; border:1px solid var(--dust); border-radius:var(--r-lg);
+  grid-template-columns:repeat(4,1fr); gap:8px; padding:14px;
+  box-shadow:var(--shadow-lift); min-width:240px; z-index:80;
+  transition:background-color .3s, border-color .3s;}
+.lang-options.show{display:grid;}
+.lang-options button{background:transparent; border:1px solid transparent; padding:6px;
+  cursor:pointer; border-radius:var(--r-sm); font-size:22px; transition:.2s;}
+.lang-options button.active-lang{background:rgba(200,169,110,.12); border-color:var(--gold);}
+.lang-options button:hover{transform:scale(1.15);}
+.skiptranslate{display:none !important;}
+body{top:0 !important;}
+#goog-gt-tt,.goog-te-balloon-frame{display:none !important;}
+.goog-text-highlight{background:transparent !important; box-shadow:none !important; border:none !important;}
+#translation-disclaimer{display:none; position:fixed; top:64px; right:22px; z-index:64;
+  background:#FFFBEA; color:#7A6220; padding:8px 14px; border-radius:var(--r-md);
+  font-size:.75rem; border:1px solid #F0E08A; max-width:280px;}
+
+/* ============================================================
+   APP VIEW — catalogo materie (nascosto durante lo splash)
+============================================================ */
+#appview{
+  opacity:0; transform:translateY(24px); pointer-events:none;
+  transition:opacity .6s ease .25s, transform .6s var(--ease) .25s;
+  padding:112px 1.5rem 0;
+  max-width:1080px; margin:0 auto;
+}
+body.app-mode #appview{opacity:1; transform:translateY(0); pointer-events:auto;}
+
+.app-head{display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; margin-bottom:1.6rem;}
+.app-kicker{display:block; font-size:.64rem; font-weight:700; letter-spacing:.28em; text-transform:uppercase; color:var(--gold-dk); margin-bottom:6px;}
+.app-head h2{font-family:var(--font-display); font-weight:700; font-style:italic;
+  font-size:clamp(1.7rem,4.4vw,2.4rem); color:var(--ink); line-height:1;}
+.app-head .count-chip{
+  font-size:.66rem; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--gold-dk); background:rgba(200,169,110,.12);
+  padding:6px 12px; border-radius:var(--r-pill); white-space:nowrap;
+}
+
+/* Ricerca a pillola */
+.search-pill{
+  display:flex; align-items:center; gap:14px;
+  background:#fff; border:1px solid var(--dust); border-radius:var(--r-pill);
+  padding:0 1.4rem; margin-bottom:2rem; box-shadow:var(--shadow-card);
+  transition:border-color .25s, box-shadow .25s, background-color .3s;
+}
+.search-pill:focus-within{border-color:var(--gold); box-shadow:0 0 0 4px rgba(200,169,110,.14);}
+.search-pill svg{width:20px;height:20px;stroke:var(--sub);fill:none;stroke-width:1.8;stroke-linecap:round;flex-shrink:0;}
+.search-pill input{flex:1; border:none; outline:none; background:transparent;
+  font-family:var(--font-body); font-size:1.05rem; color:var(--ink); padding:1.05rem 0; min-width:0;}
+.search-pill input::placeholder{color:var(--mist);}
+.search-clear{background:none; border:none; cursor:pointer; color:var(--mist);
+  font-size:1.4rem; line-height:1; padding:4px; display:none; transition:color .2s;}
+.search-clear.visible{display:block;}
+.search-clear:hover{color:var(--navy);}
+
+/* Griglia materie */
+.subj-grid{display:grid; grid-template-columns:1fr; gap:10px;}
+@media(min-width:720px){.subj-grid{grid-template-columns:1fr 1fr; gap:12px;}}
+
+/* Intestazione d'anno — editoriale: numero grande a lato, titolo Playfair,
+   sottotitolo anno accademico. Occupa l'intera riga della griglia. */
+.year-head{grid-column:1/-1; display:flex; align-items:center; gap:18px;
+  margin:30px 0 8px; padding-bottom:14px; border-bottom:1px solid var(--gold-lt);}
+.year-head:first-child{margin-top:4px;}
+.year-head .yh-num{font-family:var(--font-display,'Playfair Display',Georgia,serif);
+  font-size:3.4rem; line-height:.8; font-weight:800; color:var(--gold); flex:0 0 auto;}
+.year-head .yh-text{flex:1; min-width:0;}
+.year-head .yh-title{display:block; font-family:var(--font-display,'Playfair Display',Georgia,serif);
+  font-size:1.7rem; font-weight:800; color:var(--navy,#1A2F4F); letter-spacing:-.01em; line-height:1.05;}
+.year-head .yh-sub{display:block; font-size:.66rem; font-weight:600; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--gold-dk); margin-top:6px;}
+.year-head .yh-count{flex:0 0 auto; align-self:flex-end; font-size:.8rem;
+  color:var(--sub,#7a7770); white-space:nowrap;}
+body.night-mode .year-head .yh-title{color:#f0e9e2;}
+body.night-mode .year-head{border-bottom-color:#3a332c;}
+@media(max-width:520px){.year-head .yh-num{font-size:2.6rem;} .year-head .yh-title{font-size:1.4rem;}}
+
+.subj-card{
+  display:flex; align-items:center; gap:0.9rem; width:100%; text-align:left;
+  background:#fff; border:1px solid var(--dust); border-radius:var(--r-md);
+  padding:0.8rem 1rem; cursor:pointer;
+  box-shadow:0 1px 2px rgba(15,17,23,.04);
+  transition:transform .2s var(--ease), box-shadow .2s, border-color .2s, background-color .3s;
+  -webkit-appearance:none; appearance:none; font:inherit; color:inherit;
+  text-decoration:none;
+}
+.subj-card:hover{transform:translateY(-2px); box-shadow:var(--shadow-card); border-color:var(--gold);}
+.subj-glyph{
+  width:44px; min-width:44px; display:flex; align-items:center; justify-content:center;
+  color:var(--dust); transition:color .2s, transform .2s var(--ease);
+}
+.subj-glyph svg{width:32px; height:32px; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linejoin:round; stroke-linecap:round;}
+.subj-card:hover .subj-glyph{color:var(--gold); transform:rotate(15deg);}
+.subj-body{flex:1; min-width:0;}
+.subj-name{font-family:var(--font-display); font-weight:700; font-size:1.05rem;
+  color:var(--ink); line-height:1.25; display:block;}
+.subj-meta{font-size:.63rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--sub); margin-top:3px; display:block; white-space:nowrap;}
+.subj-chevron{color:var(--mist); flex-shrink:0; transition:transform .2s var(--ease), color .2s;}
+.subj-chevron svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.subj-card:hover .subj-chevron{color:var(--gold-dk); transform:translateX(3px);}
+
+/* Card in evidenza: Bacheca appelli (prima voce, stile navy per distinguerla) */
+.bacheca-card{
+  display:flex; align-items:center; gap:1rem; width:100%; text-align:left;
+  background:var(--navy); border:1px solid var(--navy); border-radius:var(--r-md);
+  padding:1.1rem 1.3rem; margin-bottom:1.4rem; cursor:pointer; text-decoration:none;
+  box-shadow:var(--shadow-card);
+  transition:transform .2s var(--ease), box-shadow .2s, background-color .2s;
+}
+.bacheca-card:hover{transform:translateY(-2px); box-shadow:var(--shadow-lift); background:var(--navy-lt);}
+.bacheca-glyph{width:46px; min-width:46px; height:46px; display:flex; align-items:center; justify-content:center;
+  background:rgba(232,213,170,.16); border-radius:12px; color:var(--gold-lt);}
+.bacheca-glyph svg{width:26px; height:26px; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round;}
+.bacheca-body{flex:1; min-width:0;}
+.bacheca-kicker{display:block; font-size:.6rem; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color:var(--gold-lt); margin-bottom:3px;}
+.bacheca-name{font-family:var(--font-display); font-weight:700; font-size:1.2rem; color:var(--ivory); line-height:1.2; display:block;}
+.bacheca-meta{font-size:.8rem; color:rgba(247,244,239,.7); margin-top:2px; display:block;}
+.bacheca-chevron{color:var(--gold-lt); flex-shrink:0; transition:transform .2s var(--ease);}
+.bacheca-chevron svg{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+.bacheca-card:hover .bacheca-chevron{transform:translateX(4px);}
+body.night-mode .bacheca-card{background:var(--navy); border-color:#3A5A85;}
+
+.subj-empty{display:none; text-align:center; padding:3rem 1rem;
+  font-family:var(--font-display); font-style:italic; color:var(--sub); font-size:1.1rem; line-height:1.7;
+  grid-column:1/-1;}
+.subj-empty.visible{display:block;}
+
+/* DISCLAIMER + FOOTER (in coda all'app) */
+.disclaimer-card{background:#fff; border:1px solid var(--dust); border-radius:var(--r-xl);
+  padding:2.6rem; margin:3.5rem auto 1.5rem; box-shadow:var(--shadow-card);
+  transition:background-color .3s, border-color .3s;}
+@media(max-width:700px){.disclaimer-card{padding:1.5rem; border-radius:var(--r-lg);}}
+.disclaimer-card h3{font-size:.64rem; font-weight:700; letter-spacing:.22em; text-transform:uppercase; color:var(--gold-dk); margin-bottom:.8rem;}
+.disclaimer-card h3:not(:first-child){margin-top:1.8rem;}
+.disclaimer-card p{font-size:.8rem; color:var(--sub); line-height:1.75;}
+.footer-badges{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin:2rem 0 1rem;}
+.site-footer{text-align:center; padding:2rem 1.5rem 3rem;}
+.site-footer p{font-size:.7rem; color:var(--mist); letter-spacing:.1em; text-transform:uppercase; font-weight:600;}
+.site-footer strong{color:var(--sub);}
+
+/* ============================================================
+   VISTA CORSO — scivola dentro dalla destra (secondo livello)
+============================================================ */
+#course-view{
+  position:fixed; inset:0; z-index:85; background:var(--ivory);
+  transform:translateX(100%); pointer-events:none;
+  transition:transform .45s var(--ease);
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+#course-view.open{transform:translateX(0); pointer-events:auto;}
+
+.cv-inner{max-width:820px; margin:0 auto; padding:1.6rem 1.5rem 4rem;}
+
+.cv-header{padding:.5rem 0 1.6rem;}
+.cv-back{
+  display:inline-flex; align-items:center; gap:8px;
+  background:none; border:none; cursor:pointer; padding:8px 4px;
+  font-family:var(--font-body); font-size:.8rem; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--sub);
+  transition:color .2s, gap .2s;
+}
+.cv-back svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.cv-back:hover{color:var(--navy); gap:12px;}
+.cv-kicker{display:block; font-size:.64rem; font-weight:700; letter-spacing:.28em; text-transform:uppercase; color:var(--gold-dk); margin:1.2rem 0 6px;}
+.cv-title{font-family:var(--font-display); font-weight:700; font-style:italic;
+  font-size:clamp(1.7rem,5vw,2.6rem); color:var(--ink); line-height:1.08;}
+.cv-progress{display:inline-block; margin-top:.9rem; font-size:.68rem; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--sub);}
+.cv-progress b{color:var(--gold-dk);}
+.cv-rule{border:none; border-top:1px solid var(--dust); margin:1.4rem 0 .4rem; transition:border-color .3s;}
+
+/* righe lezione */
+.cv-row{
+  display:flex; align-items:center; gap:1.1rem; width:100%; text-align:left;
+  background:none; border:none; border-bottom:1px solid var(--dust);
+  padding:1.05rem .2rem; cursor:pointer; font:inherit; color:inherit;
+  -webkit-appearance:none; appearance:none;
+  opacity:0; animation:rowIn .5s var(--ease) both;
+  transition:border-color .3s;
+}
+@keyframes rowIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+.cv-num{
+  font-family:var(--font-display); font-weight:900; font-size:1.9rem; line-height:.8;
+  color:var(--dust); width:44px; min-width:44px; text-align:center; letter-spacing:-.03em;
+  transition:color .2s;
+}
+.cv-row:hover .cv-num{color:var(--gold);}
+.cv-row-body{flex:1; min-width:0;}
+.cv-row-title{font-family:var(--font-display); font-weight:700; font-size:1.12rem; color:var(--ink); line-height:1.2;}
+.cv-row-meta{display:block; font-size:.7rem; font-weight:600; letter-spacing:.02em; color:var(--gold-dk); margin-top:3px;}
+.cv-row-meta.empty{color:var(--mist); font-weight:500;}
+.cv-dot{width:10px; height:10px; min-width:10px; border-radius:50%; border:1.5px solid var(--mist); background:transparent; transition:.2s;}
+.cv-dot.on{background:var(--gold); border-color:var(--gold); box-shadow:0 0 0 4px rgba(200,169,110,.16);}
+.cv-chevron{color:var(--mist); flex-shrink:0; transition:transform .2s var(--ease), color .2s;}
+.cv-chevron svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.cv-row:hover .cv-chevron{color:var(--gold-dk); transform:translateX(3px);}
+
+/* ============================================================
+   NIGHT MODE
+============================================================ */
+body.night-mode{background:#14161C; color:#C7C4BC;}
+body.night-mode #brand{color:#F2EFE8;}
+body.night-mode #brand .brand-l2{color:#8FB4E8;}
+body.night-mode .brand-tagline{color:#D9BC85;}
+body.night-mode #inizia{background:var(--navy); color:#F2EFE8;}
+body.night-mode #inizia:hover{background:var(--navy-lt);}
+body.night-mode #night-toggle{background:#1E212A; border-color:#2B2E38; color:#F2EFE8;}
+body.night-mode #topbar{background:rgba(20,22,28,.9); border-color:#2B2E38;}
+body.night-mode .app-head h2{color:#F2EFE8;}
+body.night-mode .app-head .count-chip{color:#D9BC85; background:rgba(200,169,110,.14);}
+body.night-mode .author-badge,
+body.night-mode #custom-lang-selector,
+body.night-mode .lang-options,
+body.night-mode .search-pill,
+body.night-mode .subj-card,
+body.night-mode .disclaimer-card{background:#1E212A; border-color:#2B2E38;}
+body.night-mode .author-name{color:#F2EFE8;}
+body.night-mode #lang-toggle-btn{color:#8FB4E8;}
+body.night-mode .search-pill input{color:#F2EFE8;}
+body.night-mode .search-pill svg{stroke:#918E86;}
+body.night-mode .search-pill:focus-within{box-shadow:0 0 0 4px rgba(200,169,110,.1);}
+body.night-mode .subj-name{color:#F2EFE8;}
+body.night-mode .subj-meta,
+body.night-mode .disclaimer-card p,
+body.night-mode .cv-progress{color:#918E86;}
+body.night-mode .subj-glyph{color:#2B2E38;}
+body.night-mode .subj-card:hover .subj-glyph{color:var(--gold);}
+body.night-mode .subj-eyebrow, body.night-mode .app-kicker{color:#D9BC85;}
+body.night-mode .top-wa{background:#1E212A; border-color:#2B2E38;}
+body.night-mode .disclaimer-card h3{color:#D9BC85;}
+body.night-mode .subj-empty{color:#918E86;}
+body.night-mode #course-view{background:#14161C;}
+body.night-mode .cv-back{color:#918E86;}
+body.night-mode .cv-back:hover{color:#8FB4E8;}
+body.night-mode .cv-kicker, body.night-mode .cv-progress b, body.night-mode .cv-row-meta{color:#D9BC85;}
+body.night-mode .cv-title, body.night-mode .cv-row-title{color:#F2EFE8;}
+body.night-mode .cv-rule, body.night-mode .cv-row{border-color:#2B2E38;}
+body.night-mode .cv-num{color:#2B2E38;}
+body.night-mode .cv-row:hover .cv-num{color:var(--gold);}
+body.night-mode .cv-row-meta.empty{color:#5C5F6A;}
+body.night-mode .cv-dot{border-color:#5C5F6A;}
+body.night-mode .cv-dot.on{background:var(--gold); border-color:var(--gold);}
+body.night-mode #translation-disclaimer{background:#221D10; color:#D9BC85; border-color:#4A3F1E;}
+body.night-mode .site-footer p{color:#5C5F6A;}
+
+/* ============================================================
+   INSTANT — quando si salta lo splash (già visto): niente animazioni al primo paint
+============================================================ */
+body.instant #brand .brand-l1, body.instant #brand .brand-l2, body.instant .brand-tagline{animation:none !important; opacity:1; transform:none;}
+body.instant .brand-tagline{opacity:0;}
+body.instant #brandStage, body.instant #brand, body.instant #hero-extras,
+body.instant #appview, body.instant #topbar, body.instant #top-controls{transition:none !important;}
+
+/* ============================================================
+   REDUCED MOTION — niente slide, mostra tutto pronto
+============================================================ */
+@media (prefers-reduced-motion: reduce){
+  #brand .brand-l1, #brand .brand-l2, .brand-tagline, #inizia, .hero-badges{animation:none !important; opacity:1 !important; transform:none !important;}
+  body.app-mode .brand-tagline{opacity:0 !important;}
+  #brandStage, #brand, #hero-extras, #appview, #topbar, #top-controls{transition:none !important;}
+}
+</style>
+</head>
+<body class="splash">
+<!-- ================================================================
+     BOOT SCREEN (solo app installata) — il ponte premium:
+     la splash di sistema (fondo #14161C + icona fusa) passa il
+     testimone a QUESTO schermo identico, che poi sfuma sul sito.
+     Nel browser normale non compare mai (display-mode: standalone).
+================================================================ -->
+<style id="ums-boot-style">
+#ums-boot{ display: none; }
+@media all and (display-mode: standalone){
+  #ums-boot{
+    display: flex; position: fixed; inset: 0; z-index: 2147483000;
+    background: #14161C;
+    align-items: center; justify-content: center;
+    transition: opacity .45s ease;
+  }
+  #ums-boot.via{ opacity: 0; pointer-events: none; }
+  .ums-boot-brand{
+    text-align: center;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900; line-height: .96; letter-spacing: -0.02em;
+    /* invisibile finché Playfair non è pronto: niente salto di font */
+    opacity: 0; transition: opacity .25s ease;
+  }
+  .ums-boot-brand.pronta{ opacity: 1; }
+  .ums-boot-brand .b1, .ums-boot-brand .b2{ display: block; font-size: clamp(2.2rem, 9vw, 3.4rem); }
+  .ums-boot-brand .b1{ color: #F2EFE8; }
+  .ums-boot-brand .b2{ color: #8FB4E8; font-style: italic; }
+  .ums-boot-brand .btag{
+    display: flex; align-items: center; justify-content: center; gap: 11px;
+    margin-top: 14px;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: .6rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase;
+    color: #D9BC85;
+  }
+  .ums-boot-brand .btag::before, .ums-boot-brand .btag::after{
+    content: ''; display: block; width: 26px; height: 1px; background: #C8A96E;
+  }
+  @media (prefers-reduced-motion: reduce){ #ums-boot{ transition: none; } }
+}
+</style>
+<div id="ums-boot" aria-hidden="true">
+  <div class="ums-boot-brand notranslate" translate="no">
+    <span class="b1">Demo</span>
+    <span class="b2">Accessibilità</span>
+    <span class="btag">Il tuo compagno di studi</span>
+  </div>
+</div>
+<script>
+(function(){
+  var b = document.getElementById('ums-boot');
+  if (!b) return;
+  /* Il wordmark compare solo quando Playfair è caricato, così non "salta"
+     dalla riserva (Georgia, più piccola) al font vero. Se il font tarda
+     oltre 350ms, si mostra comunque: meglio la riserva del vuoto. */
+  var brand = b.querySelector('.ums-boot-brand');
+  function mostra(){ if (brand) brand.classList.add('pronta'); }
+  try {
+    if (document.fonts && document.fonts.check('900 1rem "Playfair Display"')) { mostra(); }
+    else if (document.fonts && document.fonts.ready) {
+      var tf = setTimeout(mostra, 350);
+      document.fonts.ready.then(function(){ clearTimeout(tf); mostra(); });
+    } else { mostra(); }
+  } catch(e) { mostra(); }
+  function via(){
+    if (!b) return;
+    b.classList.add('via');
+    setTimeout(function(){ if (b && b.parentNode) b.parentNode.removeChild(b); b = null; }, 520);
+  }
+  if (document.readyState === 'complete') { setTimeout(via, 200); }
+  else { window.addEventListener('load', function(){ setTimeout(via, 200); }); }
+  setTimeout(via, 2600); /* rete lenta: mai piu' di 2,6 s di attesa */
+})();
+</script>
+
+<script>try{
+  if(localStorage.getItem('ums_night_mode')==='1'){document.body.classList.add('night-mode');}
+}catch(e){}</script>
+
+<!-- FILIGRANA — sfondo fisso, dietro a tutto, a bassissima opacità -->
+<div id="watermark" aria-hidden="true"></div>
+
+<!-- TOP BAR (sfondo in app) -->
+<div id="topbar"></div>
+
+<!-- BRAND che morfa -->
+<div id="brandStage">
+  <div id="brand" class="notranslate" translate="no">
+    <span class="brand-l1">Demo</span>
+    <span class="brand-l2">Accessibilità</span>
+  </div>
+  <div class="brand-tagline"><span>Il tuo compagno <span style="white-space:nowrap">di&nbsp;studi</span></span></div>
+</div>
+
+<!-- EXTRA SPLASH -->
+<div id="hero-extras">
+  <div id="hero-actions">
+    <button id="inizia" type="button">
+      Inizia
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+    </button>
+    
+  </div>
+  
+</div>
+
+<!-- CONTROLLI IN ALTO (in app): chat + lingua -->
+<div id="top-controls">
+  
+  <div id="google_translate_element"></div>
+  <div id="custom-lang-selector" class="notranslate">
+    <div id="lang-loading" style="display:none;">&hellip;</div>
+    <button id="lang-toggle-btn" onclick="toggleLangMenu()">
+      <span id="lang-label"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/></svg> Lingua</span> <small id="lang-arrow">▼</small>
+    </button>
+    <div class="lang-options" id="lang-options-menu">
+      <button onclick="triggerTranslation('it', this)" title="Italiano" class="active-lang">🇮🇹</button>
+      <button onclick="triggerTranslation('en', this)" title="English">🇬🇧</button>
+      <button onclick="triggerTranslation('fr', this)" title="Français">🇫🇷</button>
+      <button onclick="triggerTranslation('de', this)" title="Deutsch">🇩🇪</button>
+      <button onclick="triggerTranslation('es', this)" title="Español">🇪🇸</button>
+      <button onclick="triggerTranslation('bg', this)" title="Български">🇧🇬</button>
+      <button onclick="triggerTranslation('pl', this)" title="Polski">🇵🇱</button>
+      <button onclick="triggerTranslation('el', this)" title="Ελληνικά">🇬🇷</button>
+      <button onclick="triggerTranslation('lt', this)" title="Lietuvių">🇱🇹</button>
+      <button onclick="triggerTranslation('da', this)" title="Dansk">🇩🇰</button>
+      <button onclick="triggerTranslation('pt', this)" title="Português">🇵🇹</button>
+      <button onclick="triggerTranslation('zh-CN', this)" title="中文">🇨🇳</button>
+      <button onclick="triggerTranslation('ar', this)" title="العربية">🇸🇦</button>
+      <button onclick="triggerTranslation('hi', this)" title="हिन्दी">🇮🇳</button>
+      <button onclick="triggerTranslation('ru', this)" title="Русский">🇷🇺</button>
+      <button onclick="triggerTranslation('ja', this)" title="日本語">🇯🇵</button>
+    </div>
+  </div>
+</div>
+<div id="translation-disclaimer">🌐 Traduzione a cura dell'IA: possibili errori o imprecisioni.</div>
+
+<!-- NIGHT -->
+<button id="night-toggle" type="button" aria-label="Attiva modalità notte" title="Modalità notte on/off">🌙</button>
+
+<!-- VISTA CORSO — scivola dentro dalla destra -->
+<div id="course-view" aria-hidden="true">
+  <div class="cv-inner">
+    <div class="cv-header">
+      <button type="button" class="cv-back" id="cv-back">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
+        Indietro
+      </button>
+      <span class="cv-kicker">Corso</span>
+      <h2 class="cv-title" id="cv-title"></h2>
+      <span class="cv-progress" id="cv-progress"></span>
+    </div>
+    <hr class="cv-rule">
+    <div id="cv-list"></div>
+  </div>
+</div>
+
+<!-- APP VIEW -->
+<main id="appview">
+  <div class="app-head">
+    <div>
+      <span class="app-kicker">Catalogo</span>
+      <h2>Corsi</h2>
+    </div>
+    <span class="count-chip" id="course-count"></span>
+  </div>
+
+  <div class="search-pill">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <label for="course-search" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Cerca una materia</label>
+    <input type="text" id="course-search" placeholder="Cerca una materia&hellip;" autocomplete="off">
+    <button type="button" class="search-clear" id="search-clear" aria-label="Cancella ricerca">&times;</button>
+  </div>
+
+  
+
+  <div class="subj-grid" id="course-grid"></div>
+  <div class="subj-empty" id="subj-empty">Nessuna materia trovata.<br>Prova con un termine diverso.</div>
+
+  <div class="disclaimer-card">
+    <h3>Tutela del diritto d'autore e limitazione di responsabilità</h3>
+    <p>Tutti i materiali didattici presenti all'interno del portale <span class="notranslate" translate="no">Demo Accessibilità</span> (inclusi, a titolo esemplificativo e non esaustivo: riassunti, schemi, mappe concettuali, flashcard e quiz) costituiscono una rielaborazione personale, critica e originale degli appunti universitari. Tali contenuti sono realizzati e condivisi esclusivamente per finalità didattiche, di studio e di mutuo soccorso accademico, ai sensi e nel pieno rispetto dell'Art. 70 della Legge 22 aprile 1941 n. 633 in materia di protezione del diritto d'autore. I materiali presenti sulla piattaforma hanno natura puramente integrativa e non intendono in alcun modo porsi come sostitutivi dei libri di testo ufficiali, delle dispense fornite dai docenti o della frequenza alle lezioni frontali. Si dichiara espressamente l'assenza di riproduzioni pedisseque, integrali o non autorizzate di opere intellettuali protette da copyright di terzi. L'utente fruitore solleva i gestori della piattaforma da qualsivoglia responsabilità derivante da un uso improprio del materiale fornito.</p>
+    <h3>Aiutami a tenere in ordine la piattaforma! 🛠️</h3>
+    <p>Se noti un refuso, un link che non funziona o un errore in una lezione, segnalalo: ogni segnalazione aiuta a migliorare il materiale.</p>
+  </div>
+
+  
+
+  <footer class="site-footer">
+    <p><strong class="notranslate" translate="no">Demo Accessibilità</strong> &nbsp;&middot;&nbsp; Tutti i diritti riservati &nbsp;&middot;&nbsp; &copy; 2025</p>
+    <p style="margin-top:.7rem;"><a href="privacy.html" style="color:var(--sub); text-decoration:underline; text-underline-offset:2px;">Privacy</a></p>
+  </footer>
+</main>
+
+<script>
+// =========================================================================
+// DATI CORSI
+// =========================================================================
+const courses = [
+  { name: "Antropologia Culturale MOD. A", lezioni: { count: 1, urlTemplate: "lezione-template.html?file=antropologia-culturale-mod-a/lezione-{n}.json" } }
+];
+
+const chevronSVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+
+// Marcatori geometrici (SVG, non testo): non vengono tradotti da Google Translate.
+// Uno per corso, in ordine; se i corsi superano 7 si ripetono ciclicamente.
+const GLYPHS = [
+  '<circle cx="20" cy="20" r="13"/>',                                  // cerchio
+  '<path d="M20 6 34 32 6 32 Z"/>',                                    // triangolo
+  '<rect x="8" y="8" width="24" height="24" rx="2"/>',                 // quadrato
+  '<path d="M20 5 35 20 20 35 5 20 Z"/>',                              // rombo
+  '<path d="M20 5 33 12.5 33 27.5 20 35 7 27.5 7 12.5 Z"/>',           // esagono
+  '<path d="M20 5 34 15.5 28.5 33 11.5 33 6 15.5 Z"/>',               // pentagono
+  '<circle cx="20" cy="20" r="13"/><circle cx="20" cy="20" r="4.5"/>' // cerchi concentrici
+];
+
+function normalizza(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+// =========================================================================
+// ANNI DEL CORSO — la lista `courses` sopra resta INTATTA (la pipeline la
+// aggiorna). Qui una mappa separata cartella->anno raggruppa le materie al
+// rendering. Tutte etichettate anno accademico 25/26. Una materia senza voce
+// qui finisce in "Altro" in fondo (cosi non sparisce mai).
+// =========================================================================
+const ANNO_ACCADEMICO = '25/26';
+const ANNO_MATERIE = {
+  1: ['antropologia-culturale-mod-a']
+};
+const ORDINALE = {1:'Primo',2:'Secondo',3:'Terzo',4:'Quarto',5:'Quinto'};
+
+function cartellaDi(c){
+  if(c.lezioni){ const m = c.lezioni.urlTemplate.match(/file=([^/]+)\//); return m ? m[1] : ''; }
+  if(c.url){ const m = c.url.match(/^([^/]+)\//); return m ? m[1] : ''; }
+  return '';
+}
+function annoDi(cartella){
+  for(const a of [1,2,3,4,5]){ if(ANNO_MATERIE[a].includes(cartella)) return a; }
+  return 0;
+}
+
+function cardCorso(c, i){
+  const hasLezioni = !!c.lezioni;
+  const el = document.createElement(hasLezioni ? 'button' : 'a');
+  el.className = 'subj-card';
+  el.dataset.search = normalizza(c.name);
+  if (hasLezioni){ el.type = 'button'; el.addEventListener('click', () => openCourse(c)); }
+  else { el.href = c.url; el.target = '_blank'; el.rel = 'noopener'; }
+  const glyph = GLYPHS[i % GLYPHS.length];
+  el.innerHTML = `
+    <span class="subj-glyph" aria-hidden="true"><svg viewBox="0 0 40 40">${glyph}</svg></span>
+    <span class="subj-body">
+      <span class="subj-name">${c.name}</span>
+      <span class="subj-meta">${hasLezioni ? c.lezioni.count + ' lezioni' : 'Sito esterno \u2197'}</span>
+    </span>
+    <span class="subj-chevron" aria-hidden="true">${chevronSVG}</span>`;
+  return el;
+}
+
+function renderCourses(){
+  const grid = document.getElementById('course-grid');
+  grid.innerHTML = '';
+  const perAnno = {1:[],2:[],3:[],4:[],5:[],0:[]};
+  courses.forEach((c,i) => { perAnno[annoDi(cartellaDi(c))].push(i); });
+  [1,2,3,4,5,0].forEach(anno => {
+    const indici = perAnno[anno];
+    if(!indici.length) return;
+    const head = document.createElement('div');
+    head.className = 'year-head';
+    head.dataset.year = anno;
+    const titolo = anno === 0 ? 'Altro' : ORDINALE[anno] + ' Anno';
+    const nMaterie = indici.length + (indici.length === 1 ? ' materia' : ' materie');
+    if(anno === 0){
+      head.innerHTML = `<span class="yh-text"><span class="yh-title">Altro</span></span>` +
+        `<span class="yh-count">${nMaterie}</span>`;
+    } else {
+      head.innerHTML =
+        `<span class="yh-num">${anno}</span>` +
+        `<span class="yh-text">` +
+          `<span class="yh-title">${titolo}</span>` +
+          `<span class="yh-sub">Anno Accademico ${ANNO_ACCADEMICO}</span>` +
+        `</span>` +
+        `<span class="yh-count">${nMaterie}</span>`;
+    }
+    grid.appendChild(head);
+    indici.forEach(i => grid.appendChild(cardCorso(courses[i], i)));
+  });
+  aggiornaConteggio(courses.length);
+}
+function aggiornaConteggio(n){
+  document.getElementById('course-count').textContent = n === 1 ? '1 materia' : n + ' materie';
+}
+function filtraMaterie(){
+  const q = normalizza(document.getElementById('course-search').value.trim());
+  let visibili = 0;
+  document.querySelectorAll('.subj-card').forEach(card => {
+    const match = q === '' || card.dataset.search.includes(q);
+    card.style.display = match ? '' : 'none';
+    if(match) visibili++;
+  });
+  // nascondo l'intestazione di un anno se tutte le sue materie sono filtrate
+  document.querySelectorAll('.year-head').forEach(head => {
+    let vis = 0, el = head.nextElementSibling;
+    while(el && el.classList.contains('subj-card')){
+      if(el.style.display !== 'none') vis++;
+      el = el.nextElementSibling;
+    }
+    head.style.display = vis === 0 ? 'none' : '';
+  });
+  document.getElementById('subj-empty').classList.toggle('visible', visibili === 0);
+  document.getElementById('search-clear').classList.toggle('visible', q !== '');
+  aggiornaConteggio(visibili);
+}
+
+// =========================================================================
+// SPLASH → APP
+// =========================================================================
+const inizia = document.getElementById('inizia');
+function enterApp(){
+  document.body.classList.remove('splash');
+  document.body.classList.add('app-mode');
+  // Autofocus solo su desktop (mouse): su touch farebbe sbucare la
+  // tastiera da sola — lì il focus arriva solo toccando il campo.
+  if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    setTimeout(() => { document.getElementById('course-search').focus({preventScroll:true}); }, 700);
+  }
+}
+function backToSplash(){
+  document.body.classList.remove('app-mode');
+  document.body.classList.add('splash');
+  window.scrollTo({top:0, behavior:'auto'});
+}
+inizia.addEventListener('click', enterApp);
+// clic sul logo rimpicciolito → torna allo splash (ma neutro se sei dentro un corso)
+document.getElementById('brandStage').addEventListener('click', () => {
+  if(document.getElementById('course-view').classList.contains('open')) return;
+  if(document.body.classList.contains('app-mode')) backToSplash();
+});
+// se abbiamo saltato lo splash, togliamo "instant" dopo il primo paint
+requestAnimationFrame(() => { requestAnimationFrame(() => { document.body.classList.remove('instant'); }); });
+
+// =========================================================================
+// VISTA CORSO + TRACKING VISITE (localStorage, per dispositivo/browser)
+// =========================================================================
+const MESI = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+
+// chiave stabile del corso: la cartella nel percorso file (es. "materia-esempio")
+function courseKey(course){
+  const m = course.lezioni.urlTemplate.match(/file=([^/]+)\//);
+  return m ? m[1] : normalizza(course.name).replace(/\s+/g,'-');
+}
+function loadVisits(){ try{ return JSON.parse(localStorage.getItem('ums_visits')||'{}'); }catch(e){ return {}; } }
+function saveVisits(v){ try{ localStorage.setItem('ums_visits', JSON.stringify(v)); }catch(e){} }
+
+// "l'8 luglio" / "l'11 marzo" / "il 3 maggio"
+function fraseVisita(iso){
+  const d = new Date(iso + 'T00:00:00');
+  const g = d.getDate();
+  const art = (g === 8 || g === 11) ? "l'" : "il ";
+  return `visitata ${art}${g} ${MESI[d.getMonth()]}`;
+}
+
+let currentCourse = null;
+
+function openCourse(course){
+  currentCourse = course;
+  const key = courseKey(course);
+  const visits = loadVisits();
+
+  document.getElementById('cv-title').textContent = course.name;
+
+  const list = document.getElementById('cv-list');
+  list.innerHTML = '';
+  let fatte = 0;
+
+  for (let i = 1; i <= course.lezioni.count; i++){
+    const iso = visits[key + '#' + i];
+    if (iso) fatte++;
+    const url = course.lezioni.urlTemplate.replace('{n}', i);
+
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'cv-row';
+    row.style.animationDelay = (i * 0.04) + 's';
+    row.dataset.n = i;
+    row.innerHTML = `
+      <span class="cv-num" aria-hidden="true">${i}</span>
+      <span class="cv-row-body">
+        <span class="cv-row-title">Lezione ${i}</span>
+        <span class="cv-row-meta ${iso ? '' : 'empty'}">${iso ? fraseVisita(iso) : 'Non ancora aperta'}</span>
+      </span>
+      <span class="cv-dot ${iso ? 'on' : ''}" aria-hidden="true"></span>
+      <span class="cv-chevron" aria-hidden="true">${chevronSVG}</span>`;
+
+    row.addEventListener('click', () => {
+      // apre la lezione e registra la visita (ultima volta)
+      window.open(url, '_blank', 'noopener');
+      const oggi = new Date();
+      const isoOggi = oggi.getFullYear() + '-' + String(oggi.getMonth()+1).padStart(2,'0') + '-' + String(oggi.getDate()).padStart(2,'0');
+      const v = loadVisits();
+      v[key + '#' + i] = isoOggi;
+      saveVisits(v);
+      // aggiorno la riga in tempo reale
+      row.querySelector('.cv-dot').classList.add('on');
+      const meta = row.querySelector('.cv-row-meta');
+      meta.classList.remove('empty');
+      meta.textContent = fraseVisita(isoOggi);
+      aggiornaProgresso(course, key);
+    });
+
+    list.appendChild(row);
+  }
+
+  aggiornaProgresso(course, key, fatte);
+  document.getElementById('course-view').classList.add('open');
+  document.getElementById('course-view').setAttribute('aria-hidden','false');
+  document.body.style.overflow = 'hidden';
+}
+
+function aggiornaProgresso(course, key, fatteNota){
+  let fatte = fatteNota;
+  if (fatte === undefined){
+    const v = loadVisits();
+    fatte = 0;
+    for (let i = 1; i <= course.lezioni.count; i++) if (v[key + '#' + i]) fatte++;
+  }
+  document.getElementById('cv-progress').innerHTML = `<b>${fatte}</b> di ${course.lezioni.count} visitate`;
+}
+
+function closeCourse(){
+  document.getElementById('course-view').classList.remove('open');
+  document.getElementById('course-view').setAttribute('aria-hidden','true');
+  document.body.style.overflow = '';
+  currentCourse = null;
+}
+document.getElementById('cv-back').addEventListener('click', closeCourse);
+document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeCourse(); });
+
+// ricerca
+const searchInput = document.getElementById('course-search');
+searchInput.addEventListener('input', filtraMaterie);
+document.getElementById('search-clear').addEventListener('click', () => { searchInput.value=''; filtraMaterie(); searchInput.focus(); });
+searchInput.addEventListener('keydown', (e) => { if(e.key==='Escape'){ searchInput.value=''; filtraMaterie(); } });
+
+renderCourses();
+</script>
+
+<!-- LANGUAGE JS -->
+<script>
+  const langLabels = {'it':'Lingua','en':'Language','fr':'Langue','de':'Sprache','es':'Idioma','bg':'Език','pl':'Język','el':'Γλώσσα','lt':'Kalba','da':'Sprog','pt':'Língua','zh-CN':'语言','ar':'اللغة','hi':'भाषा','ru':'Язык','ja':'日本語'};
+  const langGlobeSVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/></svg>';
+  function googleTranslateElementInit(){ new google.translate.TranslateElement({pageLanguage:'it',includedLanguages:'en,it,fr,de,es,bg,pl,el,lt,da,pt,zh-CN,ar,hi,ru,ja',autoDisplay:false}, 'google_translate_element'); }
+  function toggleLangMenu(){ const m=document.getElementById('lang-options-menu'); const a=document.getElementById('lang-arrow'); m.classList.toggle('show'); a.innerHTML=m.classList.contains('show')?'▲':'▼'; }
+  function triggerTranslation(lang, btn){
+    const loading=document.getElementById('lang-loading'), menu=document.getElementById('lang-options-menu'), toggleBtn=document.getElementById('lang-toggle-btn'), label=document.getElementById('lang-label'), disc=document.getElementById('translation-disclaimer');
+    label.innerHTML = langGlobeSVG + ' ' + (langLabels[lang]||'Language');
+    loading.style.display='block'; menu.classList.remove('show'); toggleBtn.style.display='none';
+    document.querySelectorAll('.lang-options button').forEach(b=>b.classList.remove('active-lang')); btn.classList.add('active-lang');
+    const sel=document.querySelector('select.goog-te-combo'); if(sel){ sel.value=lang; sel.dispatchEvent(new Event('change',{bubbles:true})); }
+    if(disc) disc.style.display = lang!=='it' ? 'block' : 'none';
+    setTimeout(()=>{ loading.style.display='none'; toggleBtn.style.display='inline-flex'; document.getElementById('lang-arrow').innerHTML='▼'; }, 1500);
+  }
+</script>
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<!-- NIGHT MODE -->
+<script>
+(function(){
+  const KEY='ums_night_mode', btn=document.getElementById('night-toggle');
+  function apply(on){ document.body.classList.toggle('night-mode', on); btn.textContent = on?'☀️':'🌙'; btn.setAttribute('aria-label', on?'Attiva modalità giorno':'Attiva modalità notte'); }
+  apply(document.body.classList.contains('night-mode'));
+  btn.addEventListener('click', ()=>{ const on=!document.body.classList.contains('night-mode'); apply(on); try{localStorage.setItem(KEY, on?'1':'0');}catch(e){} });
+})();
+</script>
+
+<!-- ================================================================
+     INSTA-NAV — BLOCCO ADDITIVO (versione index)
+     Stessa barra del template lezione: rail a sinistra su desktop,
+     barra in basso su mobile. Ordine: Lingua · Home · l'autore
+     (avatar → popup © 2025 → social) · chat.
+     Il selettore lingua di #top-controls viene SPOSTATO nella barra
+     (logica intatta); i vecchi badge sotto INIZIA e i controlli in
+     alto vengono nascosti. INIZIA viene alzato (63% → 56%).
+================================================================ -->
+<style id="ums-inav-style">
+  /* SFONDO STABILE — come nel template: con inset:0 il watermark si
+     riscala quando la barra del browser mobile si ritira. Ancorato in
+     alto con altezza 100lvh (il massimo del viewport) resta immobile. */
+  #watermark{
+    bottom: auto;
+    height: 100vh;
+    height: 100lvh;
+  }
+
+  /* INIZIA nello splash: alzato rispetto all'origine (63%) ma con
+     più respiro dal brand rispetto al primo tentativo (56%) */
+  #hero-extras{ top: 59%; }
+  /* Solo PC: un filo più in basso ancora, per dare respiro al brand */
+  @media (min-width: 901px){
+    #hero-extras{ top: 61%; }
+  }
+
+  /* Via i vecchi accessi: badge sotto INIZIA e controlli in alto */
+  .hero-badges{ display: none !important; }
+  #top-controls{ display: none !important; }
+
+  #ums-insta-nav{
+    /* MOBILE-FIRST: la barra in basso è lo stato di default, così
+       esiste sempre anche se una media query non scattasse; il rail
+       desktop è solo l'override sotto. */
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: calc(58px + env(safe-area-inset-bottom, 0px));
+    padding: 0 8px env(safe-area-inset-bottom, 0px);
+    z-index: 990; /* sopra course-view (85) e topbar (50), sotto night-toggle (9999) */
+    background: rgba(255,255,255,.92);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--dust, #E8E4DC);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    font-family: var(--font-body, 'DM Sans', sans-serif);
+  }
+
+  .ums-inav-item{
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px;
+    border: none; background: transparent;
+    text-decoration: none; cursor: pointer;
+    color: var(--ink, #1C1C22);
+    border-radius: 12px;
+    transition: background .18s, transform .18s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ums-inav-item:hover{ background: rgba(15,17,23,.05); }
+  .ums-inav-item:active{ transform: scale(.94); }
+  .ums-inav-item > svg{
+    width: 24px; height: 24px;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .ums-inav-label{
+    font-size: .56rem; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--sub, #7A7770);
+    line-height: 1;
+  }
+
+  .ums-inav-avatar{
+    width: 28px; height: 28px; border-radius: 50%;
+    object-fit: cover; display: block;
+    border: 2px solid transparent;
+    transition: border-color .2s;
+  }
+  .ums-inav-item:hover .ums-inav-avatar{ border-color: var(--gold, #C8A96E); }
+
+  /* --- Selettore lingua trapiantato nella barra --- */
+  #ums-insta-nav #custom-lang-selector{
+    background: transparent !important; border: none !important;
+    box-shadow: none !important; padding: 0 !important; margin: 0 !important;
+    position: static !important;
+  }
+  #ums-insta-nav #lang-toggle-btn{
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: transparent; border: none; cursor: pointer;
+    font-family: var(--font-body, 'DM Sans', sans-serif);
+    font-size: .56rem; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--sub, #7A7770);
+  }
+  #ums-insta-nav #lang-label svg{
+    width: 24px; height: 24px;
+    stroke: currentColor; fill: none;
+    stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    color: var(--ink, #1C1C22);
+    display: block; margin: 0 auto;
+  }
+  #ums-insta-nav #lang-arrow{ display: none; }
+
+  /* Menu bandiere nel BODY (mai dentro la barra: il backdrop-filter
+     sfaserebbe render e tap su iOS). Centrato senza transform. */
+  .lang-options.ums-lang-portal{
+    position: fixed;
+    top: auto; right: auto; left: auto;
+    transform: none;
+    z-index: 995;
+  }
+  .lang-options.ums-lang-portal.show{ display: grid; }
+
+  /* ---------------- DESKTOP: rail a sinistra (override) ---------------- */
+  @media (min-width: 901px){
+    #ums-insta-nav{
+      top: 0; left: 0; bottom: 0; right: auto;
+      width: 76px; height: auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 28px 0;
+      background: #fff;
+      -webkit-backdrop-filter: none; backdrop-filter: none;
+      border-top: none;
+      border-right: 1px solid var(--dust, #E8E4DC);
+    }
+    .ums-inav-item{ width: 52px; height: 52px; flex: 0 0 auto; max-width: none; }
+    body{ padding-left: 76px; }
+    #topbar{ left: 76px !important; width: calc(100% - 76px) !important; }
+    #course-view{ left: 76px !important; }
+    /* il brand rimpicciolito (app-mode) parte dopo il rail, non sotto */
+    body.app-mode #brandStage{ left: 102px; }
+    .lang-options.ums-lang-portal{ left: 90px; top: 24px; bottom: auto; }
+  }
+
+  /* ---------------- MOBILE: aggiustamenti di contorno ---------------- */
+  @media (max-width: 900px){
+    .ums-inav-item{ flex: 1 1 0; height: 50px; max-width: 90px; }
+    #night-toggle{ bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important; }
+    .site-footer{ padding-bottom: calc(3rem + 70px + env(safe-area-inset-bottom, 0px)); }
+    #course-view .cv-inner{ padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+    .lang-options.ums-lang-portal{
+      left: 0; right: 0;
+      margin: 0 auto;
+      width: max-content;
+      max-width: calc(100vw - 24px);
+      bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+      top: auto;
+    }
+  }
+
+  /* ---------------- Night mode ----------------
+     Testi/icone usano var(--ink)/var(--sub): l'index li rimappa da
+     solo col tema scuro, qui si scurisce solo la superficie. */
+  body.night-mode #ums-insta-nav{
+    background: #16181F;
+    border-color: #2B2E38;
+  }
+  @media (max-width: 900px){
+    body.night-mode #ums-insta-nav{ background: rgba(20,22,28,.92); }
+  }
+  body.night-mode .ums-inav-item:hover{ background: rgba(255,255,255,.07); }
+  body.night-mode #ums-insta-nav #lang-label svg{ color: #F2EFE8; }
+  body.night-mode .ums-inav-item{ color: #F2EFE8; }
+
+  /* ---------------- Popup "Creato da l'autore" ---------------- */
+  #ums-autore-overlay{
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 9998;
+    background: rgba(15,17,23,.55);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  #ums-autore-overlay.show{ display: flex; }
+
+  .ums-autore-card{
+    background: var(--ivory, #F7F4EF);
+    border-radius: 32px;
+    box-shadow: 0 12px 40px rgba(15,17,23,.2);
+    padding: 44px 40px 36px;
+    max-width: 340px; width: 100%;
+    text-align: center;
+    position: relative;
+    animation: umsAutorePop .35s ease both;
+  }
+  @keyframes umsAutorePop{
+    from{ opacity: 0; transform: scale(.9) translateY(12px); }
+    to{ opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ums-autore-card{ animation: none; }
+  }
+
+  .ums-autore-link{ text-decoration: none; display: block; }
+  .ums-autore-img{
+    width: 150px; height: 150px; border-radius: 50%;
+    object-fit: cover; display: block; margin: 0 auto 20px;
+    border: 3px solid var(--gold, #C8A96E);
+    box-shadow: 0 8px 32px rgba(200,169,110,.25);
+    transition: transform .25s ease;
+  }
+  .ums-autore-link:hover .ums-autore-img{ transform: scale(1.04); }
+  .ums-autore-title{
+    font-family: var(--font-display, 'Playfair Display', serif);
+    font-size: 1.35rem; font-weight: 700; color: var(--ink, #1C1C22);
+    margin-bottom: 6px;
+  }
+  .ums-autore-sub{
+    font-size: .78rem; color: var(--sub, #7A7770);
+    letter-spacing: .04em;
+  }
+  .ums-autore-close{
+    position: absolute; top: 14px; right: 14px;
+    width: 36px; height: 36px; border-radius: 50%;
+    border: none; background: rgba(15,17,23,.06);
+    color: var(--ink, #1C1C22);
+    font-size: 1rem; cursor: pointer;
+    display: grid; place-items: center;
+    transition: background .2s;
+  }
+  .ums-autore-close:hover{ background: rgba(15,17,23,.12); }
+
+  body.night-mode .ums-autore-card{ background: #1C1F27; }
+  body.night-mode .ums-autore-title{ color: #F2EFE8; }
+  body.night-mode .ums-autore-close{ background: rgba(255,255,255,.08); color: #F2EFE8; }
+
+  /* ================= ACCESSO CON CHIAVE (login) ================= */
+  .ums-fc-btn{ position: relative; }
+  /* Notifica stile social: pallino rosso con "!" bianco */
+  .ums-fc-badge{
+    position: absolute; top: 4px; right: 8px;
+    width: 18px; height: 18px; box-sizing: border-box;
+    background: #D14B3D; color: #fff; border-radius: 50%;
+    font-size: .78rem; font-weight: 800; line-height: 18px; text-align: center;
+    font-family: var(--font-body,'DM Sans',sans-serif);
+    box-shadow: 0 2px 6px rgba(209,75,61,.4);
+    animation: umsBadgePop .3s ease both;
+  }
+  @keyframes umsBadgePop{ from{ transform: scale(0); } to{ transform: scale(1); } }
+  .ums-notif-row{ text-align: center; margin: -6px 0 16px; }
+  .ums-notif-btn{
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; border: 1.5px solid var(--gold,#C8A96E);
+    color: var(--gold-dk,#9A7A3F); border-radius: 999px;
+    padding: 8px 18px; font-family: var(--font-body,'DM Sans',sans-serif);
+    font-size: .76rem; font-weight: 700; letter-spacing: .03em; cursor: pointer;
+    transition: background .2s;
+  }
+  .ums-notif-btn:hover{ background: rgba(200,169,110,.12); }
+  .ums-notif-ok{ font-size: .74rem; color: var(--sub,#5f5c55); font-style: italic; }
+  body.night-mode .ums-notif-btn{ color: #D9BC85; }
+  @media (min-width: 901px){ .ums-fc-badge{ top: 2px; right: 8px; } }
+  body.ums-noscroll{ overflow: hidden; }
+  #ums-rv-overlay{
+    display: none; position: fixed; inset: 0; z-index: 99999999;
+    background: rgba(15,17,23,.55);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center; padding: 24px;
+  }
+  #ums-rv-overlay.show{ display: flex; }
+  .ums-rv-card{
+    background: var(--ivory, #F7F4EF); border-radius: 28px;
+    box-shadow: 0 12px 40px rgba(15,17,23,.2);
+    padding: 30px 26px 26px; max-width: 440px; width: 100%;
+    max-height: 88vh; overflow-y: auto; position: relative;
+    overscroll-behavior: contain;
+    font-family: var(--font-body,'DM Sans',sans-serif);
+  }
+  .ums-rv-close{
+    position: absolute; top: 12px; right: 12px; width: 34px; height: 34px;
+    border-radius: 50%; border: none; background: rgba(15,17,23,.06);
+    color: var(--ink,#1C1C22); font-size: 1rem; cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .ums-rv-title{
+    font-family: var(--font-display,'Playfair Display',serif);
+    font-size: 1.4rem; color: var(--ink,#1C1C22); margin: 2px 0 4px; text-align: center;
+  }
+  .ums-rv-sub{ font-size: .82rem; color: var(--sub,#5f5c55); text-align: center; margin: 0 0 18px; }
+  .ums-rv-mat{
+    font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--gold-dk,#A8823C); margin: 16px 0 8px;
+  }
+  .ums-rv-lez{
+    border: 1px solid var(--dust,#E8E4DC); border-radius: 14px;
+    padding: 12px 14px; margin-bottom: 10px; background: #fff;
+  }
+  .ums-rv-lez-top{ display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .ums-rv-del{
+    flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%;
+    border: none; background: rgba(15,17,23,.06); color: var(--sub,#5f5c55);
+    font-size: .8rem; cursor: pointer; display: grid; place-items: center;
+  }
+  .ums-rv-del:hover{ background: rgba(209,75,61,.12); color: #D14B3D; }
+  .ums-rv-lez-nome{ font-size: .9rem; font-weight: 700; color: var(--ink,#1C1C22); }
+  .ums-rv-lez-conta{ font-size: .72rem; color: var(--sub,#5f5c55); margin: 2px 0 0; }
+  .ums-rv-actions{ display: flex; gap: 8px; margin-top: 10px; }
+  .ums-rv-run{
+    flex: 1; padding: 9px; font-size: .8rem; font-weight: 700; cursor: pointer;
+    border-radius: 10px; border: 1px solid var(--ink,#1C1C22);
+    background: transparent; color: var(--ink,#1C1C22);
+    font-family: var(--font-body,'DM Sans',sans-serif);
+  }
+  .ums-rv-run.primary{ background: var(--ink,#1C1C22); color: #fff; }
+  .ums-rv-run.wrong{ border-color: #D14B3D; color: #D14B3D; }
+  .ums-rv-run.wrong:disabled{ opacity: .4; cursor: default; }
+  .ums-rv-empty{ text-align: center; color: var(--sub,#5f5c55); font-size: .9rem; padding: 24px 0; line-height: 1.5; }
+  body.night-mode .ums-rv-card{ background: #1C1F27; }
+  body.night-mode .ums-rv-title, body.night-mode .ums-rv-lez-nome{ color: #F2EFE8; }
+  body.night-mode .ums-rv-lez{ background: #14161C; border-color: #2B2E38; }
+  body.night-mode .ums-rv-run{ color: #F2EFE8; border-color: #F2EFE8; }
+  body.night-mode .ums-rv-run.primary{ background: var(--gold,#C8A96E); color: #1C1F27; border-color: var(--gold,#C8A96E); }
+  body.night-mode .ums-rv-close{ background: rgba(255,255,255,.08); color: #F2EFE8; }
+  body.night-mode .ums-rv-del{ background: rgba(255,255,255,.08); color: #C5C1B8; }
+  body.night-mode .ums-rv-del:hover{ background: rgba(209,75,61,.2); color: #E07A6E; }
+  .ums-login-btn > svg{ color: #D14B3D; transition: color .2s; }
+  .ums-login-btn.is-in  > svg{ color: #1D9E75; }
+  .ums-login-btn.is-out > svg{ color: #D14B3D; }
+
+        /* PALLINO "1" SUL GRUPPO CHAT — stesso stile del pallino ripasso.
+           Compare SOLO a chi non ha ancora la chiave: un clic e sei nel gruppo. */
+        .ums-inav-wa { position: relative; }
+        .ums-wa-badge {
+            position: absolute; top: 4px; right: 8px;
+            width: 18px; height: 18px; box-sizing: border-box;
+            background: #D14B3D; color: #fff; border-radius: 50%;
+            font-size: .78rem; font-weight: 800; line-height: 18px; text-align: center;
+            font-family: var(--font-body, 'DM Sans', sans-serif);
+            box-shadow: 0 2px 6px rgba(209,75,61,.4);
+            animation: umsBadgePop .3s ease both;
+            pointer-events: none;
+        }
+        .ums-wa-badge[hidden] { display: none; }
+        @media (min-width: 901px) { .ums-wa-badge { top: 2px; right: 8px; } }
+
+
+        /* PUNTO INTERROGATIVO SU ACCEDI — compare SOLO a chi non ha la chiave:
+           incuriosisce e invita al clic. Chi e' gia' dentro non lo vede. */
+        .ums-login-btn { position: relative; }
+        .ums-login-q {
+            display: none;
+            position: absolute; top: 2px; right: 4px;
+            width: 15px; height: 15px; border-radius: 50%;
+            background: #E07A3F; color: #fff;
+            font-family: var(--font-body, 'DM Sans', sans-serif);
+            font-size: 10px; font-weight: 700; line-height: 15px; text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,.28);
+            animation: umsQPulse 2.4s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .ums-login-btn.is-out .ums-login-q { display: block; }
+        @keyframes umsQPulse {
+            0%, 70%, 100% { transform: scale(1); }
+            80% { transform: scale(1.22); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ums-login-q { animation: none; }
+        }
+
+
+
+  #ums-access-overlay{
+    display: none; position: fixed; inset: 0; z-index: 9998;
+    background: rgba(15,17,23,.55);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center; padding: 24px;
+  }
+  #ums-access-overlay.show{ display: flex; }
+  .ums-access-card{
+    background: var(--ivory, #F7F4EF);
+    border-radius: 28px;
+    box-shadow: 0 12px 40px rgba(15,17,23,.2);
+    padding: 34px 28px 28px; max-width: 380px; width: 100%;
+    max-height: 88vh; overflow-y: auto; text-align: center; position: relative;
+    animation: umsAutorePop .35s ease both;
+    font-family: var(--font-body, 'DM Sans', sans-serif);
+  }
+  .ums-access-close{
+    position: absolute; top: 12px; right: 12px;
+    width: 34px; height: 34px; border-radius: 50%;
+    border: none; background: rgba(15,17,23,.06); color: var(--ink,#1C1C22);
+    font-size: 1rem; cursor: pointer; display: grid; place-items: center;
+  }
+  .ums-access-close:hover{ background: rgba(15,17,23,.12); }
+  .ums-access-logo{
+    font-family: var(--font-display,'Playfair Display',serif);
+    font-weight: 700; line-height: 1.02;
+    margin: 6px 0 22px; text-align: center;
+  }
+  .ums-access-logo .ums-logo-l1,
+  .ums-access-logo .ums-logo-l2{ display: block; font-size: 2rem; white-space: nowrap; }
+  .ums-access-logo .ums-logo-l1{ color: var(--ink,#1C1C22); }
+  .ums-access-logo .ums-logo-l2{ color: var(--navy,#22365F); font-style: italic; }
+  .ums-logo-tag{
+    margin-top: 12px;
+    font-family: var(--font-body,'DM Sans',sans-serif);
+    font-size: .62rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--gold-dk, #A8823C);
+    display: flex; align-items: center; justify-content: center; gap: 11px;
+  }
+  .ums-logo-tag::before, .ums-logo-tag::after{ content:''; display:block; width:28px; height:1px; background: var(--gold,#C8A96E); }
+  body.night-mode .ums-access-logo .ums-logo-l1{ color: #F2EFE8; }
+  body.night-mode .ums-access-logo .ums-logo-l2{ color: #8FB4E8; }
+  body.night-mode .ums-logo-tag{ color: #D9BC85; }
+  .ums-access-h{
+    font-family: var(--font-display,'Playfair Display',serif);
+    font-size: 1.25rem; color: var(--ink,#1C1C22); margin: 4px 0 8px;
+  }
+  .ums-access-p{ font-size: .86rem; line-height: 1.55; color: var(--sub,#5f5c55); margin: 0 0 18px; }
+  .ums-access-block{ border-top: 1px solid var(--dust,#E8E4DC); padding-top: 16px; margin-top: 4px; }
+  .ums-access-lbl{ font-size: .8rem; font-weight: 700; color: var(--ink,#1C1C22); margin: 0 0 10px; }
+  .ums-access-input{
+    width: 100%; box-sizing: border-box; padding: 11px 12px;
+    font-size: 1rem; font-family: monospace; text-transform: uppercase;
+    text-align: center; letter-spacing: 1px;
+    border: 1px solid var(--dust,#E8E4DC); border-radius: 12px;
+    margin-bottom: 10px; background: #fff;
+  }
+  .ums-access-btn{
+    width: 100%; box-sizing: border-box; padding: 12px;
+    font-size: .92rem; font-weight: 700; cursor: pointer;
+    border-radius: 12px; border: 1px solid var(--ink,#1C1C22);
+    background: transparent; color: var(--ink,#1C1C22);
+    transition: background .18s, opacity .18s;
+    font-family: var(--font-body,'DM Sans',sans-serif);
+  }
+  .ums-access-btn:hover{ background: rgba(15,17,23,.05); }
+  .ums-access-btn.primary{ background: var(--ink,#1C1C22); color: #fff; border-color: var(--ink,#1C1C22); }
+  .ums-access-btn.primary:hover{ background: #33323b; }
+  .ums-access-btn:disabled{ opacity: .5; cursor: default; }
+  .ums-chiave-box{ margin-top: 12px; }
+  .ums-chiave-val{
+    font-family: monospace; font-size: 1.5rem; font-weight: 700;
+    letter-spacing: 1px; color: var(--gold,#C8A96E);
+    background: #fff; border: 1px dashed var(--gold,#C8A96E);
+    border-radius: 12px; padding: 12px; margin: 4px 0 8px; word-break: break-all;
+  }
+  .ums-copy{
+    background: transparent; border: 1px solid var(--dust,#E8E4DC);
+    border-radius: 10px; padding: 6px 14px; font-size: .78rem;
+    cursor: pointer; color: var(--sub,#5f5c55); margin-bottom: 10px;
+  }
+  .ums-nb{
+    font-size: .76rem; line-height: 1.5; color: var(--sub,#5f5c55);
+    background: rgba(200,169,110,.12); border-radius: 12px;
+    padding: 12px 14px; margin: 8px 0 14px; text-align: left;
+  }
+  .ums-access-msg{ font-size: .8rem; margin: 8px 0 0; min-height: 1em; color: var(--sub,#5f5c55); }
+  .ums-access-msg.err{ color: #D14B3D; font-weight: 600; }
+        .ums-switch{
+            background: none; border: none; cursor: pointer;
+            font-size: .78rem; color: var(--sub,#5f5c55);
+            text-decoration: underline; margin-top: 12px;
+            font-family: var(--font-body,'DM Sans',sans-serif);
+        }
+        body.night-mode .ums-switch{ color: #C9C5BB; }
+  body.night-mode .ums-access-card{ background: #1C1F27; }
+  body.night-mode .ums-access-name,
+  body.night-mode .ums-access-h,
+  body.night-mode .ums-access-lbl{ color: #F2EFE8; }
+  body.night-mode .ums-access-btn{ color: #F2EFE8; border-color: #F2EFE8; }
+  body.night-mode .ums-access-btn.primary{ background: var(--gold,#C8A96E); color: #1C1F27; border-color: var(--gold,#C8A96E); }
+  body.night-mode .ums-access-input{ background: #14161C; color: #F2EFE8; border-color: #2B2E38; }
+  body.night-mode .ums-chiave-val{ background: #14161C; }
+  body.night-mode .ums-access-close{ background: rgba(255,255,255,.08); color: #F2EFE8; }
+</style>
+
+<script id="ums-inav-script">
+(function () {
+  const IG_URL   = '';
+  const WA_URL   = '';
+  const HOME_URL = 'index.html';
+  const AVATAR   = '';
+  const API      = '';
+
+  const HOME_SVG  = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/><path d="M9 22V12h6v10"/></svg>';
+  const WA_SVG    = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.9-1.4A10 10 0 1 0 12 2Z"/><path d="M8.7 7.9c-.3 0-.6.1-.8.4-.8.9-.9 2.4.2 4 1.2 1.8 2.9 3.2 4.9 3.9 1.5.5 2.6.2 3.3-.6.2-.3.3-.7.2-1l-.3-.9c-.1-.3-.4-.4-.7-.4l-1.4.2c-.2 0-.5 0-.6-.2l-1-1c-.6-.6-1.1-1.3-1.4-2-.1-.2 0-.4.1-.6l.7-.9c.2-.2.2-.5.1-.8l-.5-1.2c-.1-.3-.4-.5-.8-.5h-.9Z"/></svg>';
+  const LOGIN_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>';
+  const CARDS_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="13" height="16" rx="2"/><path d="M8 5V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2h-1"/></svg>';
+
+  const getChiave   = () => localStorage.getItem('ums_chiave') || '';
+  const setChiaveLS = (k) => localStorage.setItem('ums_chiave', k);
+  const clearChiave = () => localStorage.removeItem('ums_chiave');
+
+  const nav = document.createElement('nav');
+  nav.id = 'ums-insta-nav';
+  nav.setAttribute('aria-label', 'Navigazione principale');
+  nav.innerHTML =
+    '<a class="ums-inav-item" href="' + HOME_URL + '" title="Home" aria-label="Home">' + HOME_SVG + '</a>' +
+    '<div class="ums-inav-item" id="ums-inav-lang"></div>' +
+    '<button class="ums-inav-item ums-login-btn" id="ums-inav-login" type="button" aria-haspopup="dialog" title="Accedi" aria-label="Accedi">' +
+    '<span class="ums-login-q" aria-hidden="true">?</span>' +
+      LOGIN_SVG +
+      '<span class="ums-inav-label" id="ums-login-label">Accedi</span>' +
+    '</button>' +
+    '<button class="ums-inav-item ums-fc-btn" id="ums-inav-fc" type="button" title="Flashcard da ripassare" aria-label="Flashcard da ripassare">' +
+      CARDS_SVG +
+      '<span class="ums-fc-badge" id="ums-fc-badge" hidden>0</span>' +
+      '<span class="ums-inav-label">Ripasso</span>' +
+    '</button>' +
+    '';
+  document.body.appendChild(nav);
+
+  // ---- Pallino rosso flashcard (legge la stessa memoria del template) ----
+  const TEMPLATE_URL = 'lezione-template.html?file=';
+  function umsCaricaSR() { try { return JSON.parse(localStorage.getItem('ums_sr') || '{}'); } catch (e) { return {}; } }
+  function umsDueTotali() {
+    const db = umsCaricaSR(); const ora = new Date().toISOString(); let n = 0;
+    Object.keys(db).forEach(lk => { const c = db[lk].cards || {}; Object.keys(c).forEach(f => { if ((c[f].due || '') <= ora) n++; }); });
+    return n;
+  }
+  function umsLezionePiuDovuta() {
+    const db = umsCaricaSR(); const ora = new Date().toISOString(); let best = null, bestN = 0;
+    Object.keys(db).forEach(lk => {
+      const c = db[lk].cards || {}; let n = 0;
+      Object.keys(c).forEach(f => { if ((c[f].due || '') <= ora) n++; });
+      if (n > bestN) { bestN = n; best = lk; }
+    });
+    return best;
+  }
+  function umsAggiornaBadgeIndex() {
+    const badge = document.getElementById('ums-fc-badge'); if (!badge) return;
+    const n = umsDueTotali();
+    // Stile social: "!" bianco su pallino rosso; il numero resta nel tooltip e nell'hub
+    if (n > 0) {
+      badge.textContent = '!';
+      badge.title = n + (n === 1 ? ' carta da ripassare' : ' carte da ripassare');
+      badge.hidden = false;
+    } else { badge.hidden = true; }
+  }
+  // Nomi leggibili delle materie dal catalogo corsi (COURSES), via slug del file
+  function umsMappaMaterie() {
+    const map = {};
+    try {
+      (typeof courses !== 'undefined' ? courses : []).forEach(c => {
+        if (c.lezioni && c.lezioni.urlTemplate) {
+          const m = c.lezioni.urlTemplate.match(/file=([^/]+)\//);
+          if (m) map[m[1]] = c.name;
+        }
+      });
+    } catch (e) {}
+    return map;
+  }
+  function umsSlugMateria(lk) { return (lk || '').split('/')[0]; }
+
+  // CATALOGO CONDIVISO COL TEMPLATE — unica fonte di verità: `courses`.
+  // A ogni caricamento della home scriviamo { slug: { nome, n } } nel
+  // localStorage: il template lo legge per i nomi delle materie e per le
+  // freccette precedente/successiva. Aggiungere una materia (o una lezione
+  // a una materia esistente) richiede SOLO di aggiornare `courses`.
+  try {
+    const cat = {};
+    (typeof courses !== 'undefined' ? courses : []).forEach(c => {
+      if (c.lezioni && c.lezioni.urlTemplate) {
+        const m = c.lezioni.urlTemplate.match(/file=([^/]+)\//);
+        if (m) cat[m[1]] = { nome: c.name, n: c.lezioni.count || 0 };
+      }
+    });
+    localStorage.setItem('ums_catalogo', JSON.stringify(cat));
+  } catch (e) {}
+  function umsNomeLezione(lk) {
+    // "antropologia-culturale-mod-a/lezione-1.json" -> "Lezione 3"
+    const file = (lk || '').split('/').pop() || '';
+    const n = (file.match(/(\d+)/) || [])[1];
+    return n ? ('Lezione ' + n) : file.replace(/\.json$/, '');
+  }
+
+  // ---- Pop-up "Da ripassare" sulla home ----
+  const rvOverlay = document.createElement('div');
+  rvOverlay.id = 'ums-rv-overlay';
+  rvOverlay.setAttribute('role', 'dialog');
+  rvOverlay.setAttribute('aria-modal', 'true');
+  rvOverlay.setAttribute('aria-label', 'Da ripassare');
+  rvOverlay.innerHTML =
+    '<div class="ums-rv-card">' +
+      '<button class="ums-rv-close" type="button" aria-label="Chiudi">&#10005;</button>' +
+      '<div class="ums-bmc-logo notranslate" translate="no"><span class="l1">Demo</span><span class="l2">Accessibilità</span></div>' +
+      '<div class="ums-bmc-tag"><span>Il tuo compagno di studi</span></div>' +
+      '<div class="ums-rv-title">Da ripassare</div>' +
+      '<div class="ums-rv-sub" id="ums-rv-sub"></div>' +
+      '<div class="ums-notif-row" id="ums-notif-row" hidden>' +
+        '<button class="ums-notif-btn" id="ums-notif-btn" type="button"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg> Avvisami quando ho un ripasso</button>' +
+        '<span class="ums-notif-ok" id="ums-notif-msg" hidden></span>' +
+      '</div>' +
+      '<div id="ums-rv-list"></div>' +
+    '</div>';
+  document.body.appendChild(rvOverlay);
+  const rvClose = rvOverlay.querySelector('.ums-rv-close');
+  const rvList = document.getElementById('ums-rv-list');
+  const rvSub = document.getElementById('ums-rv-sub');
+
+  // UN FALDONE PER MATERIA: le carte di tutte le lezioni di una materia si
+  // accumulano in un'unica scatola. Le chiavi del db restano per-lezione
+  // (servono alla sincronizzazione cloud): l'unione avviene qui, in vista.
+  function umsGruppiRipasso() {
+    const db = umsCaricaSR(); const ora = new Date().toISOString();
+    const materie = umsMappaMaterie();
+    const out = {}; // slug -> { slug, nome, dovute, totale, sbagliate, lkTop }
+    Object.keys(db).forEach(lk => {
+      const cards = db[lk].cards || {};
+      let dovute = 0, totale = 0, sbagliate = 0, prossima = null;
+      Object.keys(cards).forEach(f => {
+        totale++;
+        if ((cards[f].due || '') <= ora) dovute++;
+        if (cards[f].due && (!prossima || cards[f].due < prossima)) prossima = cards[f].due;
+        const bucket = cards[f].bucket || (cards[f].stato === 'unknown' ? 'sbagliate' : 'giuste');
+        if (bucket === 'sbagliate') sbagliate++;
+      });
+      if (totale === 0) return;
+      const slug = umsSlugMateria(lk);
+      const nomeMat = materie[slug] || ((db[lk].titolo && db[lk].titolo !== lk) ? db[lk].titolo : slug);
+      const g = out[slug] = out[slug] || { slug, nome: nomeMat, dovute: 0, totale: 0, sbagliate: 0, prossima: null, lkTop: lk, _topDovute: -1, lks: [] };
+      g.dovute += dovute; g.totale += totale; g.sbagliate += sbagliate;
+      if (prossima && (!g.prossima || prossima < g.prossima)) g.prossima = prossima;
+      g.lks.push(lk);
+      // La pagina che ospiterà il pop-up: la lezione della materia con più
+      // carte in scadenza (il pop-up pesca comunque dal db, non dalla pagina).
+      if (dovute > g._topDovute) { g._topDovute = dovute; g.lkTop = lk; }
+    });
+    return out;
+  }
+
+  // Elimina l'intero FALDONE di una materia: locale + cloud (stesso protocollo
+  // del template: kind 'sr' con contenuto null = cancellazione logica, che il
+  // pull salta — così il mazzo non "risorge" alla prossima sincronizzazione).
+  function umsEliminaMateria(g) {
+    // via il confirm() nativo: pop-up brandizzato stile Accedi
+    umsConfirm({
+      title: 'Eliminare il ripasso di "' + g.nome + '"?',
+      message: 'Le carte non ti verranno più riproposte.',
+      okText: 'Elimina',
+      cancelText: 'Annulla',
+      danger: true
+    }).then(conferma => {
+    if (!conferma) return;
+    const db = umsCaricaSR();
+    g.lks.forEach(lk => { delete db[lk]; });
+    try { localStorage.setItem('ums_sr', JSON.stringify(db)); } catch (e) {}
+    const chiave = getChiave();
+    if (chiave) {
+      const items = g.lks.map(lk => ({ kind: 'sr', id: lk, content: null }));
+      fetch(API + '/save', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chiave, items })
+      }).catch(() => {});
+    }
+    rvRender();
+    umsAggiornaBadgeIndex();
+    });
+  }
+
+  function umsAvviaRipasso(g, soloSbagliate) {
+    // Target per MATERIA: il template unirà le carte di tutte le lezioni.
+    try { sessionStorage.setItem('ums_review_target', JSON.stringify({ mat: g.slug, soloSbagliate })); } catch (e) {}
+    window.location.href = TEMPLATE_URL + encodeURIComponent(g.lkTop);
+  }
+
+  // Riga conteggio con countdown, come nel template ("tra N giorni", "domani")
+  function umsContaTesto(g) {
+    let t = g.dovute + ' da ripassare · ' + g.totale + ' totali';
+    if (g.dovute === 0 && g.prossima) {
+      const giorni = Math.ceil((new Date(g.prossima) - new Date()) / 86400000);
+      if (giorni <= 0) t += ' · prossimo ripasso a breve';
+      else if (giorni === 1) t += ' · prossimo ripasso domani';
+      else t += ' · prossimo ripasso tra ' + giorni + ' giorni';
+    }
+    return t;
+  }
+
+  function rvRender() {
+    // Senza accesso la sezione non salva né sincronizza: cancello con invito
+    if (!localStorage.getItem('ums_chiave')) {
+      rvSub.textContent = '';
+      const riga = document.getElementById('ums-notif-row');
+      if (riga) riga.hidden = true;
+      rvList.innerHTML =
+        '<div class="ums-rv-empty">Per usare il ripasso serve la tua chiave: accedendo, ogni flashcard che provi si salva e te la riproponiamo al momento giusto, su qualsiasi dispositivo. Bastano due tocchi, ed &egrave; gratis.</div>' +
+        '<div style="text-align:center;"><button class="ums-rv-accedi" type="button">Accedi ora</button></div>';
+      rvList.querySelector('.ums-rv-accedi').addEventListener('click', function () {
+        rvClose.click();
+        const acc = document.getElementById('ums-access-overlay');
+        if (acc) acc.classList.add('show');
+      });
+      return;
+    }
+    const gruppi = Object.values(umsGruppiRipasso());
+    rvList.innerHTML = '';
+    if (gruppi.length === 0) {
+      rvSub.textContent = '';
+      rvList.innerHTML = '<div class="ums-rv-empty">Non hai ancora salvato nessun ripasso.<br>Apri una lezione e prova le flashcard: ogni risposta si salva da sola.</div>';
+      return;
+    }
+    const tot = umsDueTotali();
+    rvSub.textContent = tot > 0 ? (tot + (tot === 1 ? ' carta da ripassare oggi' : ' carte da ripassare oggi')) : 'Nessuna carta in scadenza oggi — ottimo!';
+    gruppi.forEach(g => {
+      const box = document.createElement('div');
+      box.className = 'ums-rv-lez';
+      box.innerHTML =
+        '<div class="ums-rv-lez-top">' +
+          '<div>' +
+            '<div class="ums-rv-lez-nome"></div>' +
+            '<div class="ums-rv-lez-conta">' + umsContaTesto(g) + '</div>' +
+          '</div>' +
+          '<button class="ums-rv-del" type="button" title="Elimina questo mazzo" aria-label="Elimina questo mazzo">&#10005;</button>' +
+        '</div>' +
+        '<div class="ums-rv-actions">' +
+          '<button class="ums-rv-run primary" type="button">Ripassa tutte (' + g.totale + ')</button>' +
+          '<button class="ums-rv-run wrong" type="button"' + (g.sbagliate === 0 ? ' disabled' : '') + '>Solo sbagliate (' + g.sbagliate + ')</button>' +
+        '</div>';
+      box.querySelector('.ums-rv-lez-nome').textContent = g.nome;
+      box.querySelector('.primary').addEventListener('click', () => umsAvviaRipasso(g, false));
+      const w = box.querySelector('.wrong');
+      if (g.sbagliate > 0) w.addEventListener('click', () => umsAvviaRipasso(g, true));
+      box.querySelector('.ums-rv-del').addEventListener('click', () => umsEliminaMateria(g));
+      rvList.appendChild(box);
+    });
+  }
+
+  const fcBtnIndex = document.getElementById('ums-inav-fc');
+  const rvOpen = () => { rvRender(); rvOverlay.classList.add('show'); document.body.classList.add('ums-noscroll'); rvClose.focus(); };
+  const rvCloseFn = () => { rvOverlay.classList.remove('show'); document.body.classList.remove('ums-noscroll'); if (fcBtnIndex) fcBtnIndex.focus(); };
+  if (fcBtnIndex) fcBtnIndex.addEventListener('click', rvOpen);
+  rvClose.addEventListener('click', rvCloseFn);
+  rvOverlay.addEventListener('click', (e) => { if (e.target === rvOverlay) rvCloseFn(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && rvOverlay.classList.contains('show')) rvCloseFn(); });
+  umsAggiornaBadgeIndex();
+
+  // ---- PROMEMORIA RIPASSO — v2: PWA + notifiche push (fasi 2/3) ----
+  if ('serviceWorker' in navigator) { try { navigator.serviceWorker.register('sw.js'); } catch (e) {} }
+  const PUSH_API = '';
+  const VAPID_PUBLIC = 'BHjqsvdBP-RMbECYw0ZWApfxaEMECbjVmNUFmDSNoE3DYVXe8j1xnlrCBu8fIN8vI-YiBTm9YAhcJpe-pXVTaBg';
+  const NOTIF_ICONA = 'icons/icon-192.png';
+  function umsB64aArray(b64) {
+    const pad = '='.repeat((4 - b64.length % 4) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    const arr = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    return arr;
+  }
+  function umsProssimaScadenza() {
+    try {
+      const db = JSON.parse(localStorage.getItem('ums_sr') || '{}');
+      let min = null;
+      Object.keys(db).forEach(function (lk) {
+        const c = (db[lk] && db[lk].cards) || {};
+        Object.keys(c).forEach(function (f) {
+          const d = c[f].due;
+          if (d && (!min || d < min)) min = d;
+        });
+      });
+      return min;
+    } catch (e) { return null; }
+  }
+  function umsMostraNotifica(corpo) {
+    const opz = { body: corpo, icon: NOTIF_ICONA, tag: 'ums-ripasso' };
+    const ripiego = function () { try { new Notification('Demo Accessibilità', opz); } catch (e) {} };
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then(function (reg) {
+        if (reg && reg.showNotification) { reg.showNotification('Demo Accessibilità', opz); }
+        else { ripiego(); }
+      }).catch(ripiego);
+    } else { ripiego(); }
+  }
+  function umsPushSync(sub) {
+    fetch(PUSH_API + '/aggiorna', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ endpoint: sub.endpoint, prossima: umsProssimaScadenza() })
+    }).catch(function () {});
+  }
+  function umsIscriviPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    navigator.serviceWorker.ready.then(function (reg) {
+      return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: umsB64aArray(VAPID_PUBLIC) });
+    }).then(function (sub) {
+      fetch(PUSH_API + '/iscrivi', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sub: sub.toJSON(), chiave: localStorage.getItem('ums_chiave') || '', prossima: umsProssimaScadenza() })
+      }).catch(function () {});
+    }).catch(function () { /* push non supportate qui: restano le notifiche all'apertura */ });
+  }
+  function umsNotifRender() {
+    const row = document.getElementById('ums-notif-row');
+    if (!row) return;
+    if (!('Notification' in window)) { row.hidden = true; return; }
+    const btn = document.getElementById('ums-notif-btn');
+    const msg = document.getElementById('ums-notif-msg');
+    row.hidden = false;
+    if (Notification.permission === 'granted') {
+      btn.hidden = true; msg.hidden = false;
+      msg.textContent = 'Promemoria attivi su questo dispositivo';
+    } else if (Notification.permission === 'denied') {
+      btn.hidden = true; msg.hidden = false;
+      msg.textContent = 'Notifiche bloccate: riattivale dalle impostazioni del sito';
+    } else { btn.hidden = false; msg.hidden = true; }
+  }
+  function umsNotificaDovute(forza) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const n = umsDueTotali();
+    if (n <= 0) return;
+    const oggi = new Date().toDateString();
+    try { if (!forza && localStorage.getItem('ums_notif_giorno') === oggi) return; } catch (e) {}
+    umsMostraNotifica(n === 1 ? 'Hai 1 carta da ripassare oggi. Due minuti e sei a posto.'
+                              : 'Hai ' + n + ' carte da ripassare oggi. Due minuti e sei a posto.');
+    try { localStorage.setItem('ums_notif_giorno', oggi); } catch (e) {}
+  }
+  const notifBtn = document.getElementById('ums-notif-btn');
+  if (notifBtn) notifBtn.addEventListener('click', function () {
+    Notification.requestPermission().then(function () {
+      umsNotifRender();
+      umsNotificaDovute(true);
+      if (Notification.permission === 'granted') umsIscriviPush();
+    });
+  });
+  if (fcBtnIndex) fcBtnIndex.addEventListener('click', umsNotifRender);
+  setTimeout(function () {
+    umsNotificaDovute(false);
+    // se i promemoria sono attivi, tieni aggiornato il server sulla prossima scadenza
+    if ('Notification' in window && Notification.permission === 'granted'
+        && 'serviceWorker' in navigator && 'PushManager' in window) {
+      navigator.serviceWorker.ready.then(function (reg) { return reg.pushManager.getSubscription(); })
+        .then(function (sub) { if (sub) umsPushSync(sub); else umsIscriviPush(); })
+        .catch(function () {});
+    }
+  }, 1500);
+
+  const langSel  = document.getElementById('custom-lang-selector');
+  const langSlot = document.getElementById('ums-inav-lang');
+  if (langSel && langSlot) langSlot.appendChild(langSel);
+  const menu = document.getElementById('lang-options-menu');
+  if (menu && menu.parentElement !== document.body) {
+    menu.classList.add('ums-lang-portal');
+    document.body.appendChild(menu);
+  }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'ums-access-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-label', 'Accesso');
+  overlay.innerHTML =
+    '<div class="ums-access-card">' +
+      '<button class="ums-access-close" type="button" aria-label="Chiudi">&#10005;</button>' +
+      '<div class="ums-access-logo notranslate" translate="no">' +
+        '<span class="ums-logo-l1">Demo</span>' +
+        '<span class="ums-logo-l2">Accessibilità</span>' +
+        '<div class="ums-logo-tag"><span>Il tuo compagno di studi</span></div>' +
+      '</div>' +
+      '<div id="ums-access-out">' +
+                        '<h3 class="ums-access-h">Salva i tuoi progressi</h3>' +
+                        '<p class="ums-access-p">Con l\'accesso tutto ci&ograve; che fai su <span class="notranslate" translate="no">Demo Accessibilità</span> resta tuo: le lezioni che segui, gli appunti che scrivi, le sottolineature e le flashcard che ripassi. Li ritrovi ogni volta che torni, anche da un altro dispositivo. Nessuna email, nessuna password, nessun dato personale: ti basta una chiave.</p>' +
+                        '<div class="ums-access-block" id="ums-choice">' +
+                            '<button class="ums-access-btn primary" id="ums-scegli-ho" type="button">Ho gi&agrave; la mia chiave</button>' +
+                            '<div style="height:10px"></div>' +
+                            '<button class="ums-access-btn" id="ums-scegli-primo" type="button">&Egrave; la mia prima volta qui</button>' +
+                        '</div>' +
+                        '<div class="ums-access-block" id="ums-view-login" hidden>' +
+                            '<p class="ums-access-lbl">Inserisci la tua chiave</p>' +
+                            '<input id="ums-input-chiave" class="ums-access-input" type="text" placeholder="ESEMPIO123" autocomplete="off" spellcheck="false">' +
+                            '<button class="ums-access-btn primary" id="ums-accedi" type="button">Accedi</button>' +
+                            '<p class="ums-access-msg" id="ums-login-msg"></p>' +
+                            '<button class="ums-switch" id="ums-to-genera" type="button">Non ho mai avuto una chiave</button>' +
+                        '</div>' +
+                        '<div class="ums-access-block" id="ums-view-genera" hidden>' +
+                            '<p class="ums-nb">&#9888;&#65039; Genera una chiave solo se non ne hai mai avuta una. Se in passato ne avevi gi&agrave; creata una, usa quella: una chiave nuova parte da zero e i tuoi vecchi appunti non la seguiranno.</p>' +
+                            '<button class="ums-access-btn primary" id="ums-genera" type="button">S&igrave;, &egrave; la mia prima volta: genera</button>' +
+                            '<p class="ums-access-msg" id="ums-genera-msg"></p>' +
+                            '<div id="ums-chiave-box" class="ums-chiave-box" hidden>' +
+                                '<div class="ums-chiave-val" id="ums-chiave-val"></div>' +
+                                '<button class="ums-copy" id="ums-copy" type="button">Copia</button>' +
+                                '<p class="ums-nb">&#9888;&#65039; Questa &egrave; la tua chiave, ed &egrave; unica e irripetibile. Scrivila e conservala subito &mdash; nelle note del telefono, su un foglio, dove preferisci. &Egrave; l\'unico modo per ritrovare i tuoi appunti: non &egrave; legata a nessuna email, quindi se la perdi non pu&ograve; essere recuperata.</p>' +
+                                '<button class="ums-access-btn primary" id="ums-conferma" type="button">Ho salvato la chiave, entra</button>' +
+                            '</div>' +
+                            '<button class="ums-switch" id="ums-to-login" type="button">In realt&agrave; ho gi&agrave; una chiave</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div id="ums-access-in" hidden>' +
+        '<h3 class="ums-access-h">Sei connesso</h3>' +
+        '<p class="ums-access-p">I tuoi progressi vengono salvati con questa chiave:</p>' +
+        '<div class="ums-chiave-val" id="ums-chiave-mine"></div>' +
+        '<p class="ums-nb">Conservala con cura: &egrave; ci&ograve; che ti serve per ritrovare i tuoi appunti da qualsiasi dispositivo.</p>' +
+        '<button class="ums-access-btn" id="ums-esci" type="button">Esci</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(overlay);
+
+  const loginBtn   = document.getElementById('ums-inav-login');
+  const loginLabel = document.getElementById('ums-login-label');
+  const closeBtn   = overlay.querySelector('.ums-access-close');
+  const outView    = document.getElementById('ums-access-out');
+  const inView     = document.getElementById('ums-access-in');
+
+  function refreshState() {
+    const k = getChiave();
+    if (k) {
+      loginBtn.classList.add('is-in'); loginBtn.classList.remove('is-out');
+      loginLabel.textContent = 'Accesso';
+      loginBtn.title = 'Sei connesso'; loginBtn.setAttribute('aria-label', 'Sei connesso');
+      document.getElementById('ums-chiave-mine').textContent = k;
+      outView.hidden = true; inView.hidden = false;
+    } else {
+      loginBtn.classList.add('is-out'); loginBtn.classList.remove('is-in');
+      loginLabel.textContent = 'Accedi';
+      loginBtn.title = 'Accedi'; loginBtn.setAttribute('aria-label', 'Accedi');
+      outView.hidden = false; inView.hidden = true;
+    }
+  }
+  refreshState();
+  if (window.umsWaBadge) window.umsWaBadge();
+
+  const choiceView  = document.getElementById('ums-choice');
+            const loginView2  = document.getElementById('ums-view-login');
+            const generaView  = document.getElementById('ums-view-genera');
+            const resetOut = () => { choiceView.hidden = false; loginView2.hidden = true; generaView.hidden = true; };
+            document.getElementById('ums-scegli-ho').addEventListener('click', () => { choiceView.hidden = true; loginView2.hidden = false; });
+            document.getElementById('ums-scegli-primo').addEventListener('click', () => { choiceView.hidden = true; generaView.hidden = false; });
+            document.getElementById('ums-to-genera').addEventListener('click', () => { loginView2.hidden = true; generaView.hidden = false; });
+            document.getElementById('ums-to-login').addEventListener('click', () => { generaView.hidden = true; loginView2.hidden = false; });
+            const open  = () => { resetOut(); overlay.classList.add('show'); closeBtn.focus(); };
+  const close = () => { overlay.classList.remove('show'); loginBtn.focus(); };
+  loginBtn.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('show')) close(); });
+
+  let chiaveGenerata = '';
+  const generaBtn = document.getElementById('ums-genera');
+  const chiaveBox = document.getElementById('ums-chiave-box');
+  const chiaveVal = document.getElementById('ums-chiave-val');
+  generaBtn.addEventListener('click', async () => {
+                const gMsg = document.getElementById('ums-genera-msg');
+                gMsg.textContent = ''; gMsg.className = 'ums-access-msg';
+                generaBtn.disabled = true; generaBtn.textContent = 'Genero\u2026';
+                try {
+                    const r = await fetch(API + '/create', { method: 'POST' });
+                    const d = await r.json();
+                    if (d.chiave) {
+                        chiaveGenerata = d.chiave;
+                        chiaveVal.textContent = d.chiave;
+                        chiaveBox.hidden = false;
+                        generaBtn.hidden = true;
+                    } else if (r.status === 429) {
+                        gMsg.textContent = 'Hai gi\u00e0 creato diverse chiavi oggi. Quasi sicuramente ne hai una: cercala dove l\u2019avevi salvata e usa \u201cHo gi\u00e0 la mia chiave\u201d.';
+                        gMsg.className = 'ums-access-msg err';
+                        generaBtn.textContent = 'S\u00ec, \u00e8 la mia prima volta: genera';
+                        generaBtn.disabled = false;
+                    } else {
+                        gMsg.textContent = 'Errore, riprova.';
+                        gMsg.className = 'ums-access-msg err';
+                        generaBtn.textContent = 'S\u00ec, \u00e8 la mia prima volta: genera';
+                        generaBtn.disabled = false;
+                    }
+                } catch (e) {
+                    gMsg.textContent = 'Errore di connessione, riprova.';
+                    gMsg.className = 'ums-access-msg err';
+                    generaBtn.textContent = 'S\u00ec, \u00e8 la mia prima volta: genera';
+                    generaBtn.disabled = false;
+                }
+            });
+
+            const copyBtn = document.getElementById('ums-copy');
+  copyBtn.addEventListener('click', () => {
+    if (!chiaveGenerata) return;
+    navigator.clipboard.writeText(chiaveGenerata).then(() => {
+      copyBtn.textContent = 'Copiata \u2713';
+      setTimeout(() => { copyBtn.textContent = 'Copia'; }, 1500);
+    }).catch(() => {});
+  });
+
+  document.getElementById('ums-conferma').addEventListener('click', () => {
+    if (chiaveGenerata) { setChiaveLS(chiaveGenerata); refreshState(); }
+  });
+
+  const accediBtn   = document.getElementById('ums-accedi');
+  const inputChiave = document.getElementById('ums-input-chiave');
+  const loginMsg    = document.getElementById('ums-login-msg');
+  accediBtn.addEventListener('click', async () => {
+    const chiave = (inputChiave.value || '').toUpperCase().replace(/[\s-]/g, '');
+    if (!chiave) { loginMsg.textContent = 'Scrivi la tua chiave.'; loginMsg.className = 'ums-access-msg err'; return; }
+    accediBtn.disabled = true; loginMsg.textContent = 'Controllo\u2026'; loginMsg.className = 'ums-access-msg';
+    try {
+      const r = await fetch(API + '/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chiave }) });
+      const d = await r.json();
+      if (d.valida) { setChiaveLS(chiave); refreshState(); loginMsg.textContent = ''; }
+      else { loginMsg.textContent = 'Chiave non trovata. Controlla di averla scritta bene.'; loginMsg.className = 'ums-access-msg err'; }
+    } catch (e) { loginMsg.textContent = 'Errore di connessione, riprova.'; loginMsg.className = 'ums-access-msg err'; }
+    accediBtn.disabled = false;
+  });
+  inputChiave.addEventListener('keydown', (e) => { if (e.key === 'Enter') accediBtn.click(); });
+
+  document.getElementById('ums-esci').addEventListener('click', () => { clearChiave(); refreshState(); });
+})();
+</script>
+
+    <!-- ================================================================
+         UMS CONFIRM — pop-up di conferma brandizzato (stile pop-up Accedi)
+         Sostituisce i confirm() nativi. API: umsConfirm({...}) -> Promise
+    ================================================================ -->
+    <style id="ums-confirm-style">
+        #ums-confirm-overlay{
+            display: none; position: fixed; inset: 0; z-index: 999999999;
+            background: rgba(15,17,23,.55);
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+            align-items: center; justify-content: center; padding: 24px;
+        }
+        #ums-confirm-overlay.show{ display: flex; }
+        .ums-confirm-card{ max-width: 340px; }
+        .ums-confirm-card .ums-access-logo{ margin-bottom: 16px; }
+        .ums-confirm-card .ums-access-logo .ums-logo-l1,
+        .ums-confirm-card .ums-access-logo .ums-logo-l2{ font-size: 1.5rem; }
+        #ums-confirm-ok.danger{ background: #B4573E; border-color: #B4573E; color: #fff; }
+        #ums-confirm-ok.danger:hover{ background: #9C4934; }
+        .night-mode #ums-confirm-ok.danger{ background: #B4573E; border-color: #B4573E; color: #fff; }
+    </style>
+    <script id="ums-confirm-script">
+        (function () {
+            const ov = document.createElement('div');
+            ov.id = 'ums-confirm-overlay';
+            ov.setAttribute('role', 'alertdialog');
+            ov.setAttribute('aria-modal', 'true');
+            ov.innerHTML =
+                '<div class="ums-access-card ums-confirm-card">' +
+                    '<div class="ums-access-logo notranslate" translate="no">' +
+                        '<span class="ums-logo-l1">Demo</span>' +
+                        '<span class="ums-logo-l2">Accessibilità</span>' +
+                    '</div>' +
+                    '<h3 class="ums-access-h" id="ums-confirm-title"></h3>' +
+                    '<p class="ums-access-p" id="ums-confirm-msg"></p>' +
+                    '<button class="ums-access-btn primary" id="ums-confirm-ok" type="button"></button>' +
+                    '<div style="height:10px"></div>' +
+                    '<button class="ums-access-btn" id="ums-confirm-cancel" type="button"></button>' +
+                '</div>';
+            document.body.appendChild(ov);
+            const t = document.getElementById('ums-confirm-title');
+            const m = document.getElementById('ums-confirm-msg');
+            const ok = document.getElementById('ums-confirm-ok');
+            const no = document.getElementById('ums-confirm-cancel');
+            let risolvi = null;
+            function chiudi(esito) {
+                ov.classList.remove('show');
+                document.removeEventListener('keydown', suEsc);
+                if (risolvi) { const r = risolvi; risolvi = null; r(esito); }
+            }
+            function suEsc(e) { if (e.key === 'Escape') chiudi(false); }
+            ok.addEventListener('click', () => chiudi(true));
+            no.addEventListener('click', () => chiudi(false));
+            ov.addEventListener('click', (e) => { if (e.target === ov) chiudi(false); });
+            window.umsConfirm = function (opz) {
+                opz = opz || {};
+                t.textContent = opz.title || 'Sei sicuro?';
+                m.textContent = opz.message || '';
+                m.style.display = opz.message ? '' : 'none';
+                ok.textContent = opz.okText || 'Conferma';
+                no.textContent = opz.cancelText || 'Annulla';
+                ok.classList.toggle('danger', !!opz.danger);
+                ov.classList.add('show');
+                document.addEventListener('keydown', suEsc);
+                try { no.focus(); } catch (e) {}
+                return new Promise(res => { risolvi = res; });
+            };
+        })();
+    </script>
+<!-- ================================================================
+     SOSTEGNO — pulsante accanto a INIZIA + pop-up con le tre fasce
+     La SCELTA della fascia avviene qui dentro, con i colori e i testi
+     del sito. Solo il pagamento vero apre Buy Me a Coffee in una nuova
+     scheda (Stripe non si può incorporare: il pagamento deve avvenire
+     su un dominio riconoscibile, o i browser lo bloccano).
+================================================================ -->
+<style id="ums-sostieni-style">
+  /* --- i due pulsanti dello splash, affiancati --- */
+  #hero-actions{
+    display: flex; align-items: stretch; justify-content: center;
+    gap: 12px; flex-wrap: nowrap;
+  }
+  #ums-sostieni{
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    background: var(--gold); color: #2A2113;
+    border: none; border-radius: var(--r-pill);
+    padding: 1.05rem 1.6rem;
+    font-family: var(--font-body);
+    font-size: .82rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    cursor: pointer; box-shadow: 0 10px 30px rgba(200,169,110,.35);
+    opacity: 0; animation: fadeUp .7s 2.15s ease both;
+    transition: transform .25s var(--ease), box-shadow .25s, background-color .25s;
+    /* larghezza fissa: la scritta cambia, il pulsante no */
+    width: 15.5rem; min-width: 15.5rem;
+  }
+  #ums-sostieni:hover{ transform: translateY(-3px); box-shadow: 0 16px 40px rgba(200,169,110,.45); background: var(--gold-lt); }
+  #ums-sostieni:active{ transform: translateY(-1px); }
+  #ums-sostieni .ums-cup{
+    width: 17px; height: 17px; flex-shrink: 0;
+    stroke: currentColor; fill: none; stroke-width: 1.8;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  #ums-sostieni-label{
+    white-space: nowrap;
+    transition: opacity .35s ease, font-size .2s ease;
+    /* la dimensione la calcola il JS: la scritta non viene MAI tagliata */
+  }
+  #ums-sostieni-label.ums-fade{ opacity: 0; }
+  body.night-mode #ums-sostieni{ background: var(--gold); color: #2A2113; }
+  body.app-mode #hero-actions{ display: none; }
+
+  @media (max-width: 640px){
+    #hero-actions{ flex-direction: column; align-items: center; gap: 10px; }
+    #inizia{ width: 15.5rem; justify-content: center; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    #ums-sostieni{ animation: none; opacity: 1; }
+    #ums-sostieni-label{ transition: none; }
+  }
+
+  /* --- pop-up fasce: riusa il linguaggio del pop-up Accedi --- */
+  #ums-bmc-overlay{
+    display: none; position: fixed; inset: 0; z-index: 99999999;
+    background: rgba(15,17,23,.55);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    align-items: center; justify-content: center; padding: 24px;
+  }
+  #ums-bmc-overlay.show{ display: flex; }
+  .ums-bmc-card{
+    background: var(--ivory, #F7F4EF);
+    border-radius: 28px;
+    box-shadow: 0 12px 40px rgba(15,17,23,.2);
+    padding: 34px 26px 26px; max-width: 440px; width: 100%;
+    max-height: 88vh; overflow-y: auto; text-align: center; position: relative;
+    animation: umsAutorePop .35s ease both;
+    font-family: var(--font-body);
+  }
+  .ums-bmc-close{
+    position: absolute; top: 12px; right: 12px;
+    width: 34px; height: 34px; border-radius: 50%;
+    border: none; background: rgba(15,17,23,.06); color: var(--ink);
+    font-size: 1rem; cursor: pointer; display: grid; place-items: center;
+  }
+  .ums-bmc-close:hover{ background: rgba(15,17,23,.12); }
+  .ums-bmc-logo{
+    font-family: var(--font-display); font-weight: 700; line-height: 1.02;
+    margin: 4px 0 14px;
+  }
+  .ums-bmc-logo .l1, .ums-bmc-logo .l2{ display: block; font-size: 1.6rem; white-space: nowrap; }
+  .ums-bmc-logo .l1{ color: var(--ink); }
+  .ums-bmc-logo .l2{ color: var(--navy); font-style: italic; }
+  .ums-bmc-tag{
+    display: flex; align-items: center; justify-content: center; gap: 11px;
+    font-family: var(--font-body);
+    font-size: .6rem; font-weight: 700; letter-spacing: .28em; text-transform: uppercase;
+    color: var(--gold-dk); margin: 10px 0 20px;
+  }
+  .ums-bmc-tag::before, .ums-bmc-tag::after{
+    content: ''; display: block; width: 26px; height: 1px; background: var(--gold);
+  }
+  .ums-bmc-intro{
+    font-size: .86rem; line-height: 1.6; color: var(--sub);
+    margin: 0 0 20px; text-align: left;
+  }
+  .ums-bmc-intro b{ color: var(--ink); font-weight: 700; }
+  .ums-sir-link{ color: inherit; text-decoration: none; border-bottom: 2px solid var(--gold); }
+  .ums-sir-link:hover{ background: rgba(200,169,110,.15); }
+
+  .ums-tier{
+    display: block; width: 100%; text-align: left;
+    background: #fff; border: 1.5px solid var(--dust);
+    border-radius: 16px; padding: 15px 16px; margin-bottom: 10px;
+    cursor: pointer; font-family: var(--font-body);
+    transition: border-color .2s, transform .15s, box-shadow .2s;
+    position: relative;
+  }
+  .ums-tier:hover{ border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 10px 26px rgba(15,17,23,.09); }
+  .ums-tier-top{ display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .ums-tier-nome{ font-family: var(--font-display); font-size: 1.06rem; font-weight: 700; color: var(--ink); }
+  .ums-tier-prezzo{ font-size: .82rem; font-weight: 700; color: var(--gold-dk); white-space: nowrap; }
+  .ums-tier-desc{ font-size: .8rem; line-height: 1.5; color: var(--sub); margin-top: 5px; }
+  .ums-tier-desc b{ color: var(--ink); font-weight: 700; }
+  .ums-tier.consigliato{ border-color: var(--gold); box-shadow: 0 6px 20px rgba(200,169,110,.18); }
+  .ums-tier-badge{
+    position: absolute; top: -9px; left: 16px;
+    background: var(--gold); color: #2A2113;
+    font-size: .58rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .ums-bmc-nota{
+    font-size: .72rem; line-height: 1.5; color: var(--sub);
+    margin: 14px 0 0; font-style: italic;
+  }
+  /* NIGHT MODE — l'index non rimappa i token, quindi ogni colore che
+     usa --ink o --sub va riscritto a mano: prima i grassetti erano
+     nero su nero (invisibili). */
+  body.night-mode .ums-bmc-card{ background: #1C1F27; }
+  body.night-mode .ums-bmc-logo .l1{ color: #F2EFE8; }
+  body.night-mode .ums-bmc-logo .l2{ color: #8FB4E8; }
+  body.night-mode .ums-bmc-tag{ color: #D9BC85; }
+  body.night-mode .ums-bmc-intro{ color: #C7C4BC; }
+  body.night-mode .ums-bmc-intro b{ color: #F2EFE8; }
+  body.night-mode .ums-sir-link b{ color: #F2EFE8; }
+  body.night-mode .ums-tier{ background: #262933; border-color: #383C48; }
+  body.night-mode .ums-tier.consigliato{ border-color: var(--gold); }
+  body.night-mode .ums-tier-nome{ color: #F2EFE8; }
+  body.night-mode .ums-tier-prezzo{ color: #D9BC85; }
+  body.night-mode .ums-tier-desc{ color: #B0ADA5; }
+  body.night-mode .ums-tier-desc b{ color: #F2EFE8; }
+  body.night-mode .ums-bmc-nota{ color: #918E86; }
+  body.night-mode .ums-bmc-close{ background: rgba(255,255,255,.08); color: #F2EFE8; }
+</style>
+
+<script id="ums-sostieni-script">
+(function () {
+  // ⚠️ CONTROLLA QUESTO: dev'essere il tuo indirizzo Buy Me a Coffee.
+  const BMC_UTENTE = '';
+  const BMC_MEMBERSHIP = '' + BMC_UTENTE + '/membership';
+
+  // --- scritte a rotazione (il pulsante resta della stessa larghezza) ---
+  const SCRITTE = ['Sostieni il progetto'];
+  const btn = document.getElementById('ums-sostieni');
+  const label = document.getElementById('ums-sostieni-label');
+
+  // Il pulsante ha larghezza fissa: la scritta si adatta AL PULSANTE,
+  // rimpicciolendo il corpo del carattere quanto basta. Mai puntini,
+  // mai testo tagliato. Si ricalcola anche al ridimensionamento.
+  const FONT_MAX = 0.82, FONT_MIN = 0.60;   // in rem
+  function adattaScritta() {
+    if (!btn || !label) return;
+    const stile = getComputedStyle(btn);
+    const disponibile = btn.clientWidth
+      - parseFloat(stile.paddingLeft) - parseFloat(stile.paddingRight)
+      - 17 - 10 - 2;                        // icona + gap + margine di sicurezza
+    let fs = FONT_MAX;
+    label.style.fontSize = fs + 'rem';
+    // scendo a passi finché la scritta non entra (o tocco il minimo)
+    while (label.scrollWidth > disponibile && fs > FONT_MIN) {
+      fs = Math.round((fs - 0.01) * 100) / 100;
+      label.style.fontSize = fs + 'rem';
+    }
+    // la spaziatura larga costa spazio: sulle scritte lunghe la stringo
+    label.style.letterSpacing = (fs < 0.72) ? '.06em' : '.12em';
+  }
+
+  if (btn && label) {
+    let i = Math.floor(Math.random() * SCRITTE.length);
+    label.textContent = SCRITTE[i];
+    adattaScritta();
+    // i font web arrivano dopo: ricalcolo quando sono pronti
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(adattaScritta);
+    window.addEventListener('resize', adattaScritta);
+
+    // Niente rotazione: una frase a caso per apertura, e resta quella.
+  }
+
+  // --- pop-up con le tre fasce ---
+  const ov = document.createElement('div');
+  ov.id = 'ums-bmc-overlay';
+  ov.setAttribute('role', 'dialog');
+  ov.setAttribute('aria-modal', 'true');
+  ov.setAttribute('aria-label', 'Sostieni Demo Accessibilità');
+  ov.innerHTML =
+    '<div class="ums-bmc-card">' +
+      '<button class="ums-bmc-close" type="button" aria-label="Chiudi">&#10005;</button>' +
+      '<div class="ums-bmc-logo notranslate" translate="no">' +
+        '<span class="l1">Demo</span><span class="l2">Accessibilità</span>' +
+      '</div>' +
+      '<div class="ums-bmc-tag"><span>Il tuo compagno di studi</span></div>' +
+      '<p class="ums-bmc-intro">Questo sito &egrave; <b>gratis</b>, e lo rester&agrave;: nessuna lezione dietro un abbonamento, niente riservato a chi paga. Chi sostiene <b>non compra un vantaggio</b> &mdash; tiene acceso il sito e, dalla seconda fascia in su, manda una parte della quota a <b>Still I Rise</b>, che apre scuole per bambini profughi e vulnerabili <a class="ums-sir-link" href="https://www.stillirise.org/" target="_blank" rel="noopener"><b>dove la scuola non c\'&egrave;</b></a>.</p>' +
+
+      '<button class="ums-tier" type="button" data-tier="1">' +
+        '<span class="ums-tier-top"><span class="ums-tier-nome">Un caff&egrave; al mese</span><span class="ums-tier-prezzo">1 &euro; / mese</span></span>' +
+        '<span class="ums-tier-desc">Copre le spese vive: dominio, server, le ore passate a scrivere lezioni e codice. Nulla di pi&ugrave;.</span>' +
+      '</button>' +
+
+      '<button class="ums-tier consigliato" type="button" data-tier="2">' +
+        '<span class="ums-tier-badge">Il pi&ugrave; scelto</span>' +
+        '<span class="ums-tier-top"><span class="ums-tier-nome">Sostenitore</span><span class="ums-tier-prezzo">5 &euro; / mese</span></span>' +
+        '<span class="ums-tier-desc">Il <b>30%</b> va a Still I Rise. Mentre studi tu, studia anche chi questo diritto non ce l\'ha. Il corrispettivo di una colazione al mese.</span>' +
+      '</button>' +
+
+      '<button class="ums-tier" type="button" data-tier="3">' +
+        '<span class="ums-tier-top"><span class="ums-tier-nome">Diritto allo studio</span><span class="ums-tier-prezzo">10 &euro; / mese</span></span>' +
+        '<span class="ums-tier-desc">Il <b>50%</b> va a Still I Rise. Non sblocchi niente: qui &egrave; gi&agrave; tutto gratis. <b>Sblocchi che lo sia anche altrove.</b></span>' +
+      '</button>' +
+
+      '<p class="ums-bmc-nota">Il pagamento avviene su Buy Me a Coffee, che si apre in una nuova scheda: il sito resta aperto qui. Puoi disdire quando vuoi, con un clic.</p>' +
+    '</div>';
+  document.body.appendChild(ov);
+
+  const chiudi = function () {
+    ov.classList.remove('show');
+    document.body.classList.remove('ums-noscroll');
+    document.removeEventListener('keydown', suEsc);
+    if (btn) btn.focus();
+  };
+  const suEsc = function (e) { if (e.key === 'Escape') chiudi(); };
+  const apri = function () {
+    ov.classList.add('show');
+    document.body.classList.add('ums-noscroll');
+    document.addEventListener('keydown', suEsc);
+    ov.querySelector('.ums-bmc-close').focus();
+  };
+
+  if (btn) btn.addEventListener('click', apri);
+  ov.querySelector('.ums-bmc-close').addEventListener('click', chiudi);
+  ov.addEventListener('click', function (e) { if (e.target === ov) chiudi(); });
+  ov.querySelectorAll('.ums-tier').forEach(function (t) {
+    t.addEventListener('click', function () {
+      window.open(BMC_MEMBERSHIP, '_blank', 'noopener');
+      chiudi();
+    });
+  });
+  // apribile da qualunque punto del sito: window.umsApriSostegno()
+  window.umsApriSostegno = function () {};
+})();
+</script>
+<!-- RITOCCHI HUB — brand in testa, riga promemoria ordinata, cancello accesso -->
+<style id="ums-hub-ritocchi-style">
+  /* il logo a due righe si centra da solo: l'hub non ha text-align:center */
+  .ums-bmc-logo, .ums-bmc-tag{ text-align: center; }
+  .ums-rv-card .ums-bmc-logo{ margin: 4px 0 0; }
+  .ums-rv-card .ums-bmc-tag{ margin: 10px 0 16px; }
+  .ums-notif-row{
+    display: flex; flex-direction: column; align-items: center;
+    gap: 8px; margin: -2px 0 18px; text-align: center;
+  }
+  .ums-rv-accedi{
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--gold); color: #2A2113;
+    border: none; border-radius: 999px; padding: 12px 22px;
+    font-family: var(--font-body); font-size: .8rem; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; cursor: pointer;
+    box-shadow: 0 8px 22px rgba(200,169,110,.3); margin-top: 4px;
+    transition: background-color .2s, transform .15s;
+  }
+  .ums-rv-accedi:hover{ background: var(--gold-lt); transform: translateY(-1px); }
+</style>
+<script>
+/* ====================================================================
+   PALLINO "1" SUL GRUPPO CHAT — solo per chi non ha la chiave.
+   L'icona e' gia' un link al gruppo: un clic e ci sei.
+   ==================================================================== */
+(function () {
+    function aggiorna() {
+        var b = document.getElementById('ums-wa-badge');
+        if (!b) return;
+        var dentro = false;
+        try { dentro = !!localStorage.getItem('ums_chiave'); } catch (e) {}
+        b.hidden = dentro;
+    }
+    window.umsWaBadge = aggiorna;
+    function avvia() { aggiorna(); setTimeout(aggiorna, 600); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', avvia);
+    else avvia();
+    window.addEventListener('storage', aggiorna);
+})();
+</script>
+</body>
+</html>

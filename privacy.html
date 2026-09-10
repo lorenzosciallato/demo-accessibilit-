@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy · Demo Accessibilità</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%23F7F4EF'/%3E%3Ctext%20x='32'%20y='43'%20text-anchor='middle'%20font-family='Georgia,serif'%20font-weight='700'%20font-size='30'%20fill='%231C1C22'%3ED%3Ctspan%20fill='%2322365F'%20font-style='italic'%3EA%3C/tspan%3E%3C/text%3E%3Crect%20x='25'%20y='51'%20width='14'%20height='2'%20rx='1'%20fill='%23C8A96E'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#F7F4EF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F4EF; --ink:#1C1C22; --navy:#1A2F4F; --gold:#C8A96E;
+    --gold-dk:#9A7A3F; --dust:#E8E4DC; --sub:#6E6B65;
+    --serif:'Playfair Display', Georgia, serif;
+    --sans:'DM Sans', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:var(--sans); font-size:17px; line-height:1.75;
+    padding:0 24px 96px;
+  }
+  .sfondo{position:fixed; inset:0; z-index:-1; background:var(--bg);}
+  .sfondo img{width:100%; height:100%; object-fit:cover; opacity:.07;}
+
+  .btn-home{
+    position:fixed; top:16px; left:16px; z-index:100;
+    display:inline-flex; align-items:center; gap:8px;
+    padding:10px 18px; border-radius:50px;
+    background:rgba(247,244,239,.88);
+    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+    border:1px solid var(--dust); color:var(--ink);
+    font-family:var(--sans); font-size:.72rem; font-weight:700;
+    letter-spacing:.14em; text-transform:uppercase; text-decoration:none;
+    transition:all .2s;
+  }
+  .btn-home:hover{border-color:var(--navy); color:var(--navy); transform:translateY(-2px);}
+
+  .sheet{max-width:720px; margin:0 auto; padding-top:88px;}
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:10px;
+    font-size:.7rem; font-weight:700; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--gold-dk); margin-bottom:1.1rem;
+  }
+  .eyebrow::before,.eyebrow::after{content:''; width:30px; height:1px; background:var(--gold);}
+
+  h1{
+    font-family:var(--serif); font-weight:900; letter-spacing:-.02em;
+    font-size:clamp(2.4rem,6vw,3.4rem); line-height:1.04; margin-bottom:.8rem;
+  }
+  h1 em{font-style:italic; color:var(--navy);}
+  .aggiornato{font-size:.9rem; color:var(--sub); margin-bottom:2.4rem;}
+
+  .promessa{
+    background:#fff; border:1px solid var(--dust); border-left:4px solid var(--gold);
+    padding:1.5rem 1.7rem; margin-bottom:3rem; font-size:1.05rem;
+  }
+  .promessa strong{font-family:var(--serif); color:var(--navy);}
+
+  h2{
+    font-family:var(--serif); font-weight:700; font-size:1.6rem;
+    margin:2.8rem 0 1rem; line-height:1.25; padding-top:1.6rem;
+    border-top:1px solid var(--dust);
+  }
+  h2:first-of-type{border-top:none; padding-top:0;}
+  h3{font-family:var(--sans); font-weight:700; font-size:1.05rem; margin:1.6rem 0 .5rem;}
+
+  p{margin-bottom:1.1rem;}
+  ul{margin:0 0 1.1rem 0; padding-left:0; list-style:none;}
+  li{
+    position:relative; padding-left:1.5rem; margin-bottom:.7rem;
+  }
+  li::before{
+    content:''; position:absolute; left:0; top:.62em;
+    width:6px; height:6px; background:var(--gold); border-radius:50%;
+  }
+  strong{font-weight:700;}
+  a{color:var(--navy); text-decoration:underline; text-underline-offset:2px;}
+  a:hover{color:var(--gold-dk);}
+
+  .contatto{
+    background:var(--navy); color:#F7F4EF;
+    border-radius:16px; padding:1.8rem 2rem; margin-top:2.6rem;
+  }
+  .contatto h2{color:#fff; border:none; padding:0; margin:0 0 .6rem;}
+  .contatto p{margin:0; color:rgba(247,244,239,.85);}
+  .contatto a{color:var(--gold); text-decoration:none; font-weight:700;}
+
+  ::selection{background:var(--gold); color:var(--ink);}
+
+  @media (max-width:600px){
+    body{font-size:16px;}
+    .sheet{padding-top:76px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="sfondo" aria-hidden="true">
+  <img src="img/sfondo-giappone-1600.png" alt="">
+</div>
+
+<a href="index.html" class="btn-home">&#8592; Home</a>
+
+<main class="sheet">
+
+  <div class="eyebrow">Demo Accessibilità</div>
+  <h1>La tua <em>privacy</em></h1>
+  
+
+  <div class="promessa">
+    Demo Accessibilità è un progetto <strong>gratuito e senza scopo di lucro</strong>, fatto da uno studente per altri studenti. Non chiedo il tuo nome, non chiedo la tua email, non vendo dati a nessuno e non uso pubblicità. Questa pagina ti spiega le poche cose che il sito raccoglie e perché.
+  </div>
+
+  <h2>Chi gestisce il sito</h2>
+  <p>Il sito è gestito da una persona singola, lo studente che ha creato Demo Accessibilità, per fini di studio e materia-esempio. Non è un'azienda e non c'è alcun trattamento di dati a fini commerciali.</p>
+
+  <h2>L'accesso funziona senza dati personali</h2>
+  <p>Quando crei un accesso, il sito non ti chiede nome, email o password. Ti assegna una <strong>chiave casuale</strong> (per esempio "SIENA482"): è un codice, non ti identifica. Sei tu a conservarla. Serve solo a far seguire i tuoi appunti e i tuoi progressi da un dispositivo all'altro.</p>
+  <p>Questo significa che, di base, il sito <strong>non sa chi sei</strong>. Se perdi la chiave, non ho modo di risalire a te per restituirti i tuoi dati: non è un difetto, è la conseguenza del fatto che non raccolgo nulla che ti identifichi.</p>
+
+  <h2>Cosa viene salvato quando usi il sito</h2>
+  <p>Se accedi con la tua chiave, sul mio server (Cloudflare) vengono salvati, collegati a quella chiave:</p>
+  <ul>
+    <li>i tuoi <strong>appunti</strong> e le tue <strong>evidenziazioni</strong>;</li>
+    <li>lo stato del tuo <strong>ripasso</strong> (quali flashcard hai visto, quali sai e quali no).</li>
+  </ul>
+  <p>Se non accedi, questi dati restano solo sul tuo dispositivo (nel browser) e non arrivano mai a me.</p>
+
+  <h2>I dati di studio, in forma anonima</h2>
+  <p>Per capire se il metodo di studio funziona e migliorarlo, raccolgo alcune statistiche <strong>aggregate e anonime</strong> su come vanno i ripassi: per esempio "questa flashcard viene sbagliata spesso" o "in questa materia i ripassi migliorano nel tempo".</p>
+  <p>Questi dati <strong>non sono collegati alla tua identità</strong>: la chiave viene trasformata in un codice cifrato non reversibile prima di essere usata per le statistiche, e non salvo il testo di ciò che scrivi. Servono solo a contare e a disegnare grafici d'insieme, mai a seguire la singola persona.</p>
+
+  <h2>Statistiche di visita</h2>
+  <p>Uso <strong>Cloudflare Web Analytics</strong> per sapere quante persone visitano il sito e quali pagine sono più usate. È uno strumento pensato per rispettare la privacy: <strong>non usa cookie</strong> e non costruisce profili degli utenti. Vedo numeri d'insieme (visite, pagine viste, tipo di dispositivo), non persone.</p>
+
+  <h2>Servizi esterni presenti nel sito</h2>
+  <p>Alcune parti del sito si appoggiano a servizi di altri, che hanno le loro regole sulla privacy:</p>
+  <ul>
+    <li><strong>Assistente IA (NotebookLM di Google)</strong>: quando apri l'Assistente IA di una materia, vieni portato su NotebookLM, un servizio di Google. Quello che scrivi lì viene gestito da Google secondo i suoi termini. <strong>Ti consiglio di non inserire dati personali</strong> nelle domande all'assistente. Regole di Google: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.</li>
+    <li><strong>Video (YouTube)</strong>: le lezioni includono video di YouTube. Se avvii un video, YouTube (Google) può raccogliere dati secondo i suoi termini.</li>
+    <li><strong>Traduzione (Google Translate)</strong>: se usi la traduzione della pagina, il testo passa dal servizio di Google Translate.</li>
+    <li><strong>Contributi volontari</strong>: il pulsante per sostenere il progetto porta a un servizio esterno di pagamento. Se decidi di contribuire, i tuoi dati di pagamento sono gestiti da quel servizio, non da me: io non li vedo e non li conservo.</li>
+  </ul>
+
+  <h2>Notifiche di ripasso</h2>
+  <p>Se attivi le notifiche di ripasso, il sito registra un'iscrizione tecnica (fornita dal tuo browser) per poterti inviare il promemoria. Non è collegata al tuo nome. Puoi disattivarle quando vuoi dalle impostazioni del browser o del telefono.</p>
+
+  <h2>Per quanto tempo tengo i dati</h2>
+  <p>Gli appunti e i progressi restano finché usi il sito con la tua chiave. Se vuoi che vengano cancellati, scrivimi (vedi sotto) e li rimuovo. Le statistiche anonime, non essendo collegate a te, restano in forma aggregata.</p>
+
+  <h2>I tuoi diritti</h2>
+  <p>Puoi chiedermi quali dati sono collegati alla tua chiave, chiederne una copia o la cancellazione. Dato che non raccolgo dati che ti identificano, per aiutarti dovrò chiederti la tua chiave d'accesso. Per qualsiasi richiesta, usa il contatto qui sotto.</p>
+
+  <div class="contatto">
+    <h2>Contatti</h2>
+    <p>Per qualsiasi domanda o richiesta sui tuoi dati, scrivi a<br>
+    il referente del progetto</p>
+  </div>
+
+  <p style="margin-top:2.4rem; font-size:.9rem; color:var(--sub);">Se cambierà qualcosa nel modo in cui il sito tratta i dati, aggiornerò questa pagina.</p>
+
+</main>
+</body>
+</html>

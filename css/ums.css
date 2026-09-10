@@ -1,0 +1,4002 @@
+/* ums.css — TUTTO lo stile del progetto, nell'ordine originale dei blocchi.
+   REGOLA DELLA CASA: niente nuovi blocchi additivi. Una modifica si fa
+   nella sezione del componente a cui appartiene, cancellando ciò che
+   sostituisce. (vedi README.md) */
+
+/* ====================================================================
+   SEZIONE 1 — ex <style id="stile-base">
+   ==================================================================== */
+        /* ============================================================
+           TOKEN SYSTEM
+        ============================================================ */
+        :root {
+            /* --- dimensioni strutturali (un numero, un posto solo) --- */
+            --topbar-h:     62px;   /* altezza topbar fissa da scroll */
+            --sticky-gap:   16px;   /* aria tra topbar ed elementi sticky */
+            --wb-h:         520px;  /* lavagna: altezza di default */
+            --wb-h-aperta:  340px;  /* lavagna aperta nel capitolo riassuntone (desktop) */
+
+            --night:    #0F1117;
+            --ivory:    #F7F4EF;
+            --ivory-dk: #EDE9E0;
+            --gold:     #C8A96E;
+            --gold-lt:  #E8D5AA;
+            --gold-dk:  #9A7A3F;
+            --navy:     #1A2F4F;
+            --navy-lt:  #2A4A72;
+            --dust:     #E8E4DC;
+            --mist:     #C5C1B8;
+            --ink:      #1C1C22;
+            --body:     #3D3C3A;
+            --sub:      #7A7770;
+
+            --cyan:     #00D4D8;
+            --magenta:  #E8006A;
+            --yellow:   #F5D000;
+
+            --font-display: 'Playfair Display', Georgia, serif;
+            --font-body:    'DM Sans', system-ui, sans-serif;
+
+            --r-sm: 6px;
+            --r-md: 12px;
+            --r-lg: 20px;
+            --r-xl: 32px;
+
+            --shadow-card: 0 4px 24px rgba(15,17,23,0.08), 0 1px 4px rgba(15,17,23,0.04);
+            --shadow-lift: 0 12px 40px rgba(15,17,23,0.14), 0 2px 8px rgba(15,17,23,0.06);
+            --shadow-gold: 0 8px 32px rgba(200,169,110,0.25);
+
+            /* Task 3 — active highlight color, default giallo */
+            --hl-color: #FFF176;
+
+            /* Task 5 — Il Super Quiz: feedback corretto/errato */
+            --quiz-correct:    #2E7D32;
+            --quiz-correct-bg: #EAF7EE;
+            --quiz-incorrect:    #C62828;
+            --quiz-incorrect-bg: #FDECEA;
+        }
+
+        /* ============================================================
+           RESET & BASE
+        ============================================================ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { height: 100%; overflow-x: hidden; scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--ivory);
+            font-family: var(--font-body);
+            color: var(--body);
+            line-height: 1.7;
+            min-height: 100%;
+            position: relative;
+            padding-bottom: 100px;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        /* ============================================================
+           BARRA DI PROGRESSO
+        ============================================================ */
+        #scroll-progress-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+            background: transparent; z-index: 9999999;
+        }
+        #scroll-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold), var(--gold-lt), var(--gold));
+            background-size: 200% 100%;
+            width: 0%;
+            transition: width 0.1s linear;
+            animation: shimmer 3s infinite linear;
+        }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:0% 0} }
+
+        /* ============================================================
+           BACKGROUND
+        ============================================================ */
+        .giants-background {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; pointer-events: none; overflow: hidden;
+            background: var(--ivory);
+        }
+        .main-background-image {
+            width: 100%; height: 100%; object-fit: cover;
+            opacity: 0.07;
+            filter: grayscale(35%) sepia(0.15);
+            mix-blend-mode: multiply;
+        }
+        .giants-background::after {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* ============================================================
+           HEADER
+        ============================================================ */
+        header {
+            text-align: center;
+            padding: 5rem 2rem 3rem;
+            position: relative;
+        }
+
+        .header-eyebrow {
+            display: inline-flex; align-items: center; gap: 10px;
+            font-family: var(--font-body);
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.22em;
+            text-transform: uppercase; color: var(--gold-dk);
+            margin-bottom: 1.5rem;
+        }
+        .header-eyebrow::before,
+        .header-eyebrow::after {
+            content: ''; display: block; width: 32px; height: 1px;
+            background: var(--gold);
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.8rem, 6vw, 5.2rem);
+            font-weight: 900;
+            color: var(--ink);
+            line-height: 1.07;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        h1 em {
+            font-style: italic;
+            color: var(--navy);
+        }
+
+        .subtitle {
+            font-family: var(--font-body);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--sub);
+            margin-bottom: 2.5rem;
+        }
+
+        /* ============================================================
+           AUTHOR BADGES
+        ============================================================ */
+        .badges-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 0 10px;
+            margin-bottom: 2.5rem;
+        }
+
+        .author-badge {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: #fff;
+            padding: 8px 18px 8px 8px;
+            border-radius: 50px;
+            text-decoration: none;
+            border: 1px solid var(--dust);
+            box-shadow: var(--shadow-card);
+            transition: all 0.25s cubic-bezier(.2,.8,.2,1);
+        }
+        .author-badge:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lift);
+            border-color: var(--gold);
+        }
+        .author-badge.primary {
+            background: var(--navy);
+            border-color: var(--navy);
+        }
+        .author-badge.primary .author-name { color: #fff; }
+        .author-img {
+            width: 36px; height: 36px; border-radius: 50%; object-fit: cover; display: block;
+        }
+        .author-name {
+            font-size: 0.82rem; font-weight: 500; color: var(--ink);
+            font-family: var(--font-body);
+        }
+        .author-name strong { font-weight: 700; }
+
+        /* ============================================================
+           LANGUAGE SELECTOR
+        ============================================================ */
+        #custom-lang-selector { display: none; }
+        #custom-lang-selector.loaded {
+            display: inline-flex; flex-direction: column; align-items: center;
+            background: #fff;
+            border: 1px solid var(--dust);
+            border-radius: var(--r-md);
+            padding: 6px 14px;
+            margin-top: 0.5rem;
+            vertical-align: middle;
+            position: relative;
+            box-shadow: var(--shadow-card);
+            z-index: 999999;
+        }
+        #lang-toggle-btn {
+            background: transparent; border: none; color: var(--navy);
+            font-size: 13px; font-weight: 700; cursor: pointer; text-transform: uppercase;
+            letter-spacing: 0.12em;
+            font-family: var(--font-body); outline: none;
+        }
+        #lang-loading { font-size: 18px; animation: spin 1s linear infinite; margin-bottom: 5px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .lang-options {
+            display: none; position: absolute; top: 110%; right: 0;
+            background: #fff; border: 1px solid var(--dust);
+            border-radius: var(--r-lg);
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px; padding: 14px;
+            box-shadow: var(--shadow-lift);
+            min-width: 240px;
+        }
+        .lang-options.show { display: grid; }
+        .lang-options button {
+            background: transparent; border: 1px solid transparent; padding: 6px;
+            cursor: pointer; border-radius: var(--r-sm); font-size: 22px; transition: 0.2s;
+        }
+        .lang-options button.active-lang {
+            background: rgba(200,169,110,0.12); border-color: var(--gold);
+        }
+        .lang-options button:hover { transform: scale(1.15); }
+        .skiptranslate { display: none !important; }
+        body { top: 0 !important; }
+        #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
+        .goog-text-highlight { background: transparent !important; box-shadow: none !important; border: none !important; }
+        @media (max-width: 600px) {
+            #custom-lang-selector.loaded { display: flex; margin: 1rem auto 5px auto; width: max-content; }
+            .lang-options { right: 50%; transform: translateX(50%); }
+        }
+
+        /* ============================================================
+           DISCLAIMER TRANSLATION
+        ============================================================ */
+        #translation-disclaimer {
+            display: none;
+            background: #FFFBEA; color: #7A6220; padding: 10px 16px; border-radius: var(--r-md);
+            margin: 12px auto 0; font-size: 0.8rem; border: 1px solid #F0E08A;
+            max-width: 680px;
+        }
+
+        /* ============================================================
+           TOAST
+        ============================================================ */
+        #toast-container {
+            position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+            z-index: 9999999; pointer-events: none;
+        }
+        .toast {
+            background: var(--night); color: #fff;
+            padding: 14px 28px; border-radius: 50px; margin-top: 10px;
+            font-weight: 600; font-family: var(--font-body); font-size: 0.88rem;
+            text-align: center; opacity: 0; transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(16px); border: 1.5px solid;
+            pointer-events: auto; letter-spacing: 0.02em;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-success { border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,212,216,0.3); color: var(--cyan); }
+        .toast-retry   { border-color: var(--magenta); box-shadow: 0 0 20px rgba(232,0,106,0.3); color: var(--magenta); }
+
+        /* ============================================================
+           MAIN CARD WRAPPER
+        ============================================================ */
+        .content-card {
+            background: #fff;
+            border: 1px solid var(--dust);
+            border-radius: var(--r-xl);
+            padding: 3.5rem;
+            margin: 0 auto 2rem;
+            width: 90%; max-width: 1200px;
+            position: relative;
+            box-shadow: var(--shadow-card);
+            z-index: 1;
+        }
+        @media (max-width: 700px) {
+            .content-card { padding: 1.5rem; width: 94%; border-radius: var(--r-lg); }
+        }
+
+        /* ============================================================
+           ACCORDION — MASTER
+        ============================================================ */
+        .master-accordion-item { border-bottom: none; }
+
+        .master-header {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%;
+            background: var(--navy);
+            border: none; border-radius: var(--r-lg);
+            padding: 1.4rem 2rem;
+            cursor: pointer;
+            color: #fff;
+            font-family: var(--font-display);
+            font-size: 1.5rem; font-weight: 600;
+            transition: background 0.25s, box-shadow 0.25s;
+            box-shadow: 0 6px 24px rgba(26,47,79,0.25);
+            margin-bottom: 0;
+        }
+        .master-header:hover { background: var(--navy-lt); box-shadow: 0 10px 32px rgba(26,47,79,0.32); }
+        .master-header .mh-arrow {
+            font-size: 1.2rem; opacity: 0.7; transition: transform 0.35s;
+            font-family: var(--font-body); font-weight: 300;
+        }
+        .master-header.active .mh-arrow { transform: rotate(90deg); opacity: 1; }
+
+        .master-content {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+        .master-content.open { max-height: 999999px; }
+        .master-content-inner { padding-top: 2.5rem; }
+
+        /* ============================================================
+           ACCORDION — CHAPTERS
+        ============================================================ */
+        .accordion-item { margin-bottom: 0; }
+
+        .accordion-header {
+            display: flex; align-items: center;
+            width: 100%; background: transparent; border: none;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--dust);
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            gap: 1.5rem;
+            position: relative;
+        }
+        .accordion-header:hover .ch-title { color: var(--navy); }
+
+        .ch-number {
+            font-family: var(--font-display);
+            font-size: 4rem; font-weight: 900; line-height: 1;
+            color: var(--dust);
+            width: 70px; min-width: 70px;
+            text-align: center;
+            transition: color 0.25s;
+            user-select: none;
+            letter-spacing: -0.04em;
+        }
+        .accordion-header:hover .ch-number,
+        .accordion-header.active .ch-number { color: var(--gold); }
+
+        .ch-text { flex: 1; }
+        .ch-eyebrow {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.22em;
+            text-transform: uppercase; color: var(--gold-dk);
+            margin-bottom: 3px; display: block;
+        }
+        .ch-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.15rem, 3vw, 1.55rem);
+            font-weight: 700; color: var(--ink);
+            line-height: 1.2;
+            transition: color 0.2s;
+        }
+
+        .ch-icon {
+            font-size: 1.2rem; color: var(--mist);
+            transition: all 0.3s; font-family: var(--font-body); font-weight: 300;
+            min-width: 24px; text-align: right;
+        }
+        .accordion-header.active .ch-icon { color: var(--navy); transform: rotate(45deg); }
+
+        .accordion-content {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1), opacity 0.3s;
+            padding: 0; opacity: 0;
+        }
+        .accordion-content.active {
+            max-height: 20000px; opacity: 1;
+            padding-top: 2rem; padding-bottom: 2.5rem;
+            overflow: visible;
+        }
+
+        @media (max-width: 600px) {
+            .ch-number { font-size: 2.8rem; width: 50px; min-width: 50px; }
+            .ch-title { font-size: 1.1rem; }
+        }
+
+        /* Close section button */
+        .btn-close-section {
+            width: 100%; margin-top: 2rem; padding: 14px;
+            background: transparent; border: 1px solid var(--dust);
+            border-radius: var(--r-md); font-family: var(--font-body);
+            font-weight: 600; font-size: 0.78rem; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--sub);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-close-section:hover { border-color: var(--navy); color: var(--navy); background: rgba(26,47,79,0.03); }
+
+        /* ============================================================
+           LAYOUT: MEDIA + NOTES GRID
+        ============================================================ */
+        .media-notes-grid {
+            display: grid;
+            grid-template-columns: 2.5fr 1fr;
+            gap: 2rem;
+            align-items: stretch;
+        }
+        @media (max-width: 900px) {
+            .media-notes-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            /* ANTI-TRABOCCAMENTO: una colonna di griglia ha min-width:auto, quindi
+               un contenuto largo (le slide affiancate) la faceva crescere oltre lo
+               schermo. Risultato: tutta la pagina piu' larga del telefono e i
+               pulsanti a destra tagliati via. */
+            .media-notes-grid, .media-notes-grid > * { min-width: 0; }
+        }
+
+        /* ============================================================
+           SECTION BANNER
+        ============================================================ */
+        .section-banner {
+            width: 100%; height: auto; max-height: 200px; object-fit: cover;
+            border-radius: var(--r-md); margin-bottom: 1.5rem;
+            border: 1px solid var(--dust);
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .section-banner:hover { opacity: 0.9; }
+
+        /* ============================================================
+           KEN BURNS (variante VI — velo inchiostro)
+           Zoom lento 6s + velo che si approfondisce al passaggio
+           del mouse (o al tocco, via .kb-hover). Applicato a:
+           banner Riassuntone, immagine Assistente IA, flashcard
+           Dritti al Sodo. Rispetta prefers-reduced-motion.
+        ============================================================ */
+        .kb-frame {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--r-md);
+            border: 1px solid var(--dust);
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+        .kb-frame .section-banner {
+            margin-bottom: 0;
+            border: none;
+            border-radius: 0;
+        }
+        .kb-frame .section-banner:hover { opacity: 1; }
+        .kb-frame img {
+            transition: transform 6s cubic-bezier(.16,.84,.44,1);
+            will-change: transform;
+        }
+        .kb-frame::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(13,17,26,.38), rgba(13,17,26,.08) 45%, transparent 68%);
+            opacity: .7;
+            transition: opacity .9s ease;
+            pointer-events: none;
+        }
+        .kb-frame:hover img,
+        .kb-frame.kb-hover img { transform: scale(1.06); }
+        .kb-frame:hover::after,
+        .kb-frame.kb-hover::after { opacity: 1; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .kb-frame img,
+            .kb-frame::after,
+            .ia-image-col img,
+            .ia-image-col::after,
+            .flashcard-front::before,
+            .flashcard-back::before { transition: none !important; }
+            .kb-frame:hover img,
+            .kb-frame.kb-hover img,
+            .ia-container:hover .ia-image-col img,
+            .ia-container.kb-hover .ia-image-col img { transform: none !important; }
+        }
+
+        /* ============================================================
+           OBIETTIVI BOX
+        ============================================================ */
+        .obj-box {
+            background: linear-gradient(135deg, #F0F6FF 0%, #E8F0FA 100%);
+            border: 1px solid rgba(26,47,79,0.12);
+            border-left: 4px solid var(--navy);
+            padding: 1.8rem;
+            border-radius: 0 var(--r-md) var(--r-md) 0;
+            margin-bottom: 2rem;
+        }
+        .obj-box p strong {
+            font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase;
+            color: var(--navy); display: block; margin-bottom: 0.8rem;
+        }
+        .obj-list { padding-left: 1.2rem; line-height: 1.9; color: var(--body); text-align: left; max-width: 68ch; }
+        .obj-list li { margin-bottom: 0.25rem; }
+
+        /* ============================================================
+           PUNTI CHIAVE — FACTOR CARDS
+        ============================================================ */
+        .factors-intro {
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em;
+            text-transform: uppercase; color: var(--sub);
+            margin-bottom: 1rem; display: block;
+        }
+        .factors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem; margin: 0 0 2rem;
+        }
+        .factor-card {
+            background: var(--ivory);
+            border: 1px solid var(--dust);
+            padding: 1.4rem;
+            border-radius: var(--r-md);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(.2,.8,.2,1);
+            position: relative;
+            overflow: hidden;
+        }
+        .factor-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+            transform: scaleX(0); transform-origin: left;
+            transition: transform 0.3s;
+        }
+        .factor-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); border-color: var(--gold-lt); }
+        .factor-card:hover::before { transform: scaleX(1); }
+        .factor-card strong { display: block; font-size: 0.92rem; font-weight: 700; color: var(--ink); margin-bottom: 0.4rem; }
+        .factor-card small { font-size: 0.8rem; color: var(--sub); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .factor-card .fc-plus {
+            position: absolute; top: 12px; right: 14px;
+            font-size: 1.1rem; color: var(--gold); opacity: 0.6;
+            font-family: var(--font-body); font-weight: 300;
+        }
+
+        /* ============================================================
+           MODAL — PUNTI CHIAVE
+        ============================================================ */
+        #factor-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15,17,23,0.75); backdrop-filter: blur(6px);
+            z-index: 99999; display: none; justify-content: center; align-items: center; padding: 20px;
+        }
+        #factor-modal.open { display: flex; }
+        .modal-paper {
+            background: #fff; width: 100%; max-width: 580px;
+            padding: 2.5rem; border-radius: var(--r-xl);
+            position: relative; max-height: 88vh; overflow-y: auto;
+            line-height: 1.8; box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+            -webkit-overflow-scrolling: touch;
+            border-top: 4px solid var(--gold);
+        }
+        #m-title {
+            font-family: var(--font-display); font-size: 1.6rem; font-weight: 700;
+            color: var(--ink); margin-bottom: 1rem;
+        }
+        #m-body { color: var(--body); font-size: 0.95rem; }
+        .close-modal {
+            position: absolute; top: 16px; right: 20px;
+            font-size: 1.6rem; cursor: pointer; color: var(--mist);
+            transition: color 0.2s; font-family: var(--font-body); font-weight: 300;
+            line-height: 1;
+        }
+        .close-modal:hover { color: var(--navy); }
+
+        /* ============================================================
+           VIDEO CONTAINER
+        ============================================================ */
+        .video-container {
+            position: relative; width: 100%; padding-bottom: 56.25%; height: 0;
+            background: var(--night); border-radius: var(--r-md); overflow: hidden;
+            box-shadow: var(--shadow-card); z-index: 1; margin-bottom: 1rem;
+        }
+        .video-container iframe, .video-container video {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;
+        }
+
+        .video-fallback-note {
+            font-size: 0.78rem; color: var(--sub); font-style: italic; margin: 6px 0 10px;
+        }
+        .video-direct-link {
+            display: inline-block; margin-top: 6px; text-decoration: none;
+            font-size: 0.8rem; font-weight: 600; color: var(--navy);
+            border-bottom: 1px solid var(--navy-lt);
+            padding-bottom: 1px; transition: color 0.2s, border-color 0.2s;
+        }
+        .video-direct-link:hover { color: var(--gold-dk); border-color: var(--gold-dk); }
+
+        /* ============================================================
+           NOTES WIDGET
+        ============================================================ */
+        .notes-widget {
+            background: var(--ivory);
+            border: 1px solid var(--dust);
+            border-radius: var(--r-lg);
+            display: flex; flex-direction: column;
+            align-self: start;
+            height: 72vh;
+            position: sticky; top: 24px; z-index: 5;
+            width: 100%; min-width: 0;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+        @media (max-width: 900px) {
+            .notes-widget { position: relative; top: 0; height: 500px; align-self: stretch; }
+        }
+        .notes-toolbar {
+            background: #fff; padding: 10px 12px;
+            border-bottom: 1px solid var(--dust);
+            border-radius: var(--r-lg) var(--r-lg) 0 0;
+            display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0;
+            align-items: center; flex-wrap: wrap;
+        }
+        .notes-label {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.16em;
+            text-transform: uppercase; color: var(--sub);
+            margin-right: auto;
+        }
+        .tool-btn {
+            padding: 7px 14px; font-size: 0.75rem; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--dust);
+            background: var(--ivory); border-radius: 50px;
+            font-family: var(--font-body); letter-spacing: 0.04em;
+            color: var(--body); transition: all 0.2s;
+        }
+        .tool-btn:hover { border-color: var(--navy); color: var(--navy); background: #fff; }
+        .notes-area {
+            width: 100%; height: 100%;
+            border: none; resize: none;
+            padding: 20px;
+            overflow-y: auto; -webkit-overflow-scrolling: touch;
+            background: transparent;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem; line-height: 1.8; color: var(--body);
+            outline: none;
+        }
+        .notes-area::placeholder { color: var(--mist); font-style: italic; }
+
+        /* ============================================================
+           TASK 3 — PALETTE EVIDENZIATORE (dentro .notes-widget cap05)
+        ============================================================ */
+        .hl-palette-row {
+            padding: 8px 12px 8px;
+            background: #fff;
+            border-bottom: 1px solid var(--dust);
+            display: flex; flex-direction: column; gap: 6px; flex-shrink: 0;
+        }
+        .hl-palette-micro {
+            font-size: 0.65rem; font-weight: 700; letter-spacing: 0.16em;
+            text-transform: uppercase; color: var(--sub);
+        }
+        .hl-palette-swatches {
+            display: flex; gap: 8px; align-items: center;
+        }
+        .hl-swatch {
+            width: 20px; height: 20px; border-radius: 50%;
+            cursor: pointer; border: 2px solid transparent;
+            transition: transform 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+        }
+        .hl-swatch:hover { transform: scale(1.2); }
+        .hl-swatch.hl-swatch-active { border-color: var(--ink); transform: scale(1.15); }
+
+        /* ============================================================
+           IL RIASSUNTONE — TEXT CONTENT
+        ============================================================ */
+        @media (min-width: 900px) {
+            #dyn-riassuntone-container {
+                max-height: 560px; overflow-y: auto; padding-right: 16px;
+                border-bottom: 1px solid var(--dust);
+            }
+            body.ums-kbd #dyn-riassuntone-container{
+                max-height: none; overflow: visible; border-bottom: none;
+            }
+            #dyn-riassuntone-container::-webkit-scrollbar { width: 5px; }
+            #dyn-riassuntone-container::-webkit-scrollbar-thumb { background-color: var(--dust); border-radius: 3px; }
+        }
+        .text-content-box {
+            background: transparent;
+            color: var(--body); line-height: 1.85; font-size: 1.02rem;
+        }
+        .text-content-box h3 {
+            font-family: var(--font-display);
+            font-size: 1.35rem; font-weight: 700; color: var(--ink);
+            margin-top: 2.5rem; margin-bottom: 1rem;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--dust);
+        }
+        .text-content-box h3:first-child { margin-top: 0; }
+        .text-content-box p { margin-bottom: 1rem; }
+
+        .cornell-box {
+            background: linear-gradient(135deg, #FFFDF7, #FFF8E8);
+            border-left: 3px solid var(--gold);
+            padding: 1.5rem 1.5rem 0.5rem;
+            margin: 1.8rem 0;
+            border-radius: 0 var(--r-md) var(--r-md) 0;
+        }
+        .cornell-box .cp-label {
+            font-size: 0.65rem; font-weight: 700; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--gold-dk); margin-bottom: 1rem;
+            display: block;
+        }
+        .cornell-question {
+            font-weight: 700; color: var(--navy);
+            margin-bottom: 0.25rem; font-size: 0.95rem;
+        }
+        .cornell-answer {
+            margin-bottom: 1.5rem; margin-left: 10px; font-size: 0.93rem;
+        }
+        .cornell-answer:last-child { margin-bottom: 1rem; }
+
+        /* ============================================================
+           FLASHCARDS
+        ============================================================ */
+        .flashcard-wrapper {
+            perspective: 1000px;
+            width: 100%; height: 440px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+        .flashcard-inner {
+            position: relative; width: 100%; height: 100%;
+            text-align: center;
+            transition: transform 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow-lift);
+        }
+        .flashcard-wrapper.flipped .flashcard-inner { transform: rotateY(180deg); }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            border-radius: var(--r-lg); padding: 2rem;
+            background-color: #1a1a2e;
+            overflow: hidden;
+        }
+        /* KEN BURNS — l'immagine vive su un layer ::before che zooma lento */
+        .flashcard-front { transform: rotateY(0deg); } /* stacking context: il ::before a z-index -1 resta sopra lo sfondo */
+        .flashcard-front::before {
+            content: ""; position: absolute; inset: 0; border-radius: var(--r-lg);
+            background-image: url('../img/flashcard-vettoriale.svg');
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            z-index: -1;
+            transition: transform 6s cubic-bezier(.16,.84,.44,1);
+            will-change: transform;
+        }
+        .flashcard-back { transform: rotateY(180deg); }
+        .flashcard-back::before {
+            content: ""; position: absolute; inset: 0; border-radius: var(--r-lg);
+            background-image: url('../img/flashcard-vettoriale.svg');
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            transform: scaleX(-1); z-index: -1;
+            transition: transform 6s cubic-bezier(.16,.84,.44,1);
+            will-change: transform;
+        }
+        .flashcard-back p,
+        .flashcard-front h2 {
+            position: relative; z-index: 2;
+            background: rgba(255,255,255,0.96);
+            padding: 22px 28px; border-radius: var(--r-md);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+            width: 100%; color: var(--ink);
+        }
+        .flashcard-front h2 {
+            font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; line-height: 1.35;
+            text-align: left;
+        }
+        .flashcard-back p {
+            font-size: 0.97rem; text-align: left; line-height: 1.65;
+            white-space: pre-line; overflow-y: auto;
+            max-height: 85%; -webkit-overflow-scrolling: touch; pointer-events: auto;
+            /* la risposta si legge e si seleziona senza far girare la carta */
+            cursor: auto; user-select: text; overscroll-behavior: contain;
+            scrollbar-width: thin; scrollbar-color: rgba(26,47,79,0.38) transparent;
+        }
+        /* barra di scorrimento VISIBILE: prima non si capiva che c'era altro testo */
+        .flashcard-back p::-webkit-scrollbar { width: 8px; }
+        .flashcard-back p::-webkit-scrollbar-track { background: transparent; }
+        .flashcard-back p::-webkit-scrollbar-thumb {
+            background: rgba(26,47,79,0.38); border-radius: 4px;
+        }
+
+        #fc-start-screen .flashcard-wrapper { cursor: default; }
+        #fc-start-screen .flashcard-inner { box-shadow: var(--shadow-card); }
+
+        .btn-flip-mobile {
+            display: none;
+            margin-top: 12px;
+            background: var(--yellow); color: var(--night);
+            border: 2px solid var(--night); padding: 10px 28px;
+            font-weight: 700; border-radius: 50px;
+            z-index: 20; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            text-transform: uppercase; font-family: var(--font-body);
+            font-size: 0.85rem; letter-spacing: 0.08em;
+            white-space: nowrap; pointer-events: auto;
+        }
+        .btn-flip-mobile:active { transform: translateY(2px); }
+
+        @media (max-width: 900px) {
+            .flashcard-wrapper { height: 480px; cursor: default; }
+            .flashcard-front, .flashcard-back { justify-content: flex-start; padding: 1rem; padding-top: 1.5rem; }
+            .flashcard-front h2 { font-size: 1.1rem; padding: 14px; margin-top: 16px; }
+            .flashcard-back p { font-size: 0.9rem; padding: 14px; max-height: 72%; }
+            .btn-flip-mobile { display: inline-block; position: absolute; bottom: 18px; }
+        }
+
+        .fc-counter {
+            text-align: center; margin-bottom: 12px;
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em;
+            text-transform: uppercase; color: var(--gold-dk);
+        }
+        .fc-controls {
+            display: grid; grid-template-columns: auto 1fr auto;
+            gap: 10px; align-items: center; margin-top: 16px;
+        }
+        .fc-actions { display: flex; gap: 8px; justify-content: center; width: 100%; }
+
+        .btn-pop {
+            padding: 11px 20px; border: none; border-radius: 50px;
+            font-weight: 700; font-family: var(--font-body); font-size: 0.83rem;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            cursor: pointer; transition: transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+        .btn-pop:active { transform: translateY(2px); box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+        .btn-nav { background: #fff; color: var(--ink); font-size: 1rem; border: 1px solid var(--dust); min-width: 44px; }
+        .btn-nav:hover { border-color: var(--navy); color: var(--navy); }
+        .btn-no { background: var(--magenta); color: #fff; flex-grow: 1; }
+        .btn-yes { background: var(--cyan); color: var(--night); flex-grow: 1; }
+        .btn-start {
+            background: var(--navy); color: #fff;
+            font-size: 0.9rem; padding: 14px 40px; margin-top: 20px;
+            letter-spacing: 0.14em;
+            box-shadow: 0 6px 24px rgba(26,47,79,0.3);
+        }
+        .btn-start:hover { background: var(--navy-lt); }
+
+        @media (max-width: 900px) {
+            .fc-controls { grid-template-columns: 44px 1fr 44px; gap: 6px; }
+            .btn-pop { padding: 11px 6px; font-size: 0.75rem; }
+            .btn-start { width: 100%; }
+        }
+
+        #win-screen {
+            display: none; flex-direction: column; align-items: center;
+            justify-content: center; height: 400px; text-align: center;
+            background: linear-gradient(135deg, #F0F6FF, #E8F0FA);
+            border-radius: var(--r-lg);
+            border: 1px solid rgba(26,47,79,0.1); padding: 2rem;
+        }
+        #win-screen h2 {
+            font-family: var(--font-display); font-size: 1.6rem; font-weight: 700;
+            color: var(--navy); border: none; margin: 0; padding: 0;
+        }
+
+        /* ============================================================
+           PAUSA — MINI WORD SEARCH
+        ============================================================ */
+        .pausa-wordsearch {
+            background: linear-gradient(135deg, var(--ivory), var(--dust));
+            border-radius: var(--r-lg); border: 1px solid var(--dust);
+            padding: 2rem;
+        }
+        .pausa-ws-header {
+            text-align: center; margin-bottom: 1.5rem;
+        }
+        .pausa-ws-header h3 {
+            font-family: var(--font-display); font-size: 1.5rem;
+            font-weight: 700; color: var(--ink); margin-bottom: 0.4rem;
+        }
+
+        .ws-lang-row {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 1.5rem;
+        }
+        .ws-lang-btn {
+            padding: 8px 22px; border-radius: 50px;
+            border: 2px solid var(--dust); background: #fff;
+            font-family: var(--font-body); font-weight: 700; font-size: 0.8rem;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            color: var(--sub); cursor: pointer; transition: all 0.2s;
+        }
+        .ws-lang-btn.active {
+            background: var(--navy); border-color: var(--navy); color: #fff;
+        }
+
+        .ws-layout {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (max-width: 700px) {
+            .ws-layout { grid-template-columns: 1fr; }
+        }
+
+        .ws-grid-wrap {
+            display: inline-block;
+            background: var(--night);
+            padding: 4px;
+            border-radius: var(--r-md);
+            box-shadow: 5px 5px 0 var(--gold);
+            touch-action: none;
+            user-select: none;
+        }
+        .ws-grid {
+            display: grid;
+            gap: 2px;
+            background: var(--night);
+        }
+        .ws-cell {
+            width: 32px; height: 32px;
+            background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-body); font-weight: 800;
+            font-size: 0.85rem; cursor: pointer;
+            border-radius: 3px;
+            transition: background 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ws-cell.ws-sel { background: var(--gold-lt); }
+        .ws-cell.ws-found { background: var(--cyan); color: var(--night); }
+
+        @media (max-width: 480px) {
+            .ws-cell { width: 26px; height: 26px; font-size: 0.72rem; }
+        }
+
+        .ws-word-list {
+            display: flex; flex-direction: column; gap: 8px;
+            min-width: 140px;
+        }
+        @media (max-width: 700px) {
+            .ws-word-list { flex-direction: row; flex-wrap: wrap; }
+        }
+        .ws-word-tag {
+            background: #fff; border: 1px solid var(--dust);
+            padding: 6px 14px; border-radius: 50px;
+            font-family: var(--font-body); font-size: 0.8rem; font-weight: 700;
+            color: var(--ink); letter-spacing: 0.04em;
+            transition: all 0.2s;
+        }
+        .ws-word-tag.ws-done {
+            background: var(--dust); color: var(--mist);
+            text-decoration: line-through; border-color: transparent;
+        }
+
+        .ws-status {
+            text-align: center; margin-top: 1.2rem;
+            font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em;
+            text-transform: uppercase; color: var(--gold-dk);
+            min-height: 20px;
+        }
+
+        .ws-win-msg {
+            text-align: center; margin-top: 1rem;
+            padding: 1rem; background: linear-gradient(135deg,#F0F6FF,#E8F0FA);
+            border-radius: var(--r-md); border: 1px solid rgba(26,47,79,0.1);
+            display: none;
+        }
+        .ws-win-msg p {
+            font-family: var(--font-display); font-size: 1.2rem;
+            color: var(--navy); font-weight: 700; margin-bottom: 0.8rem;
+        }
+        .ws-new-btn {
+            background: var(--navy); color: #fff;
+            border: none; border-radius: 50px;
+            padding: 10px 28px; font-family: var(--font-body);
+            font-weight: 700; font-size: 0.8rem; letter-spacing: 0.1em;
+            text-transform: uppercase; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .ws-new-btn:hover { background: var(--navy-lt); }
+
+        /* ============================================================
+           ASSISTENTE IA
+        ============================================================ */
+        .ia-container {
+            background: var(--ivory);
+            border-radius: var(--r-lg); overflow: hidden;
+            border: 1px solid var(--dust);
+            display: grid; grid-template-columns: 1fr 1fr;
+            align-items: stretch; min-height: 320px;
+        }
+        @media (max-width: 700px) { .ia-container { grid-template-columns: 1fr; } }
+        .ia-image-col { overflow: hidden; position: relative; }
+        .ia-image-col img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            transition: transform 6s cubic-bezier(.16,.84,.44,1);
+            will-change: transform;
+        }
+        /* KEN BURNS — velo che si approfondisce sull'immagine IA */
+        .ia-image-col::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(13,17,26,.42), rgba(13,17,26,.08) 50%, transparent 70%);
+            opacity: .7;
+            transition: opacity .9s ease;
+            pointer-events: none;
+        }
+        .ia-container:hover .ia-image-col img,
+        .ia-container.kb-hover .ia-image-col img { transform: scale(1.06); }
+        .ia-container:hover .ia-image-col::after,
+        .ia-container.kb-hover .ia-image-col::after { opacity: 1; }
+        .ia-text-col {
+            padding: 2.5rem; display: flex; flex-direction: column;
+            justify-content: center;
+        }
+        .ia-eyebrow {
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.22em;
+            text-transform: uppercase; color: var(--gold-dk); margin-bottom: 0.8rem;
+        }
+        .ia-name {
+            font-family: var(--font-display); font-size: 1.8rem; font-weight: 700;
+            color: var(--ink); margin-bottom: 0.8rem; line-height: 1.2;
+        }
+        .ia-sub { color: var(--sub); font-size: 0.9rem; margin-bottom: 2rem; line-height: 1.6; }
+        .btn-ia {
+            display: inline-block; text-decoration: none;
+            background: var(--navy); color: #fff;
+            padding: 14px 28px; border-radius: 50px;
+            font-family: var(--font-body); font-weight: 700;
+            font-size: 0.83rem; letter-spacing: 0.1em; text-transform: uppercase;
+            transition: all 0.25s; width: fit-content;
+            box-shadow: 0 6px 20px rgba(26,47,79,0.25);
+        }
+        .btn-ia:hover { background: var(--navy-lt); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(26,47,79,0.32); }
+
+        /* ============================================================
+           TASK 5 — IL SUPER QUIZ
+        ============================================================ */
+        .quiz-list {
+            display: flex; flex-direction: column; gap: 1.6rem;
+        }
+        .quiz-card {
+            background: var(--ivory);
+            border: 1px solid var(--dust);
+            border-radius: var(--r-md);
+            padding: 1.6rem 1.8rem;
+            transition: border-color 0.25s;
+        }
+        .quiz-question {
+            font-family: var(--font-display);
+            font-size: 1.06rem; font-weight: 700; color: var(--ink);
+            line-height: 1.4; margin-bottom: 1.1rem;
+        }
+        .quiz-options {
+            display: flex; flex-direction: column; gap: 0.6rem;
+        }
+        .quiz-option {
+            display: block; width: 100%; text-align: left;
+            background: #fff;
+            border: 1px solid var(--dust);
+            border-radius: var(--r-sm);
+            padding: 0.85rem 1.1rem;
+            font-family: var(--font-body);
+            font-size: 0.92rem; color: var(--body); line-height: 1.5;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quiz-option:hover:not(:disabled) { border-color: var(--gold); background: #FFFDF7; }
+        .quiz-option:disabled { cursor: default; }
+        .quiz-option.quiz-option-correct-pick {
+            border-color: var(--quiz-correct);
+            background: var(--quiz-correct-bg);
+            color: var(--quiz-correct);
+            font-weight: 700;
+        }
+        .quiz-option.quiz-option-incorrect-pick {
+            border-color: var(--quiz-incorrect);
+            background: var(--quiz-incorrect-bg);
+            color: var(--quiz-incorrect);
+            font-weight: 700;
+        }
+        .quiz-option.quiz-option-reveal-correct {
+            border-color: var(--quiz-correct);
+            box-shadow: inset 0 0 0 1px var(--quiz-correct);
+        }
+        .quiz-explanation {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem 1.2rem;
+            border-radius: var(--r-sm);
+            border-left: 4px solid;
+            font-size: 0.88rem; line-height: 1.65;
+        }
+        .quiz-explanation strong {
+            display: block; font-size: 0.66rem; font-weight: 700;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            margin-bottom: 0.4rem;
+        }
+        .quiz-explanation-correct {
+            background: var(--quiz-correct-bg);
+            border-color: var(--quiz-correct);
+            color: #1B5E20;
+        }
+        .quiz-explanation-incorrect {
+            background: var(--quiz-incorrect-bg);
+            border-color: var(--quiz-incorrect);
+            color: #8B1A1A;
+        }
+        .quiz-empty-note { color: var(--sub); font-style: italic; font-size: 0.9rem; }
+
+        /* ============================================================
+           HIGHLIGHTER (floating button)
+        ============================================================ */
+        .highlighted-text { padding: 0 2px; border-radius: 3px; }
+        #floating-highlighter {
+            position: absolute; display: none;
+            background: var(--navy); color: #fff;
+            padding: 8px 16px; border-radius: 50px; cursor: pointer;
+            z-index: 999999; font-size: 0.78rem; font-weight: 700;
+            box-shadow: var(--shadow-lift); font-family: var(--font-body);
+            text-transform: uppercase; letter-spacing: 0.1em;
+            gap: 8px;
+        }
+        #floating-highlighter:hover { background: var(--navy-lt); }
+        #floating-highlighter .hl-add { cursor: pointer; }
+        #floating-highlighter .hl-remove {
+            cursor: pointer; opacity: 0.7;
+            border-left: 1px solid rgba(255,255,255,0.3);
+            padding-left: 8px; margin-left: 2px;
+            display: none;
+        }
+        #floating-highlighter .hl-remove.visible { display: inline; }
+
+        /* ============================================================
+           TASK 4 — SMART WHITEBOARD
+        ============================================================ */
+        .wb-banner-wrap {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+      /* la lavagna — TUTTE le sue altezze vivono qui (token in :root).
+         Storia: nasceva a 220px con pulsante "ingrandisci"; poi è stata
+         resa sempre grande e il pulsante è morto. Ora: grande di default,
+         più bassa quando è aperta accanto al riassuntone su desktop. */
+        #smart-whiteboard {
+            display: flex;
+            background: #fff;
+            border: 1px solid var(--dust);
+            border-radius: var(--r-md);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-card);
+            height: var(--wb-h); /* altezza fissa: risolve il bug del flexbox */
+            position: relative;
+            flex-direction: column;
+            transition: height 0.35s ease;
+        }
+        #smart-whiteboard.wb-visible { display: flex; }
+        /* lavagna ancora vuota: si accorcia e lascia respirare il testo */
+        #smart-whiteboard.wb-vuota-on { height: auto; }
+        #smart-whiteboard.wb-vuota-on .wb-scroll-btns { display: none; }
+        .wb-vuota {
+            padding: 18px 16px; text-align: center;
+            font-family: var(--font-body); font-size: 0.86rem;
+            color: var(--sub, #5f5c55); line-height: 1.5;
+        }
+        .night-mode .wb-vuota { color: #9aa0ad; }
+        @media (max-height: 720px){ #smart-whiteboard{ height: 68vh; } }
+        @media (max-width: 600px){ #smart-whiteboard{ height: 62vh; } }
+        /* aperta nel capitolo riassuntone (desktop): si abbassa per lasciare
+           respiro a testo + bloc notes che le vivono sotto */
+        @media (min-width: 901px){
+            #smart-whiteboard.wb-visible{ height: var(--wb-h-aperta); }
+        }
+        @media (min-width: 901px) and (max-height: 720px){
+            #smart-whiteboard.wb-visible{ height: 44vh; }
+        }
+
+        .wb-header {
+            background: var(--navy); color: #fff;
+            padding: 10px 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; z-index: 2;
+        }
+        .wb-title {
+            font-family: var(--font-body); font-size: 0.8rem; font-weight: 700;
+            letter-spacing: 0.16em; text-transform: uppercase; text-align: center;
+        }
+        .wb-footer {
+            background: #fff; border-top: 1px solid var(--dust);
+            padding: 10px; display: flex; gap: 10px; flex-shrink: 0; z-index: 2;
+        }
+        .wb-btn {
+            flex: 1; background: #fff; color: var(--navy);
+            border: 2px solid var(--dust);
+            border-radius: 50px; padding: 12px 14px;
+            font-family: var(--font-body); font-size: 0.75rem; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.2s;
+            text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .wb-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); border-color: var(--navy); }
+        .wb-btn-pdf { background: var(--gold); color: var(--night); border-color: transparent; }
+        .wb-btn-pdf:hover { background: var(--gold-lt); border-color: transparent; }
+
+        .wb-body-wrap {
+            position: relative; flex: 1; overflow: hidden;
+        }
+        .wb-body {
+            position: absolute; /* IL FIX: Sgancia il corpo dal flexbox */
+            top: 0; bottom: 0; left: 0; right: 0;
+            overflow-y: auto;
+            padding: 10px 36px 10px 12px;
+        }
+        .wb-body::-webkit-scrollbar { width: 4px; }
+        .wb-body::-webkit-scrollbar-thumb { background: var(--dust); border-radius: 2px; }
+
+        .wb-scroll-btns {
+            position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .wb-scroll-btn {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: var(--dust); border: none; cursor: pointer;
+            font-size: 0.65rem; display: flex; align-items: center; justify-content: center;
+            color: var(--sub); transition: background 0.15s;
+        }
+        .wb-scroll-btn:hover { background: var(--mist); }
+
+        /* Ogni riga nella lavagna */
+        .wb-row {
+            display: flex; align-items: flex-start; gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--dust);
+        }
+        .wb-row:last-child { border-bottom: none; }
+        .wb-hl-swatch {
+            width: 4px; min-width: 4px; border-radius: 2px;
+            align-self: stretch; flex-shrink: 0;
+        }
+        .wb-hl-text {
+            font-family: var(--font-body); font-size: 0.82rem;
+            color: var(--ink); line-height: 1.5;
+            padding: 2px 6px; border-radius: var(--r-sm);
+            flex-shrink: 0; max-width: 38%;
+            word-break: break-word;
+        }
+        /* Container per freccia + input testuale */
+        .wb-note-container {
+            flex: 1; display: flex; align-items: flex-start; gap: 6px;
+            /* min-width:0 = può restringersi: senza, la textarea impone la sua
+               larghezza minima, la riga sfora e la ✕ finisce fuori dal riquadro
+               (succedeva su mobile con sottolineature di più parole) */
+            min-width: 0;
+        }
+        .wb-note-arrow {
+            color: var(--mist); font-weight: 700; font-size: 0.9rem; margin-top: 2px;
+        }
+        .wb-note-input {
+            flex: 1; min-width: 0; border: none; outline: none; resize: none;
+            font-family: var(--font-body); font-size: 0.82rem;
+            color: var(--body); background: transparent;
+            line-height: 1.5; padding: 2px 0; min-height: 24px;
+            overflow: hidden; /* L'altezza si adatterà automaticamente */
+        }
+        .wb-note-input::placeholder { color: rgba(197, 193, 184, 0.7); font-style: italic; }
+        
+        .wb-del-btn {
+            background: transparent; border: none; cursor: pointer;
+            color: var(--mist); font-size: 1rem; padding: 0 4px;
+            transition: color 0.15s; flex-shrink: 0;
+        }
+        .wb-del-btn:hover { color: var(--magenta); }
+
+        /* ============================================================
+           MOBILE FLASHCARD MODAL
+        ============================================================ */
+        #fc-mobile-modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(15,17,23,0.8); backdrop-filter: blur(6px);
+            z-index: 999999; justify-content: center; align-items: center; padding: 20px;
+        }
+        .fc-mobile-content {
+            background: #fff; width: 95%; max-width: 500px;
+            max-height: 80vh; overflow-y: auto;
+            padding: 28px 24px; border-radius: var(--r-xl);
+            position: relative; font-size: 1rem; line-height: 1.7;
+            color: var(--body); box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+            -webkit-overflow-scrolling: touch;
+            border-top: 3px solid var(--gold);
+        }
+        .fc-mobile-content h3 {
+            font-family: var(--font-display); font-size: 1rem; font-weight: 700;
+            color: var(--gold-dk); margin-bottom: 1rem;
+            text-transform: uppercase; letter-spacing: 0.12em;
+        }
+        .fc-mobile-close {
+            margin-top: 20px; width: 100%; padding: 14px;
+            background: var(--navy); color: #fff;
+            border: none; font-weight: 700; font-size: 0.85rem; font-family: var(--font-body);
+            cursor: pointer; border-radius: 50px; letter-spacing: 0.1em; text-transform: uppercase;
+        }
+
+        /* ============================================================
+           DISCLAIMER FOOTER CARD
+        ============================================================ */
+        .disclaimer-card {
+            background: #fff; border: 1px solid var(--dust); border-radius: var(--r-xl);
+            padding: 3rem; margin: 0 auto 2rem;
+            width: 90%; max-width: 1200px;
+            box-shadow: var(--shadow-card);
+        }
+        @media (max-width: 700px) { .disclaimer-card { padding: 1.5rem; width: 94%; border-radius: var(--r-lg); } }
+        .disclaimer-card h3 {
+            font-family: var(--font-body); font-size: 0.65rem; font-weight: 700;
+            letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-dk);
+            margin-bottom: 0.8rem;
+        }
+        .disclaimer-card h3:not(:first-child) { margin-top: 2rem; }
+        .disclaimer-card p { font-size: 0.82rem; color: var(--sub); line-height: 1.75; }
+
+        /* ============================================================
+           FOOTER SITEMARK
+        ============================================================ */
+        .site-footer {
+            text-align: center; padding: 2rem 1rem;
+            font-size: 0.72rem; color: var(--mist);
+            letter-spacing: 0.12em; text-transform: uppercase;
+            font-weight: 600;
+        }
+        .site-footer strong { color: var(--sub); }
+
+        /* ============================================================
+           RESPONSIVE MISC
+        ============================================================ */
+        @media (max-width: 600px) {
+            .author-img { width: 32px; height: 32px; }
+            .author-name { font-size: 0.78rem; }
+            .ia-text-col { padding: 1.5rem; }
+        }
+
+        /* ============================================================
+           ANTI-FLASH — gli stili veri di #ums-sostieni vivono in fondo
+           al file (blocco ums-sostieni-style): finché il browser non li
+           legge, al refresh il pulsante lampeggiava bianco e nudo con
+           la tazzina nera. Qui resta invisibile dal primo paint; il
+           blocco in fondo lo riaccende con opacity:1.
+        ============================================================ */
+        #ums-sostieni{ opacity: 0; }
+        #ums-sostieni .ums-cup{ fill: none; stroke: currentColor; }
+    
+
+/* ====================================================================
+   SEZIONE 2 — ex <style id="ums-upgrades-style">
+   ==================================================================== */
+        /* (rimossa la "lavagna espandibile": pulsante e classe wb-expanded
+           erano codice morto — altezze consolidate nella sezione TASK 4) */
+        .wb-header { position: relative; }
+
+        /* ============================================================
+           UPGRADE GRAFICA 1 — ICONE LINE-ART
+           Icone SVG a tratto sottile (stroke 1.7) al posto delle emoji:
+           rendering identico su tutti i sistemi e coerente col brand.
+        ============================================================ */
+        .ums-ic {
+            width: 1em; height: 1em;
+            stroke: currentColor; fill: none;
+            stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+            display: inline-block; vertical-align: -0.125em;
+            flex-shrink: 0;
+        }
+        .wb-title .ums-ic { width: 1.05em; height: 1.05em; }
+        #night-toggle .ums-ic { width: 1.15em; height: 1.15em; }
+        .quiz-explanation .ums-ic { margin-right: 2px; }
+
+        /* ============================================================
+           UPGRADE GRAFICA 2 — PALETTE DISCIPLINATA (sezioni interattive)
+           Verde/rosso "da semaforo" -> salvia e terracotta editoriali;
+           azzurrini fuori palette -> tinte del navy di brand.
+        ============================================================ */
+        :root {
+            --quiz-correct:      #4A7A5A;   /* salvia */
+            --quiz-correct-bg:   #EFF4EE;
+            --quiz-incorrect:    #B4573E;   /* terracotta */
+            --quiz-incorrect-bg: #F8EFEA;
+        }
+        .obj-box { background: linear-gradient(135deg, #F3F5F9 0%, #EBEFF5 100%); }
+        .ws-win-msg { background: linear-gradient(135deg, #F3F5F9, #EBEFF5); }
+        .toast-success {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(200,169,110,0.35);
+            color: var(--gold-dk);
+        }
+        .ws-cell.ws-found { background: var(--navy); color: #fff; }
+        .night-mode .ws-cell.ws-found { background: #8FB4E8; color: #14161C; }
+        .night-mode .toast-success { color: var(--gold-lt); }
+
+        /* ============================================================
+           UPGRADE GRAFICA 3 — RIASSUNTONE DA RIVISTA
+           Capolettera Playfair in oro + misura di riga controllata.
+        ============================================================ */
+        /* FIX — il capolettera ora è applicato via JS solo alla prima vera lettera
+           del primo paragrafo (mai a titoli o numeri: prima ::first-letter prendeva
+           il "1." dell'intestazione di sezione) */
+        #dyn-riassuntone-container { max-width: 68ch; }
+        /* Il capolettera vive in ::first-letter del paragrafo "lead": il testo resta
+           intero nel DOM, quindi Google Translate lo traduce normalmente e il
+           capolettera diventa automaticamente la prima lettera TRADOTTA. */
+        .ums-lead::first-letter {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 3.4em;
+            line-height: 0.8;
+            color: var(--gold-dk);
+            float: left;
+            padding: 0.08em 0.13em 0 0;
+        }
+        .night-mode .ums-lead::first-letter { color: var(--gold); }
+
+        /* UPGRADE TIPOGRAFIA — il riassuntone come articolo di rivista.
+           Base (mobile): a sinistra — mai centrato, mai giustificato su
+           colonne strette (il giustificato crea "fiumi" di spazi bianchi). */
+        #dyn-riassuntone-container {
+            line-height: 1.85;
+            font-size: 1.02rem;
+            text-align: left;
+        }
+        /* DUE REGISTRI DI LETTURA:
+           - Mobile (≤700px): allineato a sinistra — colonna stretta, il
+             giustificato creerebbe "fiumi" di spazio bianco tra le parole.
+             Massima usabilità, minima fatica cognitiva.
+           - Tablet/PC (≥701px): giustificato con sillabazione automatica
+             (lang="it" nel documento la abilita) — look da rivista, sicuro
+             perché la colonna è comunque limitata a 68ch. */
+        @media (min-width: 701px) {
+            #dyn-riassuntone-container {
+                text-align: justify;
+                hyphens: auto;
+                -webkit-hyphens: auto;
+            }
+        }
+        #dyn-riassuntone-container h3 {
+            font-family: var(--font-display);
+            font-size: 1.45rem;
+            font-weight: 700;
+            line-height: 1.3;
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-top: 2.6rem;
+            text-align: left;
+        }
+        #dyn-riassuntone-container h3::before {
+            content: '';
+            display: block;
+            width: 44px;
+            border-top: 3px solid var(--gold);
+            margin-bottom: 0.7rem;
+        }
+        #dyn-riassuntone-container ::selection { background: var(--gold-lt); color: var(--night); }
+
+        /* ============================================================
+           UPGRADE GRAFICA 4 — CRUCIPUZZLE "PAGINA ENIGMISTICA"
+           Stile da rubrica di quotidiano: filetti doppi, griglia da
+           cruciverba con bordi sottili, niente ombre pop.
+           + FIX MOBILE: griglia fluida, non taglia più le celle.
+        ============================================================ */
+        .pausa-wordsearch {
+            background: var(--ivory);
+            border: none;
+            border-top: 4px double var(--ink);
+            border-bottom: 4px double var(--ink);
+            border-radius: 0;
+        }
+        .ws-kicker {
+            font-family: var(--font-body);
+            font-size: 0.66rem; font-weight: 700;
+            letter-spacing: 0.28em; text-transform: uppercase;
+            color: var(--gold-dk);
+            margin-bottom: 0.5rem;
+        }
+        .pausa-ws-header h3 { font-style: italic; }
+        .ws-grid-wrap {
+            display: block;
+            width: 100%;
+            max-width: 460px;
+            margin: 0 auto;
+            background: var(--ivory);
+            border: 2px solid var(--ink);
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+        .ws-grid { gap: 0; background: transparent; }
+        .ws-cell {
+            width: auto; height: auto;
+            aspect-ratio: 1 / 1;
+            border-right: 1px solid rgba(28,28,34,0.28);
+            border-bottom: 1px solid rgba(28,28,34,0.28);
+            border-right: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+            border-bottom: 1px solid color-mix(in srgb, var(--ink) 30%, transparent);
+            border-radius: 0;
+            font-size: clamp(0.58rem, 2.4vw, 0.85rem);
+        }
+        .ws-grid .ws-cell:nth-child(12n) { border-right: none; }
+        .ws-grid .ws-cell:nth-last-child(-n+12) { border-bottom: none; }
+        .ws-word-tag { border-radius: 4px; background: transparent; }
+        .night-mode .ws-word-tag { background: transparent; }
+        @media (max-width: 480px) {
+            .pausa-wordsearch { padding: 1.4rem 0.7rem; }
+        }
+
+        /* ============================================================
+           FIX — TOOLTIP GOOGLE TRANSLATE
+           Sul testo tradotto, il widget evidenzia la frase sotto il cursore
+           in azzurro e apre un balloon con l'originale: in night mode diventa
+           illeggibile. Disattiviamo evidenziazione e balloon del tutto.
+        ============================================================ */
+        .goog-text-highlight {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+        #goog-gt-tt, .goog-te-balloon-frame, .goog-tooltip, .goog-tooltip:hover {
+            display: none !important;
+            visibility: hidden !important;
+        }
+
+        /* ============================================================
+           UPGRADE — SUDOKU (stesso linguaggio enigmistica)
+        ============================================================ */
+        .sd-diff-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 1.2rem; flex-wrap: wrap; }
+        .sd-wrap {
+            width: 100%; max-width: 420px; margin: 0 auto;
+            border: 2px solid var(--ink); background: var(--ivory);
+            touch-action: manipulation; user-select: none;
+        }
+        .sd-grid { display: grid; grid-template-columns: repeat(9, 1fr); }
+        .sd-cell {
+            aspect-ratio: 1 / 1;
+            display: flex; align-items: center; justify-content: center;
+            background: #fff; cursor: pointer;
+            font-family: var(--font-body); font-weight: 500;
+            font-size: clamp(0.85rem, 3.6vw, 1.15rem);
+            color: var(--navy);
+            border-right: 1px solid rgba(28,28,34,0.22);
+            border-bottom: 1px solid rgba(28,28,34,0.22);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .sd-grid .sd-cell:nth-child(9n) { border-right: none; }
+        .sd-grid .sd-cell:nth-last-child(-n+9) { border-bottom: none; }
+        .sd-grid .sd-cell:nth-child(3n):not(:nth-child(9n)) { border-right: 2px solid var(--ink); }
+        .sd-grid .sd-cell:nth-child(n+19):nth-child(-n+27),
+        .sd-grid .sd-cell:nth-child(n+46):nth-child(-n+54) { border-bottom: 2px solid var(--ink); }
+        .sd-cell.sd-fixed { font-weight: 800; color: var(--ink); background: #F6F3EA; cursor: default; }
+        .sd-cell.sd-sel { background: var(--gold-lt) !important; color: var(--night); }
+        .sd-cell.sd-err { color: var(--quiz-incorrect); font-weight: 800; }
+        .night-mode .sd-cell { background: #262933; color: #8FB4E8; }
+        /* FIX — in night mode l'errore era rosa pallido e ambiguo: ora terracotta
+           piena su fondo tinto, impossibile non capire che e' un errore */
+        .night-mode .sd-cell.sd-err {
+            color: #F08A63 !important;
+            background: rgba(180, 87, 62, 0.22);
+        }
+        .sd-cell.sd-err { background: rgba(180, 87, 62, 0.10); }
+        .night-mode .sd-cell.sd-fixed { background: #1E212A; color: var(--ink); }
+        .night-mode .sd-cell.sd-sel { background: var(--gold-lt) !important; color: #1C1C22; }
+
+        .sd-pad { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 1.1rem; }
+        .sd-pad button {
+            width: 40px; height: 40px;
+            border: 1px solid var(--dust); background: #fff; border-radius: 8px;
+            font-family: var(--font-body); font-weight: 700; font-size: 1rem;
+            color: var(--navy); cursor: pointer; transition: all 0.15s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sd-pad button:hover { border-color: var(--navy); transform: translateY(-1px); }
+        .night-mode .sd-pad button { background: #262933; color: #8FB4E8; }
+
+        .sd-howto {
+            max-width: 62ch; margin: 1.5rem auto 0;
+            font-size: 0.85rem; line-height: 1.75; color: var(--sub);
+            text-align: center;
+        }
+
+        /* ============================================================
+           UPGRADE — SOLITARIO (stesso linguaggio enigmistica)
+        ============================================================ */
+        .sol-board {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            max-width: 620px;
+            margin: 0 auto;
+            padding-bottom: clamp(190px, 44vw, 310px);
+            touch-action: none;
+        }
+        .sol-pile {
+            border: 1.5px solid var(--dust);
+            border-radius: 8px;
+            aspect-ratio: 2.5 / 3.5;
+            position: relative;
+            background: rgba(255, 255, 255, 0.35);
+            transition: box-shadow 0.15s, border-color 0.15s;
+        }
+        .night-mode .sol-pile { background: rgba(255, 255, 255, 0.05); }
+        .sol-found {
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem; color: var(--mist);
+        }
+        .sol-pile.sol-valid {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px var(--gold-lt);
+        }
+        #sol-stock { cursor: pointer; }
+        .sol-redeal {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: var(--mist);
+        }
+        .sol-card {
+            position: absolute; left: 0;
+            width: 100%; aspect-ratio: 2.5 / 3.5;
+            background: #fff;
+            border: 1.5px solid #C9C4B8;
+            border-radius: 8px;
+            display: flex; flex-direction: column; align-items: center;
+            padding-top: 4%;
+            font-family: var(--font-body); font-weight: 800;
+            font-size: clamp(0.72rem, 2.7vw, 1.05rem);
+            line-height: 1.05;
+            box-shadow: 0 1px 3px rgba(20, 20, 30, 0.18);
+            z-index: 10;
+        }
+        .sol-card .sol-s { font-size: 1.45em; }
+        .sol-card.sol-red { color: #B4573E; }
+        .sol-card.sol-black { color: #1C1C22; }
+        .sol-card.sol-hidden {
+            background: var(--navy);
+            background-image: radial-gradient(rgba(200, 169, 110, 0.5) 22%, transparent 23%);
+            background-size: 9px 9px;
+            border-color: var(--navy);
+            cursor: default;
+        }
+        #sol-clone { position: fixed; z-index: 99999; pointer-events: none; }
+        #sol-clone .sol-card {
+            position: absolute; left: 0;
+            box-shadow: 0 14px 28px rgba(20, 20, 30, 0.35);
+        }
+
+        /* ============================================================
+           UPGRADE — "ACCADDE OGGI" (almanacco editoriale)
+           Filetto doppio da quotidiano, data del giorno in corsivo,
+           anno in grande Playfair oro, etichetta a pillola, voci
+           separate da filetti sottili.
+        ============================================================ */
+        .losapevi {
+            margin-top: 2.2rem;
+            border-top: 3px double var(--ink);
+            padding-top: 1.35rem;
+        }
+        .ls-head {
+            display: flex; align-items: baseline; justify-content: space-between;
+            gap: 12px; margin-bottom: 0.4rem;
+        }
+        .ls-head .ws-kicker { margin-bottom: 0; }
+        .ls-data {
+            font-family: var(--font-display); font-style: italic;
+            font-size: 0.98rem; color: var(--sub);
+        }
+        .ls-item {
+            display: flex; align-items: flex-start; gap: 16px;
+            padding: 1.05rem 0; margin: 0;
+            border-bottom: 1px solid var(--dust);
+        }
+        #losapevi-list .ls-item:last-child { border-bottom: none; }
+        .ls-anno {
+            flex: 0 0 3.4rem;
+            font-family: var(--font-display); font-weight: 700;
+            font-size: 1.45rem; line-height: 1.15;
+            color: var(--gold-dk);
+            font-variant-numeric: lining-nums;
+        }
+        .ls-anno.ls-anno-vuoto { color: var(--gold); font-size: 1.2rem; }
+        .ls-corpo { flex: 1; min-width: 0; }
+        .ls-label {
+            display: inline-block;
+            font-size: 0.58rem; font-weight: 700;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            color: var(--sub);
+            border: 1px solid var(--dust); border-radius: 50px;
+            padding: 3px 10px; margin-bottom: 7px;
+        }
+        .ls-testo {
+            font-size: 0.92rem; line-height: 1.7; color: var(--body);
+            margin: 0;
+        }
+        .ls-more {
+            background: none; border: none; padding: 0;
+            margin-top: 7px; display: inline-block;
+            font-family: var(--font-body); font-size: 0.78rem; font-weight: 700;
+            color: var(--navy); cursor: pointer;
+            border-bottom: 1px solid var(--gold);
+            transition: color 0.2s;
+            white-space: nowrap;
+        }
+        .ls-more:hover { color: var(--gold-dk); }
+        .night-mode .ls-more { color: #8FB4E8; }
+        .ls-footer { text-align: center; margin-top: 1.15rem; }
+        .ls-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: transparent; color: var(--navy);
+            border: 1px solid var(--dust); border-radius: 50px;
+            padding: 9px 22px; font-family: var(--font-body);
+            font-weight: 700; font-size: 0.72rem; letter-spacing: 0.1em;
+            text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+        }
+        .ls-btn .ums-ic { width: 0.95em; height: 0.95em; }
+        .ls-btn:hover { border-color: var(--gold); color: var(--gold-dk); }
+        .night-mode .ls-btn { color: #8FB4E8; }
+        .night-mode .ls-anno { color: var(--gold); }
+        @media (max-width: 600px){
+            .ls-item { gap: 12px; }
+            .ls-anno { flex-basis: 2.9rem; font-size: 1.25rem; }
+        }
+
+        /* BLINDATURA — errore sudoku in night mode: regola finale con specificità
+           massima, così nessun altro stile può attenuarla */
+        body.night-mode .sd-grid .sd-cell.sd-err {
+            color: #F08A63 !important;
+            background: rgba(224, 110, 80, 0.28) !important;
+            font-weight: 800 !important;
+        }
+
+    
+
+/* ====================================================================
+   SEZIONE 3 — ex <style id="night-mode-style">
+   ==================================================================== */
+        /* Pulsante toggle fisso */
+        #night-toggle {
+            position: fixed; bottom: 24px; right: 24px;
+            z-index: 9999998;
+            width: 52px; height: 52px; border-radius: 50%;
+            border: 1px solid var(--dust);
+            background: #fff; color: var(--ink);
+            font-size: 1.35rem; line-height: 1;
+            cursor: pointer;
+            box-shadow: var(--shadow-lift);
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s, background 0.3s, border-color 0.3s;
+        }
+        #night-toggle:hover { transform: scale(1.08); border-color: var(--gold); }
+        #night-toggle:active { transform: scale(0.96); }
+
+        /* Transizioni morbide al cambio tema (solo superfici principali) */
+        body, .content-card, .disclaimer-card, .author-badge, .factor-card,
+        .quiz-card, .quiz-option, .notes-widget, .notes-toolbar, .ia-container,
+        .modal-paper, .fc-mobile-content, .ws-word-tag, .ws-lang-btn,
+        #smart-whiteboard, .obj-box, .cornell-box {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* ---- Rimappatura token in modalità notte ---- */
+        body.night-mode {
+            color-scheme: dark;
+            --ivory:    #14161C;
+            --ivory-dk: #1B1E26;
+            --dust:     #2B2E38;
+            --mist:     #5C5F6A;
+            --ink:      #F2EFE8;
+            --body:     #C7C4BC;
+            --sub:      #918E86;
+            --gold-dk:  #D9BC85;
+            --quiz-correct:      #7BC67F;
+            --quiz-correct-bg:   #14261A;
+            --quiz-incorrect:    #EF9A9A;
+            --quiz-incorrect-bg: #2A1414;
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.3);
+            --shadow-lift: 0 12px 40px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
+        }
+
+        /* ---- Superfici con #fff hardcoded ---- */
+        .night-mode .content-card,
+        .night-mode .ums404,
+        .night-mode .disclaimer-card,
+        .night-mode .modal-paper,
+        .night-mode .fc-mobile-content,
+        .night-mode .lang-options,
+        .night-mode #custom-lang-selector.loaded,
+        .night-mode .notes-toolbar,
+        .night-mode .hl-palette-row,
+        .night-mode #smart-whiteboard,
+        .night-mode .wb-footer,
+        .night-mode #night-toggle { background: #1E212A; }
+
+        .night-mode .author-badge { background: #1E212A; }
+        .night-mode .author-badge.primary { background: var(--navy); }
+
+        .night-mode .quiz-option { background: #1E212A; }
+        .night-mode .quiz-option:hover:not(:disabled) { background: #262B36; }
+
+        .night-mode .tool-btn { background: #262933; }
+        .night-mode .tool-btn:hover { background: #1E212A; color: #8FB4E8; border-color: #8FB4E8; }
+
+        .night-mode .btn-nav { background: #262933; }
+        .night-mode .btn-nav:hover { color: #8FB4E8; border-color: #8FB4E8; }
+
+        .night-mode .wb-btn { background: #262933; color: #8FB4E8; }
+        .night-mode .wb-btn-pdf { background: var(--gold); color: var(--night); }
+
+        .night-mode .ws-lang-btn { background: #1E212A; }
+        .night-mode .ws-lang-btn.active { background: var(--navy); color: #fff; }
+        .night-mode .ws-word-tag { background: #1E212A; }
+        .night-mode .ws-cell { background: #262933; color: var(--ink); }
+        .night-mode .ws-cell.ws-sel { background: var(--gold-lt); color: #1C1C22; }
+        .night-mode .ws-cell.ws-found { background: #8FB4E8; color: #14161C; } /* PUNTO 8 — via il cyan residuo */
+
+        /* ---- Gradienti chiari hardcoded ---- */
+        .night-mode .obj-box {
+            background: linear-gradient(135deg, #182238 0%, #151D2E 100%);
+            border-color: rgba(143,180,232,0.18);
+        }
+        .night-mode .cornell-box { background: linear-gradient(135deg, #221D10, #1C180D); }
+        .night-mode #win-screen,
+        .night-mode .ws-win-msg {
+            background: linear-gradient(135deg, #182238, #151D2E);
+            border-color: rgba(143,180,232,0.15);
+        }
+
+        /* ---- Testi navy (illeggibili su scuro): schiariti solo dove sono testo ---- */
+        .night-mode h1 em,
+        .night-mode .obj-box p strong,
+        .night-mode .cornell-question,
+        .night-mode #win-screen h2,
+        .night-mode .ws-win-msg p,
+        .night-mode #lang-toggle-btn,
+        .night-mode .video-direct-link { color: #8FB4E8; }
+        .night-mode .video-direct-link { border-color: #8FB4E8; }
+        .night-mode .accordion-header:hover .ch-title { color: #8FB4E8; }
+        .night-mode .accordion-header.active .ch-icon { color: #8FB4E8; }
+        .night-mode .close-modal:hover { color: #8FB4E8; }
+        .night-mode .btn-close-section:hover {
+            border-color: #8FB4E8; color: #8FB4E8; background: rgba(143,180,232,0.06);
+        }
+
+        /* ---- Box dinamici con stile inline chiaro ---- */
+        .night-mode #dyn-nota-extra {
+            background: #221D10 !important;
+            border-color: var(--gold-dk) !important;
+        }
+        .night-mode #translation-disclaimer {
+            background: #221D10; color: #D9BC85; border-color: #4A3F1E;
+        }
+
+        /* ---- Evidenziazioni: sfondo chiaro → testo scuro forzato ---- */
+        .night-mode mark.highlighted-text { color: #1C1C22; }
+
+        /* ---- Flashcard: i pannelli restano bianchi sopra l'immagine,
+                quindi il testo deve restare scuro anche in night mode ---- */
+        .night-mode .flashcard-back p,
+        .night-mode .flashcard-front h2 { color: #1C1C22; }
+
+        /* ---- Quiz: testi spiegazione ---- */
+        .night-mode .quiz-explanation-correct { color: #A5D6A7; }
+        .night-mode .quiz-explanation-incorrect { color: #EF9A9A; }
+
+        /* ---- Sfondo decorativo: niente inversione, solo blend adatto al buio ---- */
+        .night-mode .main-background-image {
+            mix-blend-mode: screen;
+            opacity: 0.05;
+        }
+    
+
+/* ====================================================================
+   SEZIONE 4 — ex <style id="ums-premium-style">
+   ==================================================================== */
+        /* PUNTO 2 — skeleton shimmer (titolo, sottotitolo, media) */
+        .ums-skel {
+            display: block; border-radius: 10px;
+            background: linear-gradient(90deg, var(--dust) 25%, var(--ivory-dk) 50%, var(--dust) 75%);
+            background-size: 200% 100%;
+            animation: umsSkel 1.3s infinite linear;
+        }
+        @keyframes umsSkel { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+        .ums-skel-l1 { width: min(480px, 70vw); height: 0.68em; margin: 0.12em auto; }
+        .ums-skel-l2 { width: min(330px, 48vw); height: 0.68em; margin: 0.12em auto 0; }
+        .ums-skel-sub { width: 110px; height: 11px; margin: 0 auto; border-radius: 6px; }
+        .night-mode .ums-skel {
+            background: linear-gradient(90deg, #262933 25%, #2F333F 50%, #262933 75%);
+            background-size: 200% 100%;
+        }
+        .video-container.ums-media-loading::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(110deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 65%);
+            background-size: 200% 100%;
+            animation: umsSkel 1.4s infinite linear;
+            pointer-events: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ums-skel, .video-container.ums-media-loading::after { animation: none; }
+        }
+
+        /* PUNTO 5 — selettore lingua tipografico + sizing icone */
+        #lang-arrow { display: inline-flex; vertical-align: middle; transition: transform 0.25s ease; }
+        #lang-arrow.ums-open { transform: rotate(180deg); }
+        #lang-arrow .ums-ic { width: 0.9em; height: 0.9em; }
+        .btn-nav .ums-ic { width: 1.1em; height: 1.1em; vertical-align: -2px; }
+        .wb-scroll-btn .ums-ic { width: 11px; height: 11px; }
+        .btn-close-section .ums-ic { width: 1.25em; height: 1.25em; vertical-align: -4px; }
+        .master-header .mh-arrow .ums-ic { width: 1em; height: 1em; display: block; }
+        .ums-nav-btn .ums-ic { width: 22px; height: 22px; }
+        .btn-flip-mobile .ums-ic { width: 1em; height: 1em; vertical-align: -2px; }
+        .sol-redeal .ums-ic { width: 1em; height: 1em; }
+        #fc-start-screen .flashcard-front h2 { text-align: center; }
+
+        /* PUNTO 8 — palette editoriale sugli ultimi residui pop */
+        .toast-retry {
+            border-color: #B4573E;
+            box-shadow: 0 0 20px rgba(180,87,62,0.35);
+            color: #E8A18B;
+        }
+        .btn-no { background: #B4573E; color: #fff; }
+        .btn-yes { background: #4A7A5A; color: #fff; }
+        .btn-flip-mobile { background: var(--gold); color: var(--night); border-color: transparent; }
+
+        /* PUNTO 9 — shimmer solo durante lo scroll, barra ferma a riposo */
+        #scroll-progress-bar { animation: none; transition: none; }
+        #scroll-progress-bar.ums-scrolling { animation: shimmer 3s infinite linear; }
+        @media (prefers-reduced-motion: reduce) {
+            #scroll-progress-bar.ums-scrolling { animation: none; }
+        }
+    
+
+/* ====================================================================
+   SEZIONE 5 — ex <style id="ums-boot-style">
+   ==================================================================== */
+#ums-boot{ display: none; }
+@media all and (display-mode: standalone){
+  #ums-boot{
+    display: flex; position: fixed; inset: 0; z-index: 2147483000;
+    background: #14161C;
+    align-items: center; justify-content: center;
+    transition: opacity .45s ease;
+  }
+  #ums-boot.via{ opacity: 0; pointer-events: none; }
+  .ums-boot-brand{
+    text-align: center;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 900; line-height: .96; letter-spacing: -0.02em;
+    /* invisibile finché Playfair non è pronto: niente salto di font */
+    opacity: 0; transition: opacity .25s ease;
+  }
+  .ums-boot-brand.pronta{ opacity: 1; }
+  .ums-boot-brand .b1, .ums-boot-brand .b2{ display: block; font-size: clamp(2.2rem, 9vw, 3.4rem); }
+  .ums-boot-brand .b1{ color: #F2EFE8; }
+  .ums-boot-brand .b2{ color: #8FB4E8; font-style: italic; }
+  .ums-boot-brand .btag{
+    display: flex; align-items: center; justify-content: center; gap: 11px;
+    margin-top: 14px;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: .6rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase;
+    color: #D9BC85;
+  }
+  .ums-boot-brand .btag::before, .ums-boot-brand .btag::after{
+    content: ''; display: block; width: 26px; height: 1px; background: #C8A96E;
+  }
+  @media (prefers-reduced-motion: reduce){ #ums-boot{ transition: none; } }
+}
+
+/* ====================================================================
+   SEZIONE 6 — ex <style id="ums-app-align">
+   ==================================================================== */
+        :root{
+            --ease: cubic-bezier(.16,.84,.44,1);
+            --r-pill: 50px;
+        }
+
+        /* Filigrana identica alla home: niente seppia, niente grana, opacita' allineata */
+        .main-background-image{
+            opacity: .09;
+            filter: none;
+            mix-blend-mode: normal;
+        }
+        .giants-background::after{ display: none; }
+        .night-mode .main-background-image{
+            mix-blend-mode: normal;
+            opacity: .06;
+            filter: none;
+        }
+
+        /* ------------------------------------------------------------
+           BRANDMARK — "Demo Accessibilità" formattato come la home
+        ------------------------------------------------------------ */
+        .ums-brandmark{
+            font-family: var(--font-display) !important;
+            font-weight: 900 !important;
+            font-size: clamp(1.5rem, 4.5vw, 2.1rem) !important;
+            letter-spacing: -0.02em !important;
+            text-transform: none !important;
+            color: var(--ink) !important;
+            line-height: 1 !important;
+            gap: 0 !important;
+        }
+        .ums-brandmark::before, .ums-brandmark::after{ display: none !important; }
+        .ums-brandmark em{ font-style: italic; color: var(--navy); margin-left: .26em; }
+        .night-mode .ums-brandmark{ color: #F2EFE8 !important; }
+        .night-mode .ums-brandmark em{ color: #8FB4E8; }
+
+        /* ------------------------------------------------------------
+           TOP-BAR DA SCROLL — come la home in app-mode: brand piccolo
+           in alto a sinistra su barra sfocata; appare superato l'header
+        ------------------------------------------------------------ */
+        #ums-topbar{
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--topbar-h); z-index: 999995;
+            background: rgba(247,244,239,.88);
+            -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--dust);
+            display: flex; align-items: center; padding: 0 22px;
+            transform: translateY(-100%);
+            transition: transform .4s var(--ease), background-color .3s, border-color .3s;
+        }
+        #ums-topbar.visible{ transform: translateY(0); }
+        #ums-topbar .ums-brandmark{
+            font-size: 1.25rem !important;
+            cursor: pointer; user-select: none;
+            margin: 0 !important;
+        }
+        .night-mode #ums-topbar{ background: rgba(20,22,28,.88); border-color: #2B2E38; }
+        @media (max-width: 560px){ #ums-topbar .ums-brandmark{ font-size: 1.05rem !important; } }
+
+        /* ------------------------------------------------------------
+           "INIZIA" — pillola nuda come nella home: finché la lezione
+           è chiusa, la card bianca intorno sparisce del tutto
+        ------------------------------------------------------------ */
+        body:not(.ums-master-open) .content-card{
+            background: transparent;
+            border-color: transparent;
+            box-shadow: none;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .content-card{ transition: background-color .4s ease, border-color .4s ease, box-shadow .4s ease, padding .4s ease; }
+
+        .master-accordion-item{ text-align: center; }   /* centra SOLO la pillola INIZIA */
+        /* Il center sopra si eredita a cascata: senza questa regola l'INTERO
+           contenuto della lezione (riassuntone su mobile, obiettivi ovunque)
+           risultava centrato. Il testo che si LEGGE va da sinistra; resta
+           centrato solo ciò che ha una regola propria (contatori, bottoni,
+           schermate di vittoria). */
+        #master-content{ text-align: left; }
+        .master-header{
+            display: inline-flex !important;
+            width: auto !important;
+            justify-content: center !important;
+            align-items: center;
+            gap: 12px;
+            border-radius: var(--r-pill) !important;
+            padding: 1.05rem 2.6rem !important;
+            font-family: var(--font-body) !important;
+            font-size: .82rem !important;
+            font-weight: 700 !important;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(26,47,79,.28) !important;
+            margin: 0 auto !important;
+            transition: transform .25s var(--ease), box-shadow .25s, background-color .25s !important;
+        }
+        .master-header:hover{
+            transform: translateY(-3px);
+            box-shadow: 0 16px 40px rgba(26,47,79,.36) !important;
+        }
+        .master-header:active{ transform: translateY(-1px); }
+        .master-header .mh-arrow{ font-size: 1rem; transition: transform .3s var(--ease); }
+        .master-header.active .mh-arrow{ transform: rotate(90deg); }
+
+        /* ------------------------------------------------------------
+           INGRESSO "DA APP" — sequenza più teatrale: prima l'eyebrow,
+           poi il titolo, poi (con calma) badge, lingua e il pulsante
+        ------------------------------------------------------------ */
+        @keyframes umsFadeUp{
+            from{ opacity: 0; transform: translateY(18px); }
+            to{ opacity: 1; transform: translateY(0); }
+        }
+        @keyframes umsPopIn{
+            from{ opacity: 0; transform: translateY(14px) scale(.92); }
+            to{ opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .header-eyebrow{ animation: umsFadeUp .6s .35s var(--ease) both; }
+        header h1{ animation: umsFadeUp .8s .6s var(--ease) both; }
+        header .subtitle{ animation: umsFadeUp .6s .95s var(--ease) both; }
+        header .badges-row{ animation: umsFadeUp .6s 1.25s var(--ease) both; }
+        #custom-lang-selector.loaded{ animation: umsFadeUp .6s 1.45s var(--ease) both; }
+        .content-card{ animation: umsPopIn .6s 1.7s var(--ease) both; }
+        .disclaimer-card, .site-footer{ animation: umsFadeUp .7s 1.9s var(--ease) both; }
+
+        /* ------------------------------------------------------------
+           BADGE — chip "da app": squircle piatti tinta-su-tinta,
+           niente bordi né ombre, pressione con scale (stile iOS)
+        ------------------------------------------------------------ */
+        .badges-row{ gap: 8px; }
+        .author-badge{
+            background: rgba(26,47,79,.07) !important;
+            -webkit-backdrop-filter: none; backdrop-filter: none;
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 12px !important;
+            padding: 8px 14px !important;
+            transition: background-color .2s ease, transform .15s var(--ease) !important;
+        }
+        .author-badge:hover{
+            background: rgba(26,47,79,.13) !important;
+            transform: translateY(-1px);
+            box-shadow: none !important;
+        }
+        .author-badge:active{ transform: scale(.96); }
+        .author-badge .author-name{ font-weight: 600; font-size: .8rem; color: var(--navy); }
+        .author-badge .author-name strong{ font-weight: 700; }
+        .author-img{ width: 22px !important; height: 22px !important; }
+        .author-badge.primary{
+            background: var(--navy) !important;
+            box-shadow: none !important;
+        }
+        .author-badge.primary:hover{ background: var(--navy-lt) !important; box-shadow: none !important; }
+        .author-badge.primary .author-name{ color: #fff; }
+        .night-mode .author-badge{ background: rgba(143,180,232,.1) !important; }
+        .night-mode .author-badge:hover{ background: rgba(143,180,232,.18) !important; }
+        .night-mode .author-badge .author-name{ color: #8FB4E8; }
+        .night-mode .author-badge.primary{ background: var(--navy) !important; }
+        .night-mode .author-badge.primary .author-name{ color: #F2EFE8; }
+
+        /* ------------------------------------------------------------
+           CASCATA DELLE SEZIONI — all'apertura di "Inizia"
+           le 8 sezioni entrano una dopo l'altra (come le righe lezione
+           nella vista corso della home)
+        ------------------------------------------------------------ */
+        .master-content .accordion-item{ opacity: 0; }
+        .master-content.open .accordion-item{
+            animation: umsFadeUp .5s var(--ease) both;
+        }
+        .master-content.open .accordion-item:nth-child(1){ animation-delay: .05s; }
+        .master-content.open .accordion-item:nth-child(2){ animation-delay: .11s; }
+        .master-content.open .accordion-item:nth-child(3){ animation-delay: .17s; }
+        .master-content.open .accordion-item:nth-child(4){ animation-delay: .23s; }
+        .master-content.open .accordion-item:nth-child(5){ animation-delay: .29s; }
+        .master-content.open .accordion-item:nth-child(6){ animation-delay: .35s; }
+        .master-content.open .accordion-item:nth-child(7){ animation-delay: .41s; }
+        .master-content.open .accordion-item:nth-child(8){ animation-delay: .47s; }
+
+        /* Micro-tocchi da app sugli elementi interattivi principali */
+        .author-badge{ transition: transform .25s var(--ease), box-shadow .25s, border-color .25s, background-color .3s; }
+        .accordion-header .ch-icon{ transition: transform .3s var(--ease), color .2s; }
+        .accordion-header:hover .ch-number{ transform: translateX(2px); }
+        .accordion-header .ch-number{ transition: color .25s, transform .25s var(--ease); }
+        .btn-close-section{ transition: all .2s var(--ease); }
+
+        /* ------------------------------------------------------------
+           COPY LAVAGNA — sotto la lavagna, due varianti
+        ------------------------------------------------------------ */
+        .wb-hint{
+            margin: 10px 0 18px;
+            padding: 10px 14px;
+            background: rgba(200,169,110,.08);
+            border-left: 3px solid var(--gold);
+            border-radius: 0 var(--r-sm) var(--r-sm) 0;
+            font-size: .78rem; line-height: 1.65; color: var(--sub);
+        }
+        .wb-hint .ums-ic{ vertical-align: -2px; margin-right: 4px; }
+        .night-mode .wb-hint{ background: rgba(200,169,110,.07); color: #918E86; }
+        /* La palette colori ora vive qui dentro: via il look da toolbar */
+        .wb-hint{ text-align: center; }
+        .wb-hint .hl-palette-row{
+            background: transparent !important;
+            border: none !important;
+            padding: 12px 0 2px !important;
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-wrap: wrap; gap: 10px !important;
+        }
+        .wb-hint .hl-palette-micro{
+            font-size: .68rem; letter-spacing: .1em;
+        }
+        .wb-hint .hl-palette-swatches{ justify-content: center; }
+        .hl-copy-mobile{ display: none; }
+        @media (max-width: 900px), (pointer: coarse){
+            .hl-copy-desktop{ display: none; }
+            .hl-copy-mobile{ display: inline; }
+        }
+
+        /* Il pulsante flottante deve essere comodo da toccare col pollice */
+        @media (pointer: coarse){
+            #floating-highlighter{ padding: 12px 18px; font-size: 1rem; }
+        }
+
+        /* Testo del riassuntone selezionabile anche dove il browser mobile esita */
+        .text-content-box, .text-content-box p{
+            -webkit-user-select: text; user-select: text;
+        }
+
+        @media (prefers-reduced-motion: reduce){
+            .header-eyebrow, header h1, header .subtitle, header .badges-row,
+            #custom-lang-selector.loaded, .content-card, .disclaimer-card, .site-footer,
+            .master-content .accordion-item{
+                animation: none !important;
+                opacity: 1 !important;
+            }
+            #ums-topbar{ transition: none; }
+        }
+    
+
+/* ====================================================================
+   SEZIONE 7 — ex <style id="ums-lesson-nav-style">
+   ==================================================================== */
+        /* Freccette ai LATI del sottotitolo "LEZIONE X":
+           riga flex che avvolge il sottotitolo originale. */
+        .ums-subtitle-row{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 2.5rem;
+        }
+        .ums-subtitle-row .subtitle{ margin-bottom: 0; }
+
+        .ums-nav-btn{
+            flex: 0 0 auto;
+            width: 34px; height: 34px;
+            display: grid; place-items: center;
+            border-radius: 50%;
+            text-decoration: none;
+            font-family: var(--font-body, sans-serif);
+            font-size: 1.35rem; line-height: 1;
+            color: var(--mist, #C5C1B8);
+            transition: color .2s, background .2s, transform .2s;
+            opacity: 0;
+            animation: umsFadeUp .7s .5s var(--ease, ease) both;
+        }
+        @media (prefers-reduced-motion: reduce){
+            .ums-nav-btn{ animation: none; opacity: 1; }
+        }
+        .ums-nav-btn:hover{
+            color: var(--gold-dk, #9A7A3F);
+            background: rgba(200,169,110,.1);
+        }
+        .ums-nav-btn:active{ transform: scale(.92); }
+        /* Estremità: segnaposto invisibile, il sottotitolo resta centrato */
+        .ums-nav-ghost{
+            flex: 0 0 auto;
+            width: 34px; height: 34px;
+            visibility: hidden;
+        }
+        /* --mist e --gold-dk si adattano da soli in night mode (rimappate dal tema) */
+
+        /* ------------------------------------------------------------
+           DISCLAIMER — nascosto finché la lezione è chiusa; compare
+           (dov'è sempre stato, sotto la sezione di studio) quando si
+           preme INIZIA. Riusa body.ums-master-open, già sincronizzato
+           dal blocco "card trasparente".
+        ------------------------------------------------------------ */
+        .disclaimer-card{ display: none; }
+        body.ums-master-open .disclaimer-card{
+            display: block;
+            /* niente ritardo da 1.9s del fade di primo caricamento */
+            animation: umsFadeUp .6s .1s var(--ease, ease) both;
+        }
+
+        /* Footer "Demo Accessibilità · Tutti i diritti…": stessa sorte
+           del disclaimer — compare in fondo solo dopo INIZIA. */
+        .site-footer{ display: none; }
+        body.ums-master-open .site-footer{
+            display: block;
+            animation: umsFadeUp .6s .15s var(--ease, ease) both;
+        }
+
+        /* (le vecchie regole "header compatto" sono state sostituite
+           dallo STAGE fisso stile index — vedi ums-title-migrate-style) */
+    
+
+/* ====================================================================
+   SEZIONE 8 — ex <style id="ums-inav-style">
+   ==================================================================== */
+        /* Via i vecchi badge dall'header (il markup resta, per sicurezza) */
+        .badges-row{ display: none !important; }
+
+        #ums-insta-nav{
+            position: fixed;
+            z-index: 999996; /* sopra la topbar (999995), sotto night-toggle e toast */
+            background: #fff;
+            display: flex;
+            font-family: var(--font-body, sans-serif);
+        }
+
+        .ums-inav-item{
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 3px;
+            border: none; background: transparent;
+            text-decoration: none; cursor: pointer;
+            color: var(--ink, #1C1C22);
+            border-radius: 12px;
+            transition: background .18s, transform .18s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ums-inav-item:hover{ background: rgba(15,17,23,.05); }
+        .ums-inav-item:active{ transform: scale(.94); }
+        .ums-inav-item .ums-ic{ width: 24px; height: 24px; }
+
+        .ums-inav-label{
+            font-size: .56rem; font-weight: 700;
+            letter-spacing: .1em; text-transform: uppercase;
+            color: var(--sub, #7A7770);
+            line-height: 1;
+        }
+
+        .ums-inav-avatar{
+            width: 28px; height: 28px; border-radius: 50%;
+            object-fit: cover; display: block;
+            border: 2px solid transparent;
+            transition: border-color .2s;
+        }
+        .ums-inav-item:hover .ums-inav-avatar{ border-color: var(--gold, #C8A96E); }
+
+        /* --- Selettore lingua trapiantato nella barra --- */
+        #ums-insta-nav #custom-lang-selector,
+        #ums-insta-nav #custom-lang-selector.loaded{
+            background: transparent; border: none; box-shadow: none;
+            padding: 0; margin: 0;
+            animation: none; opacity: 1;
+            z-index: auto;
+            position: static;
+        }
+        #ums-insta-nav #lang-toggle-btn{
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            font-size: .56rem; letter-spacing: .1em;
+            color: var(--sub, #7A7770);
+        }
+        /* icona e scritta vivono DENTRO #lang-label: senza questa regola
+           restavano affiancate, unica voce disallineata della barra */
+        #ums-insta-nav #lang-label{
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            font-weight: 700; text-transform: uppercase;
+        }
+        #ums-insta-nav #lang-toggle-btn .ums-ic{
+            width: 24px; height: 24px; color: var(--ink, #1C1C22);
+        }
+        #ums-insta-nav #lang-arrow{ display: none; }
+        /* Placeholder mostrato finché Google Translate non è pronto */
+        .ums-inav-placeholder{
+            display: flex; flex-direction: column;
+            align-items: center; gap: 3px;
+            opacity: .45; pointer-events: none;
+        }
+        #ums-inav-lang:has(#custom-lang-selector.loaded) .ums-inav-placeholder{ display: none !important; }
+        .ums-inav-placeholder.ums-hidden{ display: none !important; }
+
+        /* Il menu delle bandiere viene SPOSTATO nel body (via JS): dentro
+           la barra, il backdrop-filter ne farebbe il riferimento del
+           position:fixed → menu dipinto in un posto e tap in un altro
+           (bug iOS Safari). Fuori dalla barra e centrato SENZA transform
+           il problema non esiste. */
+        .lang-options.ums-lang-portal{
+            position: fixed;
+            top: auto; right: auto; left: auto;
+            transform: none;
+            z-index: 9999998;
+        }
+        .lang-options.ums-lang-portal.show{ display: grid; }
+
+        /* ---------------- DESKTOP: rail a sinistra ---------------- */
+        @media (min-width: 901px){
+            #ums-insta-nav{
+                top: 0; left: 0; bottom: 0;
+                width: 76px;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                padding: 28px 0;
+                border-right: 1px solid var(--dust, #E8E4DC);
+            }
+            .ums-inav-item{ width: 52px; height: 52px; }
+            body{ padding-left: 76px; }
+            /* la topbar da scroll parte dopo il rail */
+            #ums-topbar{ left: 76px !important; width: calc(100% - 76px) !important; }
+            /* menu lingue: si apre accanto al rail */
+            .lang-options.ums-lang-portal{ left: 90px; top: 24px; bottom: auto; }
+        }
+
+        /* ---------------- MOBILE: barra in basso ---------------- */
+        @media (max-width: 900px){
+            #ums-insta-nav{
+                left: 0; right: 0; bottom: 0;
+                height: calc(58px + env(safe-area-inset-bottom, 0px));
+                padding: 0 8px env(safe-area-inset-bottom, 0px);
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-around;
+                border-top: 1px solid var(--dust, #E8E4DC);
+                background: rgba(255,255,255,.92);
+                -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+            }
+            .ums-inav-item{ flex: 1 1 0; height: 50px; max-width: 90px; }
+            body{ padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
+            /* elementi flottanti sollevati sopra la barra */
+            #night-toggle{ bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important; }
+            #toast-container{ bottom: calc(92px + env(safe-area-inset-bottom, 0px)) !important; }
+            /* menu lingue: sopra la barra, centrato senza transform */
+            .lang-options.ums-lang-portal{
+                left: 0; right: 0;
+                margin: 0 auto;
+                width: max-content;
+                max-width: calc(100vw - 24px);
+                bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+                top: auto;
+            }
+        }
+
+        /* ---------------- Night mode ----------------
+           NB: il tema rimappa le variabili (--ink diventa chiaro, --ivory
+           diventa scuro): per testi e icone basta NON toccare i colori
+           base var(--ink)/var(--sub), che si adattano da soli. */
+        .night-mode #ums-insta-nav{
+            background: #16181F;
+            border-color: #2B2E38;
+        }
+        @media (max-width: 900px){
+            .night-mode #ums-insta-nav{ background: rgba(20,22,28,.92); }
+        }
+        .night-mode .ums-inav-item:hover{ background: rgba(255,255,255,.07); }
+
+        /* ---------------- Popup "Creato da l'autore" ---------------- */
+        #ums-autore-overlay{
+            display: none;
+            position: fixed; inset: 0;
+            z-index: 9999997;
+            background: rgba(15,17,23,.55);
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+            align-items: center; justify-content: center;
+            padding: 24px;
+        }
+        #ums-autore-overlay.show{ display: flex; }
+
+        .ums-autore-card{
+            background: var(--ivory, #F7F4EF);
+            border-radius: var(--r-xl, 32px);
+            box-shadow: var(--shadow-lift, 0 12px 40px rgba(15,17,23,.2));
+            padding: 44px 40px 36px;
+            max-width: 340px; width: 100%;
+            text-align: center;
+            position: relative;
+            animation: umsAutorePop .35s var(--ease, ease) both;
+        }
+        @keyframes umsAutorePop{
+            from{ opacity: 0; transform: scale(.9) translateY(12px); }
+            to{ opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce){
+            .ums-autore-card{ animation: none; }
+        }
+
+        .ums-autore-link{ text-decoration: none; display: block; }
+        .ums-autore-img{
+            width: 150px; height: 150px; border-radius: 50%;
+            object-fit: cover; display: block; margin: 0 auto 20px;
+            border: 3px solid var(--gold, #C8A96E);
+            box-shadow: var(--shadow-gold, 0 8px 32px rgba(200,169,110,.25));
+            transition: transform .25s var(--ease, ease);
+        }
+        .ums-autore-link:hover .ums-autore-img{ transform: scale(1.04); }
+        .ums-autore-title{
+            font-family: var(--font-display, serif);
+            font-size: 1.35rem; font-weight: 700; color: var(--ink, #1C1C22);
+            margin-bottom: 6px;
+        }
+        .ums-autore-sub{
+            font-size: .78rem; color: var(--sub, #7A7770);
+            letter-spacing: .04em;
+        }
+        .ums-autore-close{
+            position: absolute; top: 14px; right: 14px;
+            width: 36px; height: 36px; border-radius: 50%;
+            border: none; background: rgba(15,17,23,.06);
+            color: var(--ink, #1C1C22);
+            font-size: 1rem; cursor: pointer;
+            display: grid; place-items: center;
+            transition: background .2s;
+        }
+        .ums-autore-close:hover{ background: rgba(15,17,23,.12); }
+
+        .night-mode .ums-autore-card{ background: #1C1F27; }
+        .night-mode .ums-autore-close{ background: rgba(255,255,255,.08); }
+
+        /* ================= ACCESSO CON CHIAVE (login) ================= */
+        .ums-login-btn .ums-ic{ color: #D14B3D; transition: color .2s; }
+        .ums-login-btn.is-in  .ums-ic{ color: #1D9E75; }
+        .ums-login-btn.is-out .ums-ic{ color: #D14B3D; }
+
+        #ums-access-overlay{
+            display: none; position: fixed; inset: 0; z-index: 99999999;
+            background: rgba(15,17,23,.55);
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+            align-items: center; justify-content: center; padding: 24px;
+        }
+        #ums-access-overlay.show{ display: flex; }
+        .ums-access-card{
+            background: var(--ivory, #F7F4EF);
+            border-radius: 28px;
+            box-shadow: 0 12px 40px rgba(15,17,23,.2);
+            padding: 34px 28px 28px; max-width: 380px; width: 100%;
+            max-height: 88vh; overflow-y: auto; text-align: center; position: relative;
+            animation: umsAutorePop .35s ease both;
+            font-family: var(--font-body, 'DM Sans', sans-serif);
+        }
+        .ums-access-close{
+            position: absolute; top: 12px; right: 12px;
+            width: 34px; height: 34px; border-radius: 50%;
+            border: none; background: rgba(15,17,23,.06); color: var(--ink,#1C1C22);
+            font-size: 1rem; cursor: pointer; display: grid; place-items: center;
+        }
+        .ums-access-close:hover{ background: rgba(15,17,23,.12); }
+        .ums-access-logo{
+            font-family: var(--font-display,'Playfair Display',serif);
+            font-weight: 700; line-height: 1.02; margin: 6px 0 22px; text-align: center;
+        }
+        .ums-access-logo .ums-logo-l1,
+        .ums-access-logo .ums-logo-l2{ display: block; font-size: 2rem; white-space: nowrap; }
+        .ums-access-logo .ums-logo-l1{ color: var(--ink,#1C1C22); }
+        .ums-access-logo .ums-logo-l2{ color: var(--navy,#22365F); font-style: italic; }
+        .ums-logo-tag{
+            margin-top: 12px;
+            font-family: var(--font-body,'DM Sans',sans-serif);
+            font-size: .62rem; font-weight: 700; letter-spacing: .3em; text-transform: uppercase;
+            color: var(--gold-dk, #A8823C);
+            display: flex; align-items: center; justify-content: center; gap: 11px;
+        }
+        .ums-logo-tag::before, .ums-logo-tag::after{ content:''; display:block; width:28px; height:1px; background: var(--gold,#C8A96E); }
+        .ums-access-h{
+            font-family: var(--font-display,'Playfair Display',serif);
+            font-size: 1.25rem; color: var(--ink,#1C1C22); margin: 4px 0 8px;
+        }
+        .ums-access-p{ font-size: .86rem; line-height: 1.55; color: var(--sub,#5f5c55); margin: 0 0 18px; }
+        .ums-access-block{ border-top: 1px solid var(--dust,#E8E4DC); padding-top: 16px; margin-top: 4px; }
+        .ums-access-lbl{ font-size: .8rem; font-weight: 700; color: var(--ink,#1C1C22); margin: 0 0 10px; }
+        .ums-access-input{
+            width: 100%; box-sizing: border-box; padding: 11px 12px;
+            font-size: 1rem; font-family: monospace; text-transform: uppercase;
+            text-align: center; letter-spacing: 1px;
+            border: 1px solid var(--dust,#E8E4DC); border-radius: 12px;
+            margin-bottom: 10px; background: #fff;
+        }
+        .ums-access-btn{
+            width: 100%; box-sizing: border-box; padding: 12px;
+            font-size: .92rem; font-weight: 700; cursor: pointer;
+            border-radius: 12px; border: 1px solid var(--ink,#1C1C22);
+            background: transparent; color: var(--ink,#1C1C22);
+            transition: background .18s, opacity .18s;
+            font-family: var(--font-body,'DM Sans',sans-serif);
+        }
+        .ums-access-btn:hover{ background: rgba(15,17,23,.05); }
+        .ums-access-btn.primary{ background: var(--ink,#1C1C22); color: #fff; border-color: var(--ink,#1C1C22); }
+        .ums-access-btn.primary:hover{ background: #33323b; }
+        .ums-access-btn:disabled{ opacity: .5; cursor: default; }
+        .ums-chiave-box{ margin-top: 12px; }
+        .ums-chiave-val{
+            font-family: monospace; font-size: 1.5rem; font-weight: 700;
+            letter-spacing: 1px; color: var(--gold,#C8A96E);
+            background: #fff; border: 1px dashed var(--gold,#C8A96E);
+            border-radius: 12px; padding: 12px; margin: 4px 0 8px; word-break: break-all;
+        }
+        .ums-copy{
+            background: transparent; border: 1px solid var(--dust,#E8E4DC);
+            border-radius: 10px; padding: 6px 14px; font-size: .78rem;
+            cursor: pointer; color: var(--sub,#5f5c55); margin-bottom: 10px;
+        }
+        .ums-nb{
+            font-size: .76rem; line-height: 1.5; color: var(--sub,#5f5c55);
+            background: rgba(200,169,110,.12); border-radius: 12px;
+            padding: 12px 14px; margin: 8px 0 14px; text-align: left;
+        }
+        .ums-access-msg{ font-size: .8rem; margin: 8px 0 0; min-height: 1em; color: var(--sub,#5f5c55); }
+        .ums-access-msg.err{ color: #D14B3D; font-weight: 600; }
+        .ums-switch{
+            background: none; border: none; cursor: pointer;
+            font-size: .78rem; color: var(--sub,#5f5c55);
+            text-decoration: underline; margin-top: 12px;
+            font-family: var(--font-body,'DM Sans',sans-serif);
+        }
+        .night-mode .ums-switch{ color: #C9C5BB; }
+        .night-mode .ums-access-card{ background: #1C1F27; }
+        .night-mode .ums-access-h, .night-mode .ums-access-lbl{ color: #F2EFE8; }
+        .night-mode .ums-access-logo .ums-logo-l1{ color: #F2EFE8; }
+        .night-mode .ums-access-logo .ums-logo-l2{ color: #8FB4E8; }
+        .night-mode .ums-logo-tag{ color: #D9BC85; }
+        .night-mode .ums-access-btn{ color: #F2EFE8; border-color: #F2EFE8; }
+        .night-mode .ums-access-btn.primary{ background: var(--gold,#C8A96E); color: #1C1F27; border-color: var(--gold,#C8A96E); }
+        .night-mode .ums-access-input{ background: #14161C; color: #F2EFE8; border-color: #2B2E38; }
+        .night-mode .ums-chiave-val{ background: #14161C; }
+        .night-mode .ums-access-close{ background: rgba(255,255,255,.08); color: #F2EFE8; }
+
+        /* ================= FLASHCARD / SPACED REPETITION ================= */
+        .ums-fc-btn{ position: relative; }
+        /* Notifica stile social: pallino rosso con "!" bianco */
+        .ums-fc-badge{
+            position: absolute; top: 4px; right: 8px;
+            width: 18px; height: 18px; box-sizing: border-box;
+            background: #D14B3D; color: #fff; border-radius: 50%;
+            font-size: .78rem; font-weight: 800; line-height: 18px; text-align: center;
+            font-family: var(--font-body,'DM Sans',sans-serif);
+            box-shadow: 0 2px 6px rgba(209,75,61,.4);
+            animation: umsBadgePop .3s ease both;
+        }
+        @keyframes umsBadgePop{ from{ transform: scale(0); } to{ transform: scale(1); } }
+        .ums-notif-row{ text-align: center; margin: -6px 0 16px; }
+        .ums-notif-btn{
+            display: inline-flex; align-items: center; gap: 8px;
+            background: transparent; border: 1.5px solid var(--gold,#C8A96E);
+            color: var(--gold-dk,#9A7A3F); border-radius: 999px;
+            padding: 8px 18px; font-family: var(--font-body,'DM Sans',sans-serif);
+            font-size: .76rem; font-weight: 700; letter-spacing: .03em; cursor: pointer;
+            transition: background .2s;
+        }
+        .ums-notif-btn:hover{ background: rgba(200,169,110,.12); }
+        .ums-notif-ok{ font-size: .74rem; color: var(--sub,#5f5c55); font-style: italic; }
+        body.night-mode .ums-notif-btn{ color: #D9BC85; border-color: var(--gold,#C8A96E); }
+        @media (min-width: 901px){ .ums-fc-badge{ top: 2px; right: 8px; } }
+
+        #ums-fc-overlay{
+            display: none; position: fixed; inset: 0; z-index: 99999999;
+            background: rgba(15,17,23,.55);
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+            align-items: center; justify-content: center; padding: 24px;
+        }
+        #ums-fc-overlay.show{ display: flex; }
+        .ums-fc-card{
+            background: var(--ivory, #F7F4EF); border-radius: 28px;
+            box-shadow: 0 12px 40px rgba(15,17,23,.2);
+            padding: 30px 26px 26px; max-width: 440px; width: 100%;
+            max-height: 88vh; overflow-y: auto; position: relative;
+            font-family: var(--font-body,'DM Sans',sans-serif);
+            overscroll-behavior: contain;
+        }
+        body.ums-noscroll{ overflow: hidden; }
+        #ums-fc-gate{ text-align: center; padding: 8px 0 4px; }
+        #ums-fc-gate p{ font-size: .86rem; line-height: 1.55; color: var(--sub,#5f5c55); margin: 0 0 14px; }
+        .night-mode #ums-fc-gate p{ color: #D8D3C8; }
+        .ums-fc-close{
+            position: absolute; top: 12px; right: 12px; width: 34px; height: 34px;
+            border-radius: 50%; border: none; background: rgba(15,17,23,.06);
+            color: var(--ink,#1C1C22); font-size: 1rem; cursor: pointer;
+            display: grid; place-items: center;
+        }
+        .ums-fc-title{
+            font-family: var(--font-display,'Playfair Display',serif);
+            font-size: 1.4rem; color: var(--ink,#1C1C22); margin: 2px 0 4px; text-align: center;
+        }
+        .ums-fc-sub{ font-size: .82rem; color: var(--sub,#5f5c55); text-align: center; margin: 0 0 18px; }
+        .ums-fc-mat{
+            font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+            color: var(--gold-dk,#A8823C); margin: 16px 0 8px;
+        }
+        .ums-fc-lezione{
+            border: 1px solid var(--dust,#E8E4DC); border-radius: 14px;
+            padding: 12px 14px; margin-bottom: 10px; background: #fff;
+        }
+        .ums-fc-lez-top{ display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .ums-fc-lez-nome{ font-size: .9rem; font-weight: 700; color: var(--ink,#1C1C22); }
+        .ums-fc-lez-conta{ font-size: .72rem; color: var(--sub,#5f5c55); margin-top: 2px; }
+        .ums-fc-del{
+            background: none; border: none; cursor: pointer; color: #B0ABA1;
+            padding: 4px; border-radius: 8px; flex-shrink: 0;
+        }
+        .ums-fc-del:hover{ color: #D14B3D; background: rgba(209,75,61,.08); }
+        .ums-fc-actions{ display: flex; gap: 8px; margin-top: 10px; }
+        .ums-fc-run{
+            flex: 1; padding: 9px; font-size: .8rem; font-weight: 700; cursor: pointer;
+            border-radius: 10px; border: 1px solid var(--ink,#1C1C22);
+            background: transparent; color: var(--ink,#1C1C22);
+            font-family: var(--font-body,'DM Sans',sans-serif);
+        }
+        .ums-fc-run.primary{ background: var(--ink,#1C1C22); color: #fff; }
+        .ums-fc-run.wrong{ border-color: #D14B3D; color: #D14B3D; }
+        .ums-fc-run.wrong:disabled{ opacity: .4; cursor: default; }
+        .ums-fc-empty{ text-align: center; color: var(--sub,#5f5c55); font-size: .9rem; padding: 24px 0; }
+        .ums-fc-count{ font-size: .7rem; color: var(--gold-dk,#A8823C); font-weight: 700; margin-top: 4px; }
+        .ums-fc-how{
+            display: block; margin: -6px auto 14px; background: none; border: none;
+            cursor: pointer; font-size: .76rem; color: var(--sub,#5f5c55);
+            text-decoration: underline; font-family: var(--font-body,'DM Sans',sans-serif);
+        }
+        .ums-fc-howbox{
+            background: rgba(200,169,110,.12); border-radius: 14px;
+            padding: 14px 16px; margin: 0 0 16px;
+            font-size: .8rem; line-height: 1.55; color: var(--sub,#5f5c55);
+        }
+        .ums-fc-howbox p{ margin: 0 0 10px; }
+        .ums-fc-howbox p:last-child{ margin-bottom: 0; }
+        .night-mode .ums-fc-count{ color: #E0C486; }
+        .night-mode .ums-fc-howbox{ color: #D8D3C8; }
+        /* ---- Mini-mazzo di ripasso dentro il pop-up ---- */
+        #ums-review-stage{ display: none; }
+        #ums-review-stage.on{ display: block; }
+        .urv-top{ display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .urv-back{ background: none; border: none; cursor: pointer; color: var(--sub,#5f5c55); font-size: .8rem; display: flex; align-items: center; gap: 5px; font-family: var(--font-body,'DM Sans',sans-serif); }
+        .urv-count{ font-size: .75rem; color: var(--sub,#5f5c55); font-weight: 700; }
+        .urv-wrapper{ width: 100%; height: 230px; }
+        .urv-face{
+            position: relative; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border-radius: 20px; padding: 1.2rem; box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,.18);
+            background-color: #1a1a2e;
+            overflow: hidden;
+            isolation: isolate; /* stacking context: l'immagine a z-index -1 non copre bottoni e testo */
+        }
+        /* KEN BURNS — anche il mini-mazzo di ripasso zooma lento */
+        .urv-face::before{
+            content: ""; position: absolute; inset: 0; border-radius: 20px;
+            background-image: url('../img/flashcard-vettoriale.svg');
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            z-index: -1;
+            transition: transform 6s cubic-bezier(.16,.84,.44,1);
+            will-change: transform;
+        }
+        @media (prefers-reduced-motion: reduce){
+            .urv-face::before{ transition: none !important; }
+        }
+        .urv-face h2{
+            position: relative; z-index: 2; background: rgba(255,255,255,0.96);
+            padding: 14px 16px; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+            width: 100%; color: #1C1C22; margin: 0; text-align: left;
+            font-family: var(--font-display,'Playfair Display',serif); font-size: 1.1rem; line-height: 1.3;
+        }
+        .urv-reveal{
+            display: block; margin: 12px auto; padding: 10px 26px;
+            background: var(--gold,#C8A96E); color: #1C1C22;
+            border: none; border-radius: 50px; cursor: pointer;
+            font-weight: 700; font-size: .82rem; letter-spacing: .05em; text-transform: uppercase;
+            font-family: var(--font-body,'DM Sans',sans-serif);
+            box-shadow: 0 4px 12px rgba(0,0,0,.15);
+        }
+        .urv-reveal:active{ transform: translateY(1px); }
+        .urv-answer p{
+            background: #fff; border: 1px solid var(--dust,#E8E4DC); border-radius: 14px;
+            padding: 16px 18px; margin: 0 0 14px;
+            font-size: .88rem; text-align: left; line-height: 1.6; white-space: pre-line;
+            color: #1C1C22;
+        }
+        .night-mode .urv-answer p{ background: #14161C; color: #F2EFE8; border-color: #2B2E38; }
+        .urv-actions{ display: flex; gap: 8px; }
+        .urv-btn{ flex: 1; padding: 12px; font-size: .9rem; font-weight: 700; cursor: pointer; border-radius: 12px; border: none; font-family: var(--font-body,'DM Sans',sans-serif); }
+        .urv-btn.no{ background: #F0E0DC; color: #B53A2E; }
+        .urv-btn.si{ background: #DDEEDF; color: #1D7A53; }
+        .urv-done{ text-align: center; padding: 20px 0; }
+        .urv-done h3{ font-family: var(--font-display,'Playfair Display',serif); font-size: 1.3rem; color: var(--ink,#1C1C22); margin: 0 0 8px; }
+        .urv-done p{ font-size: .86rem; color: var(--sub,#5f5c55); margin: 0 0 16px; }
+        .night-mode .urv-front h2, .night-mode .urv-back p{ color: #1C1C22; }
+        .night-mode .urv-done h3{ color: #F2EFE8; }
+
+        /* ------------------------------------------------------------
+           INTRO "GRATTA E VINCI" — solo all'avvio di una sessione
+           (Ripassa tutte / Solo sbagliate). La carta appare coperta da
+           una patina argentata che si gratta via da sola con tratti
+           irregolari, rivelando l'illustrazione NUDA; poi, con un
+           attimo di ritardo, la domanda scivola sopra parola per parola.
+        ------------------------------------------------------------ */
+        .urv-wrapper{ position: relative; }
+        .urv-face.scratchin{ animation: umsPopIn .4s var(--ease, ease) both; }
+        .urv-scratch{
+            position: absolute; inset: 0; z-index: 4;
+            border-radius: inherit; pointer-events: none;
+            transition: opacity .4s ease;
+        }
+        .urv-scratch.done{ opacity: 0; }
+        /* durante l'intro la domanda resta nascosta: arriva DOPO l'immagine */
+        #ums-review-stage.intro .urv-face h2{ animation: umsFadeUp .6s 2.55s var(--ease, ease) both; }
+        /* parole della domanda: scivolano su una alla volta (stile umsFadeUp) */
+        .urv-face h2 .urv-w{
+            display: inline-block; opacity: 0; transform: translateY(14px);
+            animation: urvWordUp .55s var(--ease, ease) both;
+            animation-delay: var(--d, 0s);
+        }
+        @keyframes urvWordUp{ to{ opacity: 1; transform: translateY(0); } }
+        /* contatore e bottone arrivano con calma, per ultimi */
+        #ums-review-stage.intro .urv-top{ animation: umsFadeUp .5s 2.3s var(--ease, ease) both; }
+        #ums-review-stage.intro .urv-reveal{ animation: umsFadeUp .5s 3s var(--ease, ease) both; }
+        @media (prefers-reduced-motion: reduce){
+            .urv-scratch{ display: none; }
+            .urv-face.scratchin{ animation: none; }
+            #ums-review-stage.intro .urv-face h2{ animation: none; opacity: 1; }
+            .urv-face h2 .urv-w{ animation: none; opacity: 1; transform: none; }
+            #ums-review-stage.intro .urv-top,
+            #ums-review-stage.intro .urv-reveal{ animation: none; opacity: 1; }
+        }
+
+
+        .night-mode .ums-fc-card{ background: #1C1F27; }
+        .night-mode .ums-fc-title{ color: #F2EFE8; }
+        .night-mode .ums-fc-lez-nome{ color: #F2EFE8; }
+        .night-mode .ums-fc-lezione{ background: #14161C; border-color: #2B2E38; }
+        .night-mode .ums-fc-run{ color: #F2EFE8; border-color: #F2EFE8; }
+        .night-mode .ums-fc-run.primary{ background: var(--gold,#C8A96E); color: #1C1F27; border-color: var(--gold,#C8A96E); }
+        .night-mode .ums-fc-close{ background: rgba(255,255,255,.08); color: #F2EFE8; }
+    
+
+/* ====================================================================
+   SEZIONE 9 — ex <style id="ums-brand-title-style">
+   ==================================================================== */
+        header h1#dyn-title{
+            font-family: var(--font-display);
+            font-weight: 900;
+            font-size: clamp(3rem, 10vw, 6.4rem);
+            line-height: .92;
+            letter-spacing: -.025em;
+            color: var(--ink);
+            /* niente transition su font-size: il cambio di taglia avviene
+               mentre le righe sono fuori scena (invisibili) */
+        }
+        /* FIX ZOOM MOBILE — le righe in attesa di entrare stazionano a
+           ±115vw e allargherebbero la larghezza scrollabile: ora in
+           splash lo scroll del body è bloccato (come l'index), quindi
+           il documento non può allargarsi e lo zoom iniziale è corretto. */
+        #dyn-title .ums-title-l1,
+        #dyn-title .ums-title-l2{ display: block; text-wrap: balance; }
+        #dyn-title .ums-title-l2{ font-style: italic; color: var(--navy); }
+        /* stesso azzurro della seconda riga del brand in night mode */
+        .night-mode #dyn-title .ums-title-l2{ color: #8FB4E8; }
+
+        /* SFONDO STABILE — 100lvh: l'altezza non cambia quando la barra
+           del browser mobile si ritira, quindi l'immagine non "respira"
+           durante lo scroll né parte con lo zoom sballato. */
+        .giants-background{ height: 100vh; height: 100lvh; }
+
+        /* stesse entrate laterali del brand dell'index */
+        @keyframes umsSlideFromLeft{ from{ opacity:0; transform:translateX(-115vw);} to{ opacity:1; transform:translateX(0);} }
+        @keyframes umsSlideFromRight{ from{ opacity:0; transform:translateX(115vw);} to{ opacity:1; transform:translateX(0);} }
+        #dyn-title .ums-title-l1{ animation: umsSlideFromLeft 1s .3s var(--ease, ease) both; }
+        #dyn-title .ums-title-l2{ animation: umsSlideFromRight 1s .42s var(--ease, ease) both; }
+        @media (prefers-reduced-motion: reduce){
+            #dyn-title .ums-title-l1, #dyn-title .ums-title-l2{ animation: none; opacity: 1; }
+        }
+
+        /* rete di sicurezza: parole molto lunghe (es. Antropologia)
+           su schermi stretti — si riduce solo il minimo del clamp */
+        @media (max-width: 420px){
+            header h1#dyn-title{ font-size: clamp(2.2rem, 10vw, 6.4rem); }
+        }
+    
+
+/* ====================================================================
+   SEZIONE 10 — ex <style id="ums-title-migrate-style">
+   ==================================================================== */
+        /* ---------- STAGE: fisso, centrato, come brandStage ---------- */
+        header{
+            position: fixed;
+            left: 50%; top: 40vh; top: 40svh; /* svh: immune al ritiro della barra browser */
+            transform: translate(-50%, -50%); /* identico nei due stati */
+            width: max-content;
+            max-width: 94vw;
+            padding: 0; margin: 0;
+            z-index: 999997; /* sopra la topbar da scroll (999995) */
+            transition: top .95s var(--ease, ease), left .95s var(--ease, ease);
+        }
+        header h1#dyn-title{
+            transition: font-size .95s var(--ease, ease);
+        }
+        /* su desktop il centro è quello dell'area a destra del rail,
+           in ENTRAMBI gli stati: titolo e INIZIA in colonna perfetta */
+        @media (min-width: 901px){
+            header{ left: calc(50% + 38px); }
+        }
+
+        /* ---------- SPLASH (lezione chiusa) ---------- */
+        /* SPLASH BLOCCATO — come l'index: niente scroll finché la lezione
+           non è aperta. position:fixed è l'unico lock che iOS rispetta
+           davvero (overflow:hidden da solo viene ignorato al tocco). */
+        /* SPLASH BLOCCATA DAVVERO (mobile) — oltre al lock di posizione,
+           touch-action:none impedisce che il gesto di scroll ritiri la barra
+           degli indirizzi: era quella che, allungando il viewport, faceva
+           "scendere" titolo e pulsanti (non era uno scroll vero). */
+        body:not(.ums-master-open){
+            overflow: hidden; height: 100vh; position: fixed; inset: 0; width: 100%;
+            touch-action: none; overscroll-behavior: none;
+        }
+
+        /* INIZIA resta NEL flusso della card: è la card intera a scendere
+           al 52% dello schermo via transform (compositor, fluido) */
+        .content-card{
+            margin-top: 96px; /* identico nei due stati: nessun salto */
+            transition: transform .95s var(--ease, ease),
+                        background-color .4s ease, border-color .4s ease,
+                        box-shadow .4s ease, padding .4s ease;
+        }
+        body:not(.ums-master-open) .content-card{ transform: translateY(52vh); transform: translateY(52svh); }
+        body.ums-master-open .content-card{ transform: translateY(0); }
+        @keyframes umsFadeOnly{ from{ opacity: 0; } to{ opacity: 1; } }
+        .content-card{ animation-name: umsFadeOnly; }
+
+        /* barra piena in alto (la topbar riusata) + brand ritirato */
+        body.ums-master-open #ums-topbar{ transform: translateY(0); }
+        body.ums-master-open #ums-topbar .ums-brandmark{ visibility: hidden; }
+
+        /* FLUIDITÀ — layout delle sezioni fuori schermo rimandato */
+        .master-content .accordion-item{
+            content-visibility: auto;
+            contain-intrinsic-size: auto 600px;
+        }
+
+        /* eyebrow e riga LEZIONE X: in modalità aperta ESCONO dal layout
+           (display none). Niente più fade di collasso: l'altezza
+           dell'header diventa deterministica (solo il titolo) e il
+           centraggio a 38px è esatto in ogni istante — il fade rendeva
+           il centro mobile e il titolo derivava su o giù. */
+        body.ums-master-open .header-eyebrow,
+        body.ums-master-open .ums-subtitle-row{ display: none; }
+
+        /* ---------- APP: in alto, piccolo, SEMPRE CENTRATO ---------- */
+        /* la barra diventa alta 76px come quella dell'index: due righe
+           di Playfair (aste comprese) ci stanno con margine vero */
+        body.ums-master-open #ums-topbar{ height: 76px; }
+        body.ums-master-open header{
+            top: 38px; /* centro verticale della barra (76px): l'header
+                          contiene SOLO il titolo (63.8px), il
+                          translate(-50%,-50%) lo centra esattamente */
+            max-width: calc(100vw - 44px);
+            overflow: hidden;
+        }
+        @media (min-width: 901px){
+            body.ums-master-open header{
+                max-width: calc(100vw - 76px - 46px);
+            }
+        }
+        body.ums-master-open header h1#dyn-title{
+            font-size: clamp(1.35rem, 4.5vw, 1.9rem); /* come body.app-mode #brand */
+            line-height: 1.05; /* aria per le aste di Playfair */
+            margin: 0;
+            max-width: 100%;
+        }
+        /* stessa struttura dello splash (due righe impilate, centrate):
+           durante il morphing NON cambia nulla di discreto — la forma
+           si riduce e sale, senza scatti di ri-arrangiamento.
+           Ellissi per riga sui nomi-lezione lunghissimi. */
+        body.ums-master-open #dyn-title .ums-title-l1,
+        body.ums-master-open #dyn-title .ums-title-l2{
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        @media (max-width: 560px){
+            body.ums-master-open header h1#dyn-title{ font-size: 1.05rem; }
+        }
+    
+
+/* ====================================================================
+   SEZIONE 11 — ex <style id="ums-fixups-style">
+   ==================================================================== */
+        /* ---- 1) Disclaimer traduzione: pillola fissa, fuori dall'header ---- */
+        #translation-disclaimer{
+            position: fixed;
+            z-index: 999996;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 12px;
+            width: max-content;
+            max-width: min(680px, calc(100vw - 24px));
+            margin: 0;
+            padding-right: 46px; /* spazio per la ✕ */
+            box-shadow: var(--shadow-card, 0 4px 24px rgba(15,17,23,.08));
+        }
+        /* a lezione aperta scende sotto la barra (76px) */
+        body.ums-master-open #translation-disclaimer{ top: 88px; }
+        @media (min-width: 901px){
+            /* centrato sull'area a destra del rail, come titolo e card */
+            #translation-disclaimer{ left: calc(50% + 38px); }
+        }
+        /* chiuso con la ✕: vince anche sul display:block inline
+           che il cambio lingua imposta a ogni traduzione */
+        #translation-disclaimer.ums-dismissed{ display: none !important; }
+
+        .ums-disc-x{
+            position: absolute;
+            top: 50%; right: 8px;
+            transform: translateY(-50%);
+            width: 32px; height: 32px;
+            display: grid; place-items: center;
+            border: none; border-radius: 50%;
+            background: rgba(122,98,32,.12);
+            color: #7A6220;
+            font-size: .95rem; line-height: 1;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .ums-disc-x:hover{ background: rgba(122,98,32,.22); }
+
+        /* ---- 2) ✕ del modale Wikipedia: sempre visibile e toccabile ---- */
+        .close-modal{
+            position: sticky !important;
+            top: 0 !important;
+            float: right;
+            width: 40px; height: 40px;
+            display: grid; place-items: center;
+            background: rgba(15,17,23,.07);
+            border-radius: 50%;
+            margin: -1.4rem -1.2rem 0 0;
+            z-index: 6;
+            font-size: 1.35rem !important;
+        }
+        .close-modal:hover{ background: rgba(15,17,23,.14); }
+        .night-mode .close-modal{ background: rgba(255,255,255,.09); }
+
+        /* ---- respiro per gli alfabeti con metriche alte (JP/AR/cirillico):
+               il line box mini sale a 1.15, 2 righe = 69.9px, ancora
+               dentro la barra da 76 (3..73) ---- */
+        body.ums-master-open header h1#dyn-title{ line-height: 1.15; }
+    
+
+/* ====================================================================
+   SEZIONE 12 — ex <style id="ums-confirm-style">
+   ==================================================================== */
+        #ums-confirm-overlay{
+            display: none; position: fixed; inset: 0; z-index: 999999999;
+            background: rgba(15,17,23,.55);
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+            align-items: center; justify-content: center; padding: 24px;
+        }
+        #ums-confirm-overlay.show{ display: flex; }
+        .ums-confirm-card{ max-width: 340px; }
+        .ums-confirm-card .ums-access-logo{ margin-bottom: 16px; }
+        .ums-confirm-card .ums-access-logo .ums-logo-l1,
+        .ums-confirm-card .ums-access-logo .ums-logo-l2{ font-size: 1.5rem; }
+        #ums-confirm-ok.danger{ background: #B4573E; border-color: #B4573E; color: #fff; }
+        #ums-confirm-ok.danger:hover{ background: #9C4934; }
+        .night-mode #ums-confirm-ok.danger{ background: #B4573E; border-color: #B4573E; color: #fff; }
+    
+
+/* ====================================================================
+   SEZIONE 13 — ex <style id="ums-sostieni-style">
+   ==================================================================== */
+        /* Riga Inizia + Sostieni: stessa identica geometria dell'index
+           (pillole affiancate e centrate; Inizia è già pillola via app-align) */
+        .ums-master-row{
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px; flex-wrap: nowrap;
+        }
+        /* la pillola Inizia arriva con margin:0 auto !important (la centrava
+           quando era sola): in una riga flex quel margin auto assorbe tutto
+           lo spazio e SPINGE i due bottoni agli estremi. Qui si azzera. */
+        .ums-master-row .master-header{ margin: 0 !important; flex: 0 0 auto; }
+        #ums-sostieni{
+            opacity: 1; /* riaccende l'anti-flash impostato nel CSS in testa */
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            background: var(--gold); color: #2A2113;
+            border: none; border-radius: 999px;
+            padding: 1.05rem 1.6rem;
+            font-family: var(--font-body);
+            font-size: 0.82rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+            cursor: pointer; box-shadow: 0 10px 30px rgba(200,169,110,0.35);
+            transition: transform 0.25s cubic-bezier(.2,.8,.2,1), box-shadow 0.25s, background-color 0.25s;
+            width: 15.5rem; min-width: 15.5rem; flex-shrink: 0;
+        }
+        #ums-sostieni:hover{ transform: translateY(-3px); box-shadow: 0 16px 40px rgba(200,169,110,0.45); background: var(--gold-lt); }
+        #ums-sostieni:active{ transform: translateY(-1px); }
+        #ums-sostieni .ums-cup{
+            width: 17px; height: 17px; flex-shrink: 0;
+            stroke: currentColor; fill: none; stroke-width: 1.8;
+            stroke-linecap: round; stroke-linejoin: round;
+        }
+        #ums-sostieni-label{ white-space: nowrap; transition: opacity 0.35s ease, font-size 0.2s ease; }
+        #ums-sostieni-label.ums-fade{ opacity: 0; }
+        .night-mode #ums-sostieni{ background: var(--gold); color: #2A2113; }
+        @media (max-width: 640px){
+            .ums-master-row{ flex-direction: column; align-items: center; gap: 10px; }
+            .ums-master-row .master-header{ width: 15.5rem !important; }
+            #ums-sostieni{ width: 15.5rem; }
+        }
+        @media (prefers-reduced-motion: reduce){ #ums-sostieni-label{ transition: none; } }
+
+        /* --- pop-up fasce: stesso linguaggio del pop-up Accedi --- */
+        #ums-bmc-overlay, #ums-info-overlay{
+            display: none; position: fixed; inset: 0; z-index: 99999999;
+            background: rgba(15,17,23,.55);
+            -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+            align-items: center; justify-content: center; padding: 24px;
+        }
+        #ums-bmc-overlay.show, #ums-info-overlay.show{ display: flex; }
+        .ums-bmc-card{
+            background: var(--ivory); border-radius: 28px;
+            box-shadow: 0 12px 40px rgba(15,17,23,.2);
+            padding: 34px 26px 26px; max-width: 440px; width: 100%;
+            max-height: 88vh; overflow-y: auto; overscroll-behavior: contain;
+            text-align: center; position: relative;
+            animation: umsAutorePop .35s ease both;
+            font-family: var(--font-body);
+        }
+        .ums-bmc-close{
+            position: absolute; top: 12px; right: 12px;
+            width: 34px; height: 34px; border-radius: 50%;
+            border: none; background: rgba(15,17,23,.06); color: var(--ink);
+            font-size: 1rem; cursor: pointer; display: grid; place-items: center;
+        }
+        .ums-bmc-close:hover{ background: rgba(15,17,23,.12); }
+        .night-mode .ums-bmc-close{ background: rgba(255,255,255,.08); }
+        .ums-bmc-logo{ font-family: var(--font-display); font-weight: 700; line-height: 1.02; margin: 4px 0 0; }
+        .ums-bmc-logo .l1, .ums-bmc-logo .l2{ display: block; font-size: 1.6rem; white-space: nowrap; }
+        .ums-bmc-logo .l1{ color: var(--ink); }
+        .ums-bmc-logo .l2{ color: var(--navy); font-style: italic; }
+        .night-mode .ums-bmc-logo .l2{ color: #8FB4E8; }
+        .ums-bmc-tag{
+            display: flex; align-items: center; justify-content: center; gap: 11px;
+            font-size: 0.6rem; font-weight: 700; letter-spacing: 0.28em; text-transform: uppercase;
+            color: var(--gold-dk); margin: 10px 0 20px;
+        }
+        .ums-bmc-tag::before, .ums-bmc-tag::after{ content: ''; display: block; width: 26px; height: 1px; background: var(--gold); }
+        .ums-bmc-intro{ font-size: 0.86rem; line-height: 1.6; color: var(--sub); margin: 0 0 20px; text-align: left; }
+        .ums-bmc-intro b{ color: var(--ink); font-weight: 700; }
+        .ums-sir-link{ color: inherit; text-decoration: none; border-bottom: 2px solid var(--gold); }
+        .ums-sir-link:hover{ background: rgba(200,169,110,0.15); }
+        .ums-tier{
+            display: block; width: 100%; text-align: left;
+            background: #fff; border: 1.5px solid var(--dust);
+            border-radius: 16px; padding: 15px 16px; margin-bottom: 10px;
+            cursor: pointer; font-family: var(--font-body); position: relative;
+            transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+        }
+        .night-mode .ums-tier{ background: #262933; border-color: #383C48; }
+        .ums-tier:hover{ border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 10px 26px rgba(15,17,23,0.09); }
+        .ums-tier-top{ display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+        .ums-tier-nome{ font-family: var(--font-display); font-size: 1.06rem; font-weight: 700; color: var(--ink); }
+        .ums-tier-prezzo{ font-size: 0.82rem; font-weight: 700; color: var(--gold-dk); white-space: nowrap; }
+        .ums-tier-desc{ font-size: 0.8rem; line-height: 1.5; color: var(--sub); margin-top: 5px; }
+        .ums-tier-desc b{ color: var(--ink); font-weight: 700; }
+        .ums-tier.consigliato{ border-color: var(--gold); box-shadow: 0 6px 20px rgba(200,169,110,0.18); }
+        .ums-tier-badge{
+            position: absolute; top: -9px; left: 16px;
+            background: var(--gold); color: #2A2113;
+            font-size: 0.58rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+            padding: 3px 10px; border-radius: 999px;
+        }
+        .ums-bmc-nota{ font-size: 0.72rem; line-height: 1.5; color: var(--sub); margin: 14px 0 0; font-style: italic; }
+    
+
+/* ====================================================================
+   SEZIONE 14 — ex <style id="ums-ritocchi-style">
+   ==================================================================== */
+        /* 1) lavagna sempre grande → consolidato nella sezione TASK 4 */
+
+        /* 2) chip fissa che porta alla lavagna */
+        #ums-wb-chip{
+            position: fixed; bottom: 24px; left: 24px; z-index: 9999997;
+            display: none; align-items: center; gap: 8px;
+            background: var(--gold); color: #2A2113;
+            border: none; border-radius: 999px; padding: 10px 18px;
+            font-family: var(--font-body); font-size: 0.74rem; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+        }
+        #ums-wb-chip.show{ display: inline-flex; }
+        #ums-wb-chip .ums-ic{ width: 1em; height: 1em; }
+        #ums-wb-chip:hover{ background: var(--gold-lt); }
+        @media (max-width: 600px){ #ums-wb-chip{ bottom: 88px; left: 14px; padding: 9px 15px; } }
+
+        /* 3) giochi Pausa su mobile: il gioco vive in un overlay a schermo
+              intero. In pagina resta solo il pulsante GIOCA. */
+        .ums-gioca-cta{ display: none; }
+        @media (max-width: 700px){
+            body:not(.ums-game-open) .ums-gioca-cta{
+                display: flex; align-items: center; justify-content: center; gap: 10px;
+                width: 100%; margin: 0.5rem 0 1rem;
+                background: var(--gold); color: #2A2113;
+                border: none; border-radius: 999px; padding: 15px 18px;
+                font-family: var(--font-body); font-size: 0.85rem; font-weight: 700;
+                letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+                box-shadow: 0 8px 24px rgba(200,169,110,0.35);
+            }
+            /* in pagina, su telefono, del gioco si vede SOLO il pulsante
+               GIOCA: tavolo, istruzioni, "Nuova partita" e messaggi vivono
+               nell'overlay (dove il pannello viene spostato) */
+            body:not(.ums-game-open) #ws-game > *:not(.ums-gioca-cta),
+            body:not(.ums-game-open) #sd-game > *:not(.ums-gioca-cta),
+            body:not(.ums-game-open) #sol-game > *:not(.ums-gioca-cta){ display: none; }
+        }
+
+        /* overlay di gioco a schermo intero */
+        #ums-game-overlay{
+            display: none; position: fixed; inset: 0; z-index: 99999998;
+            background: var(--ivory); flex-direction: column;
+        }
+        body.ums-game-open #ums-game-overlay{ display: flex; }
+        body.ums-game-open{ overflow: hidden; }
+        .ums-game-top{
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 14px; flex-shrink: 0;
+            border-bottom: 1px solid var(--dust);
+        }
+        .ums-game-titolo{
+            font-family: var(--font-display); font-weight: 700;
+            font-size: 1.05rem; color: var(--ink);
+        }
+        .ums-game-close{
+            width: 38px; height: 38px; border-radius: 50%; border: none;
+            background: rgba(15,17,23,0.06); color: var(--ink);
+            font-size: 1rem; cursor: pointer; display: grid; place-items: center;
+        }
+        .night-mode .ums-game-close{ background: rgba(255,255,255,0.08); }
+        .ums-game-body{
+            flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+            padding: 12px 10px 22px;
+        }
+        /* dimensioni da overlay: tutto a schermo, senza cercare niente */
+        .ums-game-body .ws-layout{ display: block; }
+        .ums-game-body .ws-grid-wrap{ width: min(96vw, 56vh); max-width: none; margin: 0 auto; }
+        .ums-game-body .ws-cell{ font-size: clamp(0.8rem, 4vw, 1.15rem); }
+        .ums-game-body .ws-word-list{
+            flex-direction: row; flex-wrap: wrap; justify-content: center;
+            gap: 6px; margin-top: 12px; min-width: 0;
+        }
+        .ums-game-body .ws-word-tag{ font-size: 0.72rem; padding: 5px 11px; }
+        .ums-game-body .sd-wrap{ width: min(96vw, 54vh); max-width: none; margin: 0 auto; }
+        .ums-game-body .sd-cell{ font-size: clamp(1.05rem, 5vw, 1.5rem); }
+        .ums-game-body .sd-pad button{ width: 48px; height: 48px; font-size: 1.15rem; }
+        .ums-game-body .sol-board{ max-width: 96vw; }
+        .ums-game-body .sd-howto{ display: none; }
+
+        /* 4) splash: scroll bloccato davvero anche su iOS */
+        
+
+        /* 5) Selettore giochi su mobile: etichetta "Scegli il gioco" e
+              tre pulsanti impilati a tutta larghezza. Il "Gioca a X"
+              sotto cambia da solo: ogni gioco ha il suo, e si vede
+              solo quello del pannello selezionato. */
+        .ws-select-label{ display: none; }
+        @media (max-width: 700px){
+            .ws-select-label{
+                display: block; text-align: center;
+                font-family: var(--font-body); font-size: 0.68rem; font-weight: 700;
+                letter-spacing: 0.22em; text-transform: uppercase;
+                color: var(--gold-dk, #9A7A3F); margin-bottom: 0.7rem;
+            }
+            .night-mode .ws-select-label{ color: var(--gold); }
+            .ws-lang-row{
+                flex-direction: column; align-items: stretch;
+                gap: 9px; margin-bottom: 1.1rem;
+            }
+            .ws-lang-row .ws-lang-btn{
+                width: 100%; white-space: nowrap;
+                padding: 13px 18px; font-size: 0.82rem;
+            }
+        }
+
+        /* 6) Meno aria verticale sprecata:
+              - la carta "Pronto a ripassare?" era alta quanto una carta
+                piena di testo, e spingeva "Inizia il Ripasso" fuori
+                schermo: ora è compatta ovunque
+              - la carta di gioco su mobile scende un po' (il retro
+                scrolla già da solo)
+              - i blocchi appunti si accorciano: la textarea scrolla */
+        /* La schermata iniziale usa la STESSA altezza della carta di gioco:
+           niente più salto piccolo→grande quando si preme Inizia. */
+        .notes-widget{ height: 44vh; }
+        @media (max-width: 900px){
+            #fc-game-screen .flashcard-wrapper,
+            #fc-start-screen .flashcard-wrapper{ height: 400px; }
+            .notes-widget{ height: 280px; }
+        }
+    
+
+/* ====================================================================
+   SEZIONE 15 — ex <style id="ums-hub-ritocchi-style">
+   ==================================================================== */
+        /* pulsantino "?" dei giochi e pop-up Come si gioca */
+        .ums-info-row{ text-align: right; margin: -2px 0 8px; }
+        .ums-game-body .ums-info-row{ margin-top: 6px; }
+        .ums-info-btn{
+            width: 30px; height: 30px; border-radius: 50%;
+            border: 1.5px solid var(--gold); background: transparent;
+            color: var(--gold-dk); font-family: var(--font-body);
+            font-size: .9rem; font-weight: 700; cursor: pointer;
+            transition: background-color .2s, color .2s;
+        }
+        .ums-info-btn:hover{ background: var(--gold); color: #2A2113; }
+        .night-mode .ums-info-btn{ color: #D9BC85; }
+        .ums-info-titolo{
+            font-family: var(--font-display); font-weight: 700;
+            font-size: 1.15rem; color: var(--ink); margin: 0 0 10px;
+        }
+        .night-mode .ums-info-titolo{ color: #F2EFE8; }
+        /* la topbar (e il titolo che le vive sopra) invitano al tap */
+        #ums-topbar{ cursor: pointer; }
+        body.ums-master-open header{ cursor: pointer; }
+
+        /* (rimosso il vecchio fix "riassuntone in cornice a scroll interno":
+           superato dal layout a tutta larghezza della sezione 16, che tiene
+           testo e appunti affiancati per costruzione) */
+        /* il logo a due righe si centra da solo: l'hub, a differenza della
+           card Sostieni, non ha text-align:center sul contenitore */
+        .ums-bmc-logo, .ums-bmc-tag{ text-align: center; }
+        .ums-notif-row{
+            display: flex; flex-direction: column; align-items: center;
+            gap: 8px; text-align: center;
+        }
+        @media (max-width: 700px){
+            /* [<] [Ripasso dopo] [La so!] [>] su UNA riga, senza andate a capo */
+            .fc-controls{ grid-template-columns: 44px 1fr 1fr 44px; gap: 8px; }
+            .fc-actions{ display: contents; }
+            .fc-actions .btn-pop{
+                white-space: nowrap; padding: 13px 6px;
+                font-size: 0.72rem; letter-spacing: 0.04em;
+            }
+            .btn-nav{ padding: 13px 0; min-width: 44px; }
+        }
+    
+
+/* ====================================================================
+   SEZIONE 16 — ex <style id="ums-riass-layout-style">
+   ==================================================================== */
+        @media (min-width: 901px){
+            /* banner, lavagna e istruzioni si stendono su entrambe le colonne */
+            #riass-grid > .wb-banner-wrap,
+            #riass-grid > .wb-hint{ grid-column: 1 / -1; }
+
+            /* gli spazi verticali li governano i margini, non il gap di griglia
+               (che altrimenti si sommerebbe tra banner, istruzioni e testo) */
+            #riass-grid{ row-gap: 0; }
+            #riass-grid > .wb-banner-wrap{ margin-bottom: 0.6rem; }
+            #riass-grid > .wb-hint{ margin-bottom: 1.8rem; }
+
+            /* il banner a tutta larghezza può respirare un po' più in alto */
+            #riass-grid .section-banner{ max-height: 240px; }
+
+            /* BLOC NOTES: nasce alla prima riga del riassuntone (inizio della
+               sua riga di griglia) e prende tutto lo schermo utile; mentre si
+               scorre resta agganciato appena sotto la topbar */
+            #riassuntone-notes-widget{
+                top: calc(var(--topbar-h) + var(--sticky-gap));
+                height: calc(100vh - var(--topbar-h) - var(--sticky-gap) - 20px);
+            }
+        }
+    
+
+
+/* ============================================================
+   FASE 4 (LXD) — Feedback "Chiara / Non chiara" a fine sezione
+   Pulsanti SEMPRE colorati (verde/rosso in palette), MAI a capo:
+   la riga sta su una linea sola su mobile e desktop.
+============================================================ */
+.ums-fb-row{
+    display: flex; align-items: center; flex-wrap: nowrap; gap: 8px;
+    margin: 4px 0 22px; padding: 10px 0 2px;
+    border-top: 1px solid var(--dust, #E8E4DC);
+    padding-top: 12px;
+}
+.ums-fb-q{
+    font-size: .76rem; color: var(--sub, #7A7770);
+    font-style: italic; margin-right: auto;   /* spinge i due pulsanti a destra */
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0;                               /* permette all'ellissi di agire senza far andare a capo i bottoni */
+}
+.ums-fb-btn{
+    flex: 0 0 auto;                             /* i bottoni non si comprimono e non vanno a capo */
+    min-width: 76px;                            /* bersaglio comodo anche col testo corto "Sì"/"No" */
+    border-radius: 999px; padding: 9px 22px;
+    font-family: var(--font-body, 'DM Sans', sans-serif);
+    font-size: .82rem; font-weight: 700; cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: filter .18s, transform .12s;
+    white-space: nowrap;
+}
+.ums-fb-btn:active{ transform: scale(.95); }
+/* SEMPRE colorati, non solo in hover — verde e rosso della palette del sito */
+.ums-fb-si{ background: rgba(91,154,107,.16); border-color: #5B9A6B; color: #3B7A4B; }
+.ums-fb-no{ background: rgba(192,103,79,.14); border-color: #C0674F; color: #A24A34; }
+.ums-fb-si:hover{ filter: brightness(.96); }
+.ums-fb-no:hover{ filter: brightness(.96); }
+.ums-fb-done{
+    font-size: .76rem; color: var(--gold-dk, #9A7A3F);
+    font-weight: 600; font-style: italic;
+}
+/* Mobile stretto: riduco un filo il testo-domanda, mai i bottoni */
+@media (max-width: 420px){
+    .ums-fb-q{ font-size: .7rem; }
+    .ums-fb-btn{ min-width: 68px; padding: 9px 18px; font-size: .8rem; }
+}
+body.night-mode .ums-fb-row{ border-color: #2B2E38; }
+body.night-mode .ums-fb-q{ color: #918E86; }
+body.night-mode .ums-fb-si{ background: rgba(91,154,107,.20); border-color: #5B9A6B; color: #8FC79E; }
+body.night-mode .ums-fb-no{ background: rgba(192,103,79,.20); border-color: #C0674F; color: #E0937E; }
+body.night-mode .ums-fb-done{ color: #D9BC85; }
+/* ====================================================================
+   FIX PULSANTI MORTI (Blocco 4) — l'header è fisso, centrato a 40svh
+   e con z-index 999997: con titoli/sottotitoli lunghi il suo box si
+   allungava fino a coprire la riga INIZIA/Sostieni e mangiava i click.
+   Il testo dell'header ora è trasparente ai click; restano cliccabili
+   solo gli elementi davvero interattivi (badge, selettore lingua).
+   ==================================================================== */
+header{ pointer-events: none; }
+header a,
+header button,
+header #custom-lang-selector{ pointer-events: auto; }
+
+        /* PUNTO INTERROGATIVO SU ACCEDI — compare SOLO a chi non ha la chiave:
+           incuriosisce e invita al clic. Chi e' gia' dentro non lo vede. */
+        .ums-login-btn { position: relative; }
+        .ums-login-q {
+            display: none;
+            position: absolute; top: 2px; right: 4px;
+            width: 15px; height: 15px; border-radius: 50%;
+            background: #E07A3F; color: #fff;
+            font-family: var(--font-body, 'DM Sans', sans-serif);
+            font-size: 10px; font-weight: 700; line-height: 15px; text-align: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,.28);
+            animation: umsQPulse 2.4s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .ums-login-btn.is-out .ums-login-q { display: block; }
+        @keyframes umsQPulse {
+            0%, 70%, 100% { transform: scale(1); }
+            80% { transform: scale(1.22); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ums-login-q { animation: none; }
+        }
+
+        /* PALLINO "1" SUL GRUPPO CHAT — stesso stile del pallino ripasso.
+           Compare SOLO a chi non ha ancora la chiave: un clic e sei nel gruppo. */
+        .ums-inav-wa { position: relative; }
+        .ums-wa-badge {
+            position: absolute; top: 4px; right: 8px;
+            width: 18px; height: 18px; box-sizing: border-box;
+            background: #D14B3D; color: #fff; border-radius: 50%;
+            font-size: .78rem; font-weight: 800; line-height: 18px; text-align: center;
+            font-family: var(--font-body, 'DM Sans', sans-serif);
+            box-shadow: 0 2px 6px rgba(209,75,61,.4);
+            animation: umsBadgePop .3s ease both;
+            pointer-events: none;
+        }
+        .ums-wa-badge[hidden] { display: none; }
+        @media (min-width: 901px) { .ums-wa-badge { top: 2px; right: 8px; } }
+
+        /* ============================================================
+           SCHEDE — le sottolineature e gli appunti dello studente,
+           leggibili fuori dalla lezione. Interruttore nell'hub + lettore
+           a schermo intero che scorre un foglio alla volta.
+        ============================================================ */
+        #ums-hub-modo{
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+            margin: 0 0 14px;
+        }
+        #ums-hub-modo button{
+            font-family: var(--font-body,'DM Sans',sans-serif); font-weight: 700;
+            font-size: .82rem; padding: .55rem .6rem; border-radius: 999px;
+            border: 1px solid var(--gold-lt,#e5d6bd); background: #fff;
+            color: var(--sub,#6b6b73); cursor: pointer;
+        }
+        #ums-hub-modo button.on{
+            background: var(--navy,#22365f); color: #fff; border-color: var(--navy,#22365f);
+        }
+        .night-mode #ums-hub-modo button{ background:#20232b; color:#c9c9d2; border-color:#3a3f4b; }
+        .night-mode #ums-hub-modo button.on{ background:#8FB4E8; color:#14161c; border-color:#8FB4E8; }
+
+        .sch-chips{ display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px; }
+        .sch-chip{
+            display: inline-flex; align-items: center; gap: 6px;
+            font-family: var(--font-body,'DM Sans',sans-serif); font-size: .78rem;
+            padding: .35rem .7rem; border-radius: 999px; cursor: pointer;
+            border: 1px solid var(--dust,#E8E4DC); background: #fff; color: var(--body,#3d3c3a);
+        }
+        .sch-chip:hover{ border-color: var(--gold,#c8a96e); }
+        .sch-chip-n{ font-size: .68rem; color: var(--sub,#7a7770); }
+        .night-mode .sch-chip{ background:#20232b; color:#c9c9d2; border-color:#3a3f4b; }
+
+        #ums-sch-viewer{
+            position: fixed; inset: 0; z-index: 99999999;
+            background: var(--ivory,#f7f4ef);
+            opacity: 0; transition: opacity .2s ease;
+        }
+        #ums-sch-viewer.on{ opacity: 1; }
+        .night-mode #ums-sch-viewer{ background:#14161c; }
+        .sch-barra{
+            position: fixed; top: 14px; right: 16px; z-index: 3;
+            display: flex; gap: 8px; align-items: center;
+        }
+        .sch-print{
+            display: inline-flex; align-items: center; gap: 7px; height: 44px;
+            padding: 0 16px; border-radius: 999px;
+            border: 1px solid var(--dust,#E8E4DC); background: #fff;
+            color: var(--ink,#1c1c22); cursor: pointer;
+            font-family: var(--font-body,'DM Sans',sans-serif); font-weight: 700; font-size: .82rem;
+            box-shadow: 0 4px 16px rgba(0,0,0,.14);
+        }
+        .sch-print:hover{ background: var(--ivory-2,#efebe2); }
+        .sch-print svg{ width: 1.05em; height: 1.05em; }
+        .night-mode .sch-print{ background:#23262e; color:#e8e8ee; border-color:#3a3f4b; }
+        @media (max-width: 480px){ .sch-print span{ display: none; } .sch-print{ padding: 0; width: 44px; justify-content: center; } }
+        .sch-x{
+            position: static; z-index: 3;
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 1px solid var(--dust,#E8E4DC); background: #fff;
+            color: var(--ink,#1c1c22); font-size: 1.2rem; line-height: 1; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,.14);
+        }
+        .sch-x:hover{ background: var(--ivory-2,#efebe2); }
+        .night-mode .sch-x{ background:#23262e; color:#e8e8ee; border-color:#3a3f4b; }
+
+        /* si scorre un foglio alla volta, come le foto di un social */
+        .sch-scroll{
+            height: 100%; overflow-y: auto;
+            scroll-snap-type: y mandatory; -webkit-overflow-scrolling: touch;
+        }
+        .sch-foglio{
+            min-height: 100%; scroll-snap-align: start; scroll-snap-stop: always;
+            box-sizing: border-box; padding: 62px 20px 40px;
+            max-width: 720px; margin: 0 auto; position: relative;
+            display: flex; flex-direction: column;
+        }
+        .sch-testata{
+            display: flex; align-items: baseline; gap: 10px;
+            border-bottom: 1px solid var(--dust,#E8E4DC); padding-bottom: 8px; margin-bottom: 14px;
+        }
+        .sch-da{
+            font-family: var(--font-body,'DM Sans',sans-serif); font-size: .74rem;
+            letter-spacing: .12em; text-transform: uppercase; font-weight: 700;
+            color: var(--gold-dk,#9a7a3f);
+        }
+        .sch-pag{ margin-left: auto; font-size: .72rem; color: var(--sub,#7a7770); }
+        .sch-titolo{
+            font-family: var(--font-display,'Playfair Display',serif);
+            font-size: 1.5rem; color: var(--ink,#1c1c22); margin: 0 0 16px; line-height: 1.25;
+        }
+        .night-mode .sch-titolo{ color:#F2EFE8; }
+        .sch-righe{ list-style: none; margin: 0; padding: 0; }
+        .sch-riga{
+            display: flex; gap: 10px; align-items: flex-start;
+            padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,.06);
+        }
+        .night-mode .sch-riga{ border-bottom-color: rgba(255,255,255,.08); }
+        .sch-pallino{
+            flex: 0 0 auto; width: 12px; height: 12px; border-radius: 50%; margin-top: 5px;
+        }
+        .sch-testo{
+            margin: 0; font-size: 1rem; line-height: 1.55; color: var(--body,#3d3c3a);
+        }
+        .night-mode .sch-testo{ color:#d8d5cd; }
+        .sch-nota{
+            margin: 6px 0 0; font-size: .88rem; line-height: 1.5;
+            color: var(--sub,#7a7770); font-style: italic;
+            border-left: 2px solid var(--gold-lt,#e5d6bd); padding-left: 10px;
+        }
+        .sch-giu{
+            text-align: center; font-size: 1.8rem; color: var(--sub,#7a7770);
+            opacity: .5; margin-top: auto; padding-top: 18px;
+            animation: schGiu 1.8s ease-in-out infinite;
+        }
+        @keyframes schGiu{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(5px); } }
+        @media (prefers-reduced-motion: reduce){ .sch-giu{ animation: none; } }
+
+
+        /* ============================================================
+           LEZIONE MANCANTE (404) — riquadro "Mannaggia!"
+           Prima era tutto in stili inline dentro ums.js: su telefono il
+           pulsante chat era piu' largo del riquadro e sbordava.
+           ============================================================ */
+        .ums404{
+            max-width: 560px; margin: 2.2rem auto 0; padding: 2rem 1.8rem;
+            border: 1px solid var(--dust,#E8E4DC); border-radius: 20px;
+            background: #fff; box-shadow: 0 4px 20px rgba(15,17,23,0.06);
+            text-align: center;
+        }
+        .ums404-emoji{ font-size: 2.4rem; line-height: 1; margin-bottom: .6rem; }
+        .ums404-tit{
+            font-family: var(--font-display,Georgia,serif); font-size: 1.4rem;
+            color: var(--ink,#1C1C22); margin: 0 0 .8rem;
+        }
+        .ums404-txt{
+            color: var(--body,#3D3C3A); line-height: 1.6; margin: 0 0 1.4rem;
+        }
+        .ums404-wa{
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            max-width: 100%; background: var(--gold,#C8A96E); color: #2A2113;
+            text-decoration: none; font-family: var(--font-body,sans-serif);
+            font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+            font-size: .82rem; line-height: 1.35; padding: .95rem 1.6rem;
+            border-radius: 999px; box-shadow: 0 10px 30px rgba(200,169,110,.35);
+        }
+        .ums404-nav{
+            display: flex; gap: 12px; justify-content: center;
+            margin: 1.6rem 0 0; flex-wrap: wrap;
+        }
+        .ums404-nav a{
+            text-decoration: none; color: var(--navy,#1A2F4F); font-weight: 600;
+            padding: .6rem 1rem; border: 1px solid var(--dust,#E8E4DC);
+            border-radius: 999px; white-space: nowrap;
+        }
+
+        @media (max-width: 700px){
+            .ums404{ margin: 1.4rem auto 0; padding: 1.5rem 1.1rem; border-radius: var(--r-lg,16px); }
+            .ums404-emoji{ font-size: 2rem; }
+            .ums404-tit{ font-size: 1.25rem; }
+            .ums404-txt{ font-size: .95rem; margin-bottom: 1.2rem; }
+            .ums404-wa{
+                display: flex; width: 100%; padding: .9rem 1rem;
+                font-size: .76rem; letter-spacing: .04em; white-space: normal;
+            }
+            .ums404-nav{ gap: 8px; margin-top: 1.2rem; }
+            .ums404-nav a{ flex: 1 1 0; min-width: 0; padding: .6rem .5rem; font-size: .9rem; }
+        }
+
+/* ====================================================================
+   SEZIONE 17 — LETTURA FACILITATA ("Leggi meglio", pensata per DSA)
+   Tutto vive sotto body.ums-facile: a modalità spenta queste regole
+   non esistono e il sito resta identico. Il pulsante è #ums-facile-btn,
+   creato da ums.js (SEZIONE 17) sopra il pulsante notte.
+   ==================================================================== */
+
+/* ---- il pulsante "Aa" ---- */
+#ums-facile-btn{
+    position: fixed; bottom: 84px; right: 24px;
+    z-index: 9999998;
+    width: 52px; height: 52px; border-radius: 50%;
+    border: 1px solid var(--dust);
+    background: #fff; color: var(--ink);
+    font-family: var(--font-body); font-weight: 700; font-size: 1.05rem;
+    letter-spacing: -0.02em; line-height: 1;
+    cursor: pointer;
+    box-shadow: var(--shadow-lift);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s, background 0.3s, border-color 0.3s;
+}
+#ums-facile-btn:hover{ transform: scale(1.08); border-color: var(--gold); }
+#ums-facile-btn:active{ transform: scale(0.96); }
+#ums-facile-btn[aria-pressed="true"]{
+    background: var(--gold); color: var(--night); border-color: var(--gold);
+}
+.night-mode #ums-facile-btn{ background: #1E212A; color: #E8E4DC; border-color: #2C3140; }
+.night-mode #ums-facile-btn[aria-pressed="true"]{ background: var(--gold); color: var(--night); }
+@media (max-width: 900px){
+    #ums-facile-btn{ bottom: calc(138px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ---- il testo ---- */
+body.ums-facile{ --font-facile: 'Atkinson Hyperlegible', 'DM Sans', system-ui, sans-serif; }
+
+/* carattere più leggibile su tutto il contenuto della lezione
+   (il marchio nella barra in alto resta com'è) */
+body.ums-facile .content-card,
+body.ums-facile .content-card *:not(svg):not(use),
+body.ums-facile .modal-paper, body.ums-facile .modal-paper *,
+body.ums-facile .fc-mobile-content, body.ums-facile .fc-mobile-content *,
+body.ums-facile .flashcard-front h2, body.ums-facile .flashcard-back p{
+    font-family: var(--font-facile) !important;
+}
+
+/* corpo del testo: più grande, più arioso, righe corte, mai giustificato */
+body.ums-facile .content-card p,
+body.ums-facile .content-card li,
+body.ums-facile .content-card .cornell-box,
+body.ums-facile .content-card .obj-box,
+body.ums-facile .content-card .quiz-question,
+body.ums-facile .content-card .quiz-option,
+body.ums-facile .content-card .factor-card strong,
+body.ums-facile .content-card .factor-card small,
+body.ums-facile .modal-paper p, body.ums-facile .modal-paper li,
+body.ums-facile .fc-mobile-content, body.ums-facile .fc-mobile-content p{
+    font-size: 1.18rem !important;   /* ~19px: Rello 2013 consiglia 18pt */
+    line-height: 1.6 !important;     /* l'interlinea alta non ha prove: moderata */
+    letter-spacing: 0.05em !important; /* Zorzi 2012: +2.5pt su 14pt ≈ 0.05-0.06em */
+    word-spacing: 0.18em !important;   /* BDA: spazio tra parole ≥ 3.5× quello tra lettere */
+    text-align: left !important;
+    hyphens: none !important; -webkit-hyphens: none !important;
+}
+/* i due riquadri "Concetto fondamentale" e "Nota extra" non contengono
+   paragrafi: prendono le stesse regole del corpo */
+body.ums-facile #dyn-concetto-fondamentale,
+body.ums-facile #dyn-nota-extra{
+    font-size: 1.18rem !important; line-height: 1.6 !important;
+    letter-spacing: 0.05em !important; word-spacing: 0.18em !important;
+    text-align: left !important; max-width: 55ch;
+}
+body.ums-facile .content-card p,
+body.ums-facile .content-card li{ max-width: 55ch; } /* righe corte: Schneps 2013, -50% salti indietro */
+body.ums-facile .content-card p{ margin-bottom: 1.4em !important; }
+body.ums-facile .content-card li{ margin-bottom: 0.6em !important; }
+body.ums-facile .content-card h3{ line-height: 1.45 !important; letter-spacing: 0.02em !important; }
+/* il riassuntone ha già un limite di larghezza (68ch): lo stringiamo un filo */
+body.ums-facile #dyn-riassuntone-container{ max-width: 55ch; }
+/* troppi grassetti nel corpo affaticano: li lasciamo appena marcati */
+body.ums-facile .content-card p strong{ font-weight: 600; }
+
+/* sfondo crema al posto del bianco (solo di giorno) */
+/* crema SOLO sulle superfici di lettura (dentro le sezioni aperte):
+   la carta intera resta com'è, così la copertina non si vela */
+body.ums-facile:not(.night-mode) .accordion-content,
+body.ums-facile:not(.night-mode) .quiz-option,
+body.ums-facile:not(.night-mode) .modal-paper,
+body.ums-facile:not(.night-mode) .fc-mobile-content{ background: #FBF6E9 !important; }
+body.ums-facile:not(.night-mode) .content-card p,
+body.ums-facile:not(.night-mode) .content-card li{ color: #2B2A28; }
+
+/* ---- DRITTI AL SODO rifatte: niente immagine, niente giro 3D.
+   La domanda sta sopra, la risposta compare sotto quando si "gira". ---- */
+body.ums-facile .flashcard-wrapper{
+    height: auto !important; perspective: none;
+}
+body.ums-facile .flashcard-inner{
+    transform: none !important; transform-style: flat;
+    transition: none; box-shadow: none;
+    background: transparent;
+}
+body.ums-facile .flashcard-front,
+body.ums-facile .flashcard-back{
+    position: static !important; height: auto !important;
+    transform: none !important; backface-visibility: visible;
+    display: block; padding: 0; overflow: visible;
+    background: transparent !important;
+    justify-content: flex-start;
+}
+body.ums-facile .flashcard-front::before,
+body.ums-facile .flashcard-back::before{ display: none !important; }
+body.ums-facile .flashcard-front h2,
+body.ums-facile .flashcard-back p{
+    box-shadow: none; width: 100%; max-width: none !important;
+    border-radius: var(--r-lg);
+    text-align: left !important;
+    max-height: none !important; overflow: visible !important;
+}
+body.ums-facile .flashcard-front h2{
+    background: var(--navy); color: #fff;
+    font-size: 1.35rem !important; font-weight: 700;
+    line-height: 1.55 !important; letter-spacing: 0.02em;
+    padding: 1.4rem 1.6rem;
+    margin: 0 !important;
+}
+body.ums-facile .flashcard-front h2::before{
+    content: "Domanda"; display: block;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold-lt); margin-bottom: 0.5rem;
+}
+body.ums-facile .flashcard-back{ display: none; }
+body.ums-facile .flashcard-wrapper.flipped .flashcard-back{ display: block; }
+body.ums-facile .flashcard-back p{
+    background: #FBF6E9; color: #2B2A28;
+    border: 1px solid var(--gold-lt); border-top: 4px solid var(--gold);
+    border-radius: 0 0 var(--r-lg) var(--r-lg);
+    font-size: 1.18rem !important; line-height: 1.6 !important;
+    letter-spacing: 0.05em !important; word-spacing: 0.18em !important;
+    padding: 1.4rem 1.6rem; margin-top: -6px;
+}
+body.ums-facile .flashcard-back p::before{
+    content: "Risposta"; display: block;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--gold-dk); margin-bottom: 0.5rem;
+}
+/* schermata di partenza: stessa carta, ma non si "gira" */
+body.ums-facile #fc-start-screen .flashcard-front h2{ text-align: center !important; }
+body.ums-facile #fc-start-screen .flashcard-front h2::before{ display: none; }
+/* su telefono il pulsante "gira" non sta più appeso in fondo alla carta */
+@media (max-width: 900px){
+    body.ums-facile .flashcard-front h2{ font-size: 1.15rem !important; margin: 0 !important; }
+    body.ums-facile .btn-flip-mobile{
+        position: static !important; display: block !important;
+        margin: 14px auto 0; width: 100%;
+    }
+    /* la risposta non deve sovrapporsi al pulsante "gira" */
+    body.ums-facile .flashcard-back p{ margin-top: 12px; border-radius: var(--r-lg); }
+}
+/* notte: carta scura, niente crema */
+body.ums-facile.night-mode .flashcard-back p{ background: #1C1F27; color: #E8E4DC; border-color: #2C3140; border-top-color: var(--gold); }
+body.ums-facile.night-mode .flashcard-front h2{ background: #0F1117; color: #fff; }
+
+
+/* ---- UN PARAGRAFO ALLA VOLTA (riassuntone, solo con "Aa" acceso) ---- */
+#ums-para-btn{
+    display: inline-flex; align-items: center; gap: 7px;
+    margin: 0 0 14px; padding: .5rem .95rem;
+    border-radius: 999px; border: 1px solid var(--gold-lt,#e5d6bd);
+    background: #fff; color: var(--sub,#6b6b73);
+    font-family: var(--font-body,'DM Sans',sans-serif); font-size: .82rem; font-weight: 600;
+    letter-spacing: normal; cursor: pointer;
+}
+#ums-para-btn:hover{ background: #FBF6E9; }
+#ums-para-btn[aria-pressed="true"]{ background: var(--gold); color: var(--night); }
+.night-mode #ums-para-btn{ background: #1E212A; color: #E8E4DC; }
+.night-mode #ums-para-btn[aria-pressed="true"]{ background: var(--gold); color: var(--night); }
+#ums-para-btn .ums-para-help{
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid currentColor; font-size: 0.72rem; margin-left: 4px;
+}
+/* i blocchi nascosti */
+body.ums-para-on #dyn-riassuntone-container > .ums-para-nascosto{ display: none !important; }
+/* in questa modalità la scatola non ha bisogno di scorrere: si allarga al paragrafo */
+body.ums-para-on #dyn-riassuntone-container{ max-height: none !important; overflow: visible !important; }
+/* mentre il lettore vocale legge, comanda lui: la sua barra basta,
+   Avanti/Indietro del paragrafo si nascondono (le frecce guidano entrambi) */
+body.ums-read-on #ums-para-nav{ display: none !important; }
+/* Avanti / Indietro sotto al paragrafo */
+#ums-para-nav{
+    display: none; align-items: center; justify-content: space-between; gap: 12px;
+    margin: 18px 0 6px;
+}
+#ums-para-nav button{
+    padding: 12px 20px; border-radius: 50px; border: 1px solid var(--gold);
+    background: var(--navy); color: #fff; cursor: pointer;
+    font-family: var(--font-facile); font-size: 1rem; font-weight: 700; letter-spacing: 0.03em;
+    box-shadow: var(--shadow-card);
+}
+#ums-para-nav button:disabled{ opacity: .35; cursor: default; }
+#ums-para-nav .ums-para-conta{
+    font-family: var(--font-facile); font-size: 1rem; font-weight: 700; color: var(--gold-dk);
+    letter-spacing: 0.08em;
+}
+.night-mode #ums-para-nav .ums-para-conta{ color: var(--gold); }
+@media (max-width: 900px){
+    #ums-para-nav button{ padding: 12px 14px; font-size: 0.95rem; }
+}
+
+/* ---- tutorial (pop-up brandizzato, testo facilitato) ---- */
+#ums-para-tut{
+    display: none; position: fixed; inset: 0; z-index: 99999999;
+    background: rgba(15,17,23,0.6); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 20px;
+}
+#ums-para-tut.aperto{ display: flex; }
+.ums-riga-tut-card{
+    background: #FBF6E9; color: #2B2A28;
+    width: 100%; max-width: 520px;
+    border-radius: var(--r-xl); border-top: 4px solid var(--gold);
+    padding: 32px 36px; box-shadow: 0 40px 80px rgba(0,0,0,0.4);
+    font-family: var(--font-facile);
+}
+.night-mode .ums-riga-tut-card{ background: #1C1F27; color: #E8E4DC; }
+.ums-riga-tut-card h3{
+    font-family: var(--font-facile); font-size: 1.4rem; font-weight: 700;
+    margin: 0 0 18px; line-height: 1.4; letter-spacing: 0.02em;
+}
+.ums-riga-tut-card ol{ margin: 0 0 22px; padding-left: 1.4em; }
+.ums-riga-tut-card li{
+    font-size: 1.15rem; line-height: 1.6; letter-spacing: 0.04em; word-spacing: 0.16em;
+    margin-bottom: 14px; max-width: 40ch;
+}
+.ums-riga-tut-card kbd{
+    display: inline-block; padding: 2px 10px; margin: 0 2px;
+    border-radius: 6px; border: 1.5px solid var(--gold-dk);
+    background: #fff; color: var(--navy); font-family: var(--font-facile);
+    font-weight: 700; font-size: 1rem; vertical-align: middle;
+}
+.night-mode .ums-riga-tut-card kbd{ background: #0F1117; color: #E8E4DC; }
+.ums-riga-tut-ok{
+    width: 100%; padding: 14px; border: none; border-radius: 50px;
+    background: var(--navy); color: #fff; cursor: pointer;
+    font-family: var(--font-facile); font-size: 1.05rem; font-weight: 700; letter-spacing: 0.04em;
+}
+
+
+/* ====================================================================
+   SEZIONE 19 — ACCESSIBILITÀ INVISIBILE
+   Regole che non cambiano NULLA per chi non ne ha bisogno:
+   si attivano solo con impostazioni di sistema o con la tastiera.
+   ==================================================================== */
+
+/* 1) "Riduci movimento" del sistema operativo: spegne animazioni e
+   transizioni per chi soffre movimento a schermo (vestibolare/emicrania).
+   Per tutti gli altri il sito resta identico. */
+@media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    html{ scroll-behavior: auto !important; }
+}
+
+/* 2) Contorno di messa a fuoco SOLO da tastiera (:focus-visible):
+   col mouse non compare mai, quindi l'estetica non cambia. */
+button:focus-visible, a:focus-visible, [tabindex]:focus-visible,
+input:focus-visible, textarea:focus-visible, select:focus-visible{
+    outline: 3px solid var(--gold-dk) !important;
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+/* sui titoli di sezione il contorno è pieno e ben staccato, impossibile
+   non vederlo mentre navighi da tastiera */
+.accordion-header:focus-visible, .master-header:focus-visible{
+    outline: 3px solid var(--gold-dk) !important;
+    outline-offset: -3px;
+    box-shadow: inset 0 0 0 3px rgba(200,169,110,.25);
+}
+.night-mode button:focus-visible, .night-mode a:focus-visible,
+.night-mode [tabindex]:focus-visible{
+    outline-color: var(--gold) !important;
+}
+
+/* 3) Bersagli piccoli: area cliccabile allargata a ≥24px SENZA cambiare
+   la grafica (un alone invisibile intorno al pallino). WCAG 2.2 §2.5.8 */
+.hl-swatch, .wb-hl-swatch{ position: relative; }
+.hl-swatch::after, .wb-hl-swatch::after{
+    content: ''; position: absolute; inset: -6px; border-radius: 50%;
+}
+
+/* 4) Classe di servizio: contenuto letto dagli screen reader ma
+   invisibile a schermo (per mappa-elenco, annunci del quiz, ecc.) */
+.ums-sr-only{
+    position: absolute !important;
+    width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+    white-space: nowrap; border: 0;
+}
+
+
+/* ---- SALTA AL CONTENUTO (invisibile finché non ci arrivi col Tab) ---- */
+#ums-salta{
+    position: absolute; left: -9999px; top: 12px; z-index: 100000000;
+    padding: 12px 20px; border-radius: 50px;
+    background: var(--navy); color: #fff; text-decoration: none;
+    font-family: var(--font-body); font-weight: 700; letter-spacing: 0.04em;
+    box-shadow: var(--shadow-lift);
+}
+#ums-salta:focus{ left: 16px; }
+
+/* i titoli h2 delle sezioni: involucro trasparente, grafica identica */
+.ums-acc-h{ margin: 0; padding: 0; font-size: inherit; font-weight: inherit; line-height: inherit; display: block; }
+.ums-acc-h > .accordion-header{ width: 100%; }
+
+/* ---- POP-UP ISTRUZIONI TASTIERA (compare a ogni Tab, al centro) ---- */
+#ums-tasti-pop{
+    display: none; position: fixed; inset: 0; z-index: 100000001;
+    background: rgba(15,17,23,.5);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 24px;
+    pointer-events: none;
+}
+#ums-tasti-pop.su{ display: flex; }
+.ums-tasti-card{
+    background: #FBF6E9; color: #2B2A28;
+    width: 100%; max-width: 440px;
+    border-radius: 20px; border-top: 4px solid var(--gold);
+    padding: 26px 30px; box-shadow: 0 30px 70px rgba(0,0,0,.4);
+    font-family: var(--font-body);
+}
+.night-mode .ums-tasti-card{ background: #1C1F27; color: #E8E4DC; }
+.ums-tasti-tit{ margin: 0 0 14px; font-family: var(--font-display, serif); font-size: 1.25rem; font-weight: 700; color: var(--navy); }
+.night-mode .ums-tasti-tit{ color: #8FB4E8; }
+.ums-tasti-card ul{ margin: 0; padding-left: 0; list-style: none; }
+.ums-tasti-card li{ font-size: 1rem; line-height: 1.5; margin-bottom: 12px; }
+.ums-tasti-card kbd{
+    display: inline-block; padding: 2px 9px; margin: 0 2px;
+    border-radius: 6px; border: 1.5px solid var(--gold-dk);
+    background: #fff; color: var(--navy); font-weight: 700; font-size: .95rem; vertical-align: middle;
+}
+.night-mode .ums-tasti-card kbd{ background: #0F1117; color: #E8E4DC; }
+@media (prefers-reduced-motion: reduce){ #ums-tasti-pop{ backdrop-filter: none; } }
+.ums-tasti-ok{
+    margin-top: 18px; width: 100%; padding: 12px; border: none; border-radius: 50px;
+    background: var(--navy); color: #fff; cursor: pointer;
+    font-family: var(--font-body); font-weight: 700; font-size: 1rem; letter-spacing: .03em;
+    pointer-events: auto;
+}
+#ums-tasti-pop{ pointer-events: none; }
+#ums-tasti-pop .ums-tasti-card{ pointer-events: auto; }
+
+/* ====================================================================
+   CONTRASTO ELEVATO (opzionale, attivabile da ⚙ Impostazioni)
+   Scurisce SOLO i testi tenui che non passano il contrasto minimo.
+   Non cambia nulla per chi non attiva la modalità: agisce solo sotto
+   body.ums-contrasto. I colori decorativi (bordi/sfondi oro) restano.
+   ==================================================================== */
+body.ums-contrasto{
+    --sub:     #54524C;   /* era #7A7770 (4.07) -> 7.12 su avorio */
+    --mist:    #54524C;   /* era #C5C1B8 (1.64) -> 7.12 */
+    --gold-dk: #725828;   /* era #9A7A3F (3.66) -> 6.09 : eyebrow/etichette oro */
+}
+/* piccole etichette oro chiaro usate come testo: le porto al bronzo scuro */
+body.ums-contrasto .ch-eyebrow,
+body.ums-contrasto .ia-eyebrow,
+body.ums-contrasto .cp-label{ color: #725828; }
+/* eventuali testi oro pieno (non decorazioni) resi leggibili */
+body.ums-contrasto .accordion-header.active .ch-number{ color: #725828; }
+
+/* in modalità notte i tenui vanno schiariti, non scuriti */
+body.ums-contrasto.night-mode{
+    --sub:     #B4B0A6;
+    --mist:    #B4B0A6;
+    --gold-dk: #E4C98F;
+}
+body.ums-contrasto.night-mode .ch-eyebrow,
+body.ums-contrasto.night-mode .ia-eyebrow,
+body.ums-contrasto.night-mode .cp-label{ color: #E4C98F; }
