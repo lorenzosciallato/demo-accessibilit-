@@ -871,6 +871,7 @@ if (!fileDaCaricare) {
                 .replace(/^\s*lezione\s*\d+\s*[:.\-\u2013\u2014]?\s*/i, '').trim();
             document.getElementById('dyn-title').innerText =
                 umsInfo.nome || data.titolo_lezione || "";
+            if (umsInfo.nome) { const _dt = document.getElementById('dyn-title'); _dt.classList.add('notranslate'); _dt.setAttribute('translate', 'no'); }
             document.getElementById('dyn-subtitle').innerText =
                 (umsInfo.n ? 'Lezione ' + umsInfo.n + ' \u00B7 ' : '') +
                 (umsArgomento || data.sottotitolo || "");
@@ -1460,7 +1461,8 @@ if (!fileDaCaricare) {
             if (currentCardIndex >= activeCards.length) currentCardIndex = 0;
             if (currentCardIndex < 0) currentCardIndex = activeCards.length - 1;
             const card = activeCards[currentCardIndex];
-            counter.innerText = `Carte da studiare: ${activeCards.length}`;
+            counter.dataset.umsOrig = 'Carte da studiare'; counter.dataset.umsSuffix = ': ' + activeCards.length;
+            counter.innerText = (window.umsFcT ? window.umsFcT('Carte da studiare') : 'Carte da studiare') + ': ' + activeCards.length;
             deck.style.opacity = '0.5';
             setTimeout(() => {
                 var _fF = document.getElementById('fc-front-text'), _fB = document.getElementById('fc-back-text');
@@ -4582,6 +4584,7 @@ if (!fileDaCaricare) {
         btn.id = 'ums-facile-btn';
         btn.type = 'button';
         btn.textContent = 'Aa';
+        btn.classList.add('notranslate'); btn.setAttribute('translate', 'no');   // per Google "Aa" era un automobile club
         document.body.appendChild(btn);
 
         var salvato = false;
@@ -5066,17 +5069,18 @@ if (!fileDaCaricare) {
 
 
 // ====================================================================
-// TRADUZIONE DELLE FLASHCARD — additivo.
-// Il traduttore di Google traduce la pagina all'inizio, ma NON il testo che
-// le carte riscrivono a ogni giro (innerText). Qui il testo di ogni carta
-// viene tradotto dal sito con lo stesso servizio, e memorizzato: la carta
-// compare subito, e appena la traduzione è pronta viene aggiornata se è
-// ancora a video. In italiano non fa nulla.
+// TRADUZIONE DI CARTE, CONTATORE E TITOLI DELLE SEZIONI — additivo.
+// Il traduttore di Google traduce la pagina all'inizio, ma non il testo che
+// il sito riscrive dopo (carte, contatore) e salta certi titoli ("Dritti al
+// Sodo"). Qui questi testi li traduce il sito con lo stesso servizio, con
+// memoria: compaiono subito e vengono aggiornati appena pronti. Gli elementi
+// coinvolti sono esclusi dal traduttore di Google (niente doppie traduzioni).
+// In italiano non fa nulla.
 // ====================================================================
 (function () {
     var cache = {};      // lingua -> { testo italiano: traduzione }
     var lingua = 'it';
-    var inCorso = {};    // testi in traduzione (per non chiederli due volte)
+    var inCorso = {};
 
     async function traduci(testo, lang) {
         var res = await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=it&tl=' +
@@ -5086,9 +5090,8 @@ if (!fileDaCaricare) {
         return (data[0] || []).map(function (seg) { return seg[0]; }).join('');
     }
     function applica(testo, tr) {
-        ['fc-front-text', 'fc-back-text'].forEach(function (id) {
-            var el = document.getElementById(id);
-            if (el && el.dataset.umsOrig === testo) el.innerText = tr;
+        document.querySelectorAll('[data-ums-orig]').forEach(function (el) {
+            if (el.dataset.umsOrig === testo) el.innerText = tr + (el.dataset.umsSuffix || '');
         });
     }
     function chiedi(testo, lang) {
@@ -5106,29 +5109,43 @@ if (!fileDaCaricare) {
         if (lingua === 'it' || !testo) return testo;
         var d = cache[lingua] || (cache[lingua] = {});
         if (d[testo]) return d[testo];
-        chiedi(testo, lingua);      // parte ora; la carta si aggiorna appena pronta
+        chiedi(testo, lingua);
         return testo;
+    }
+    function fissi() {   // testi fissi da tradurre: titoli delle sezioni + contatore
+        var out = ['Carte da studiare'];
+        document.querySelectorAll('.ch-eyebrow, .ch-title').forEach(function (el) {
+            if (!el.dataset.umsOrig) el.dataset.umsOrig = (el.textContent || '').trim();
+            if (el.dataset.umsOrig && out.indexOf(el.dataset.umsOrig) < 0) out.push(el.dataset.umsOrig);
+        });
+        return out;
     }
     async function precarica(lang) {
         lingua = lang;
-        if (lang === 'it') return;
-        var mazzo = [];
-        try { if (typeof initialCards !== 'undefined' && Array.isArray(initialCards)) mazzo = initialCards; } catch (e) {}
+        if (lang === 'it') {
+            document.querySelectorAll('[data-ums-orig]').forEach(function (el) {
+                el.innerText = el.dataset.umsOrig + (el.dataset.umsSuffix || '');
+            });
+            return;
+        }
         var d = cache[lang] || (cache[lang] = {});
-        var testi = [];
-        mazzo.forEach(function (c) {
-            [c.front, c.back].forEach(function (t) { if (t && !d[t] && testi.indexOf(t) < 0) testi.push(t); });
-        });
-        for (var i = 0; i < testi.length; i += 4) {          // a piccoli gruppi
-            if (lingua !== lang) return;                     // lingua cambiata nel frattempo
+        var testi = fissi();
+        try { if (typeof initialCards !== 'undefined' && Array.isArray(initialCards)) {
+            initialCards.forEach(function (c) { [c.front, c.back].forEach(function (t) { if (t && testi.indexOf(t) < 0) testi.push(t); }); });
+        } } catch (e) {}
+        testi.forEach(function (t) { if (d[t]) applica(t, d[t]); });      // già in memoria: subito
+        testi = testi.filter(function (t) { return !d[t]; });
+        for (var i = 0; i < testi.length; i += 4) {
+            if (lingua !== lang) return;
             await Promise.all(testi.slice(i, i + 4).map(function (t) { return chiedi(t, lang); }));
         }
     }
     function tieniFuoriGoogle() {
-        ['fc-front-text', 'fc-back-text'].forEach(function (id) {
-            var el = document.getElementById(id);
-            if (el) { el.classList.add('notranslate'); el.setAttribute('translate', 'no'); }
+        var sel = '#fc-front-text, #fc-back-text, #fc-counter, .ch-eyebrow, .ch-title';
+        document.querySelectorAll(sel).forEach(function (el) {
+            el.classList.add('notranslate'); el.setAttribute('translate', 'no');
         });
+        fissi();
     }
     tieniFuoriGoogle();
     document.addEventListener('DOMContentLoaded', tieniFuoriGoogle);
